@@ -1,5 +1,8 @@
-import { SavedViews } from "@/components/saved-views";
 import LeadsTable from "@/components/leads/LeadsTable";
+import { Button } from "@/components/ui/button";
+import { Plus } from "lucide-react";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { LeadForm } from "@/components/leads/LeadForm";
 
 export default function LeadsPage() {
   return (
@@ -13,7 +16,18 @@ export default function LeadsPage() {
         </div>
 
         <div className="flex items-center gap-2">
-          <SavedViews />
+          <Dialog>
+            <DialogTrigger render={<Button className="gap-2" />}>
+              <Plus className="h-4 w-4" />
+              Add Lead
+            </DialogTrigger>
+            <DialogContent className="sm:max-w-[800px] w-[95vw] max-h-[90vh] overflow-y-auto [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
+              <DialogHeader className="mb-6">
+                <DialogTitle>Add New Lead</DialogTitle>
+              </DialogHeader>
+              <LeadForm />
+            </DialogContent>
+          </Dialog>
         </div>
       </div>
 

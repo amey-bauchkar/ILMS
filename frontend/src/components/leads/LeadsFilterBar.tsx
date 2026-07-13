@@ -15,8 +15,12 @@ import {
     LeadStatus,
     LeadSource,
     mockTeamMembers,
+    mockLeads,
     statusColors,
 } from "@/lib/mock-data";
+
+// Collect all unique tags from leads for the tag filter dropdown
+const ALL_TAGS = Array.from(new Set(mockLeads.flatMap((l) => l.tags))).sort();
 
 const ALL_STATUSES: LeadStatus[] = [
     "New", "Attempted Contact", "Contacted", "Qualified", "Proposal Sent",
@@ -33,6 +37,7 @@ export interface LeadFilters {
     statuses: LeadStatus[];
     sources: LeadSource[];
     ownerIds: string[];
+    tags: string[];
     priority: "Hot" | "Warm" | "Cold" | "All";
 }
 
@@ -41,6 +46,7 @@ export const emptyFilters: LeadFilters = {
     statuses: [],
     sources: [],
     ownerIds: [],
+    tags: [],
     priority: "All",
 };
 
@@ -65,10 +71,8 @@ function MultiSelectDropdown({
 
     return (
         <Popover>
-            <PopoverTrigger>
-                <Button variant="outline" size="sm">
-                    {label} {selected.length > 0 ? `(${selected.length})` : ""}
-                </Button>
+            <PopoverTrigger render={<Button variant="outline" size="sm" />}>
+                {label} {selected.length > 0 ? `(${selected.length})` : ""}
             </PopoverTrigger>
             <PopoverContent className="w-56 p-2">
                 <div className="flex flex-col gap-1 max-h-64 overflow-y-auto">
@@ -102,6 +106,7 @@ export default function LeadsFilterBar({
         filters.statuses.length > 0 ||
         filters.sources.length > 0 ||
         filters.ownerIds.length > 0 ||
+        filters.tags.length > 0 ||
         filters.priority !== "All";
 
     return (
@@ -144,6 +149,15 @@ export default function LeadsFilterBar({
                             .map((m) => m.id);
                         onChange({ ...filters, ownerIds: ids });
                     }}
+                />
+
+                <MultiSelectDropdown
+                    label="Tags"
+                    options={ALL_TAGS}
+                    selected={filters.tags}
+                    onChange={(vals) =>
+                        onChange({ ...filters, tags: vals })
+                    }
                 />
 
                 <div className="flex gap-1">
@@ -204,6 +218,20 @@ export default function LeadsFilterBar({
                                     onChange({
                                         ...filters,
                                         sources: filters.sources.filter((x) => x !== s),
+                                    })
+                                }
+                            />
+                        </Badge>
+                    ))}
+                    {filters.tags.map((t) => (
+                        <Badge key={t} variant="secondary" className="gap-1">
+                            Tag: {t}
+                            <X
+                                className="w-3 h-3 cursor-pointer"
+                                onClick={() =>
+                                    onChange({
+                                        ...filters,
+                                        tags: filters.tags.filter((x) => x !== t),
                                     })
                                 }
                             />

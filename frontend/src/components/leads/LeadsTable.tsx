@@ -66,6 +66,7 @@ function applyFilters(leads: Lead[], f: LeadFilters): Lead[] {
         if (f.statuses.length > 0 && !f.statuses.includes(l.status)) return false;
         if (f.sources.length > 0 && !f.sources.includes(l.source)) return false;
         if (f.ownerIds.length > 0 && !f.ownerIds.includes(l.owner.id)) return false;
+        if (f.tags.length > 0 && !f.tags.some((t) => l.tags.includes(t))) return false;
         if (f.priority !== "All" && l.priority !== f.priority) return false;
         return true;
     });
