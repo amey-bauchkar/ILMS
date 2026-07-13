@@ -66,7 +66,7 @@ export default function SettingsPage() {
                 </div>
                 <div className="space-y-2.5 md:col-span-2 max-w-md">
                   <Label htmlFor="role" className="text-sm font-medium">Role</Label>
-                  <Input id="role" defaultValue="Administrator" disabled className="bg-secondary/50 text-muted-foreground cursor-not-allowed h-11" />
+                  <Input id="role" value="Administrator" readOnly disabled className="bg-secondary/50 text-muted-foreground cursor-not-allowed h-11" />
                   <p className="text-xs text-muted-foreground mt-1.5">
                     Your role is managed by the organization owner.
                   </p>
