@@ -263,3 +263,26 @@ export const mockLeads: Lead[] = [
     lostReason: null,
   },
 ];
+// pretend this is the logged-in user for now
+export const currentUser: TeamMember = mockTeamMembers[1]; // Janhavi
+
+// Status colors — used consistently in badges, timeline, filters
+export const statusColors: Record<LeadStatus, string> = {
+  "New": "#737373",
+  "Attempted Contact": "#3b82f6",
+  "Contacted": "#06b6d4",
+  "Qualified": "#8b5cf6",
+  "Proposal Sent": "#6366f1",
+  "Negotiation": "#e87811",
+  "Won": "#22c55e",
+  "Lost": "#ef4444",
+  "On Hold": "#eab308",
+  "Junk": "#525252",
+};
+
+// Priority colors — used for priority pills
+export const priorityColors: Record<Lead["priority"], string> = {
+  Hot: "#ef4444",
+  Warm: "#e87811",
+  Cold: "#3b82f6",
+};

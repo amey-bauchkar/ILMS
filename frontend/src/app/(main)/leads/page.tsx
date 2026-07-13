@@ -1,4 +1,5 @@
 import { SavedViews } from "@/components/saved-views";
+import LeadsTable from "@/components/leads/LeadsTable";
 
 export default function LeadsPage() {
   return (
@@ -10,15 +11,13 @@ export default function LeadsPage() {
             Manage your pipeline and track interactions.
           </p>
         </div>
-        
+
         <div className="flex items-center gap-2">
           <SavedViews />
         </div>
       </div>
 
-      <div className="h-[600px] rounded-xl bg-card border border-border flex items-center justify-center text-muted-foreground">
-        Lead Table Component (To be built by Tanmay)
-      </div>
+      <LeadsTable />
     </div>
   );
 }
