@@ -1,8 +1,9 @@
 "use client";
 
+import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { LayoutDashboard, Users, Settings, Briefcase } from "lucide-react";
+import { LayoutDashboard, Users, Settings } from "lucide-react";
 
 export function Sidebar() {
   const pathname = usePathname();
@@ -16,7 +17,7 @@ export function Sidebar() {
   return (
     <div className="hidden md:flex flex-col w-64 bg-card border-r border-border min-h-screen p-4">
       <div className="flex items-center gap-2 px-2 mb-8 mt-2">
-        <Briefcase className="w-6 h-6 text-primary" />
+        <Image src="/logo.png" alt="Foremark Logo" width={32} height={32} className="object-contain" />
         <span className="text-xl font-bold tracking-tight text-foreground">Foremark</span>
       </div>
 

@@ -1,5 +1,5 @@
+import Image from "next/image";
 import Link from "next/link";
-import { Briefcase } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -18,8 +18,8 @@ export default function LoginPage() {
     <div className="min-h-screen flex items-center justify-center bg-background p-4">
       <div className="w-full max-w-md space-y-8">
         <div className="flex flex-col items-center space-y-2 text-center">
-          <div className="flex items-center justify-center p-3 rounded-full bg-primary/10 mb-2">
-            <Briefcase className="w-8 h-8 text-primary" />
+          <div className="flex items-center justify-center mb-2">
+            <Image src="/logo.png" alt="Foremark Logo" width={48} height={48} className="object-contain" />
           </div>
           <h1 className="text-3xl font-bold tracking-tight text-foreground">
             Foremark ILMS
