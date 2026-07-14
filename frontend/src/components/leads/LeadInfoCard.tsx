@@ -9,6 +9,7 @@ import { Mail, Phone, Building2, Calendar, IndianRupee, Pencil, PhoneCall } from
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
 import { LeadForm } from "./LeadForm";
 import { TagManager } from "./TagManager";
+import { CallLogModal } from "@/components/shared/CallLogModal";
 
 interface LeadInfoCardProps {
   lead: Lead;
@@ -85,10 +86,15 @@ export function LeadInfoCard({ lead }: LeadInfoCardProps) {
       <CardContent className="space-y-6">
         {/* Contact Actions */}
         <div className="flex gap-2">
-          <Button className="w-full gap-2" onClick={() => alert("Log Call placeholder for Tanmay's task")}>
-            <PhoneCall className="h-4 w-4" />
-            Log Call
-          </Button>
+          <CallLogModal
+            leadName={lead.name}
+            trigger={
+              <Button className="w-full gap-2">
+                <PhoneCall className="h-4 w-4" />
+                Log Call
+              </Button>
+            }
+          />
         </div>
 
         {/* Contact Details */}

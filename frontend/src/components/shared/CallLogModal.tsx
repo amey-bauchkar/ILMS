@@ -346,32 +346,37 @@ export function CallLogModal({ leadName, trigger }: CallLogModalProps) {
   const [open, setOpen] = useState(false);
 
   return (
-    <Dialog open={open} onOpenChange={setOpen}>
-      <DialogTrigger
-        render={
-          trigger ? (
-            <span />
-          ) : (
-            <Button variant="outline" className="gap-2">
-              <Phone className="h-4 w-4" />
-              Log Call
-            </Button>
-          )
-        }
-        onClick={() => setOpen(true)}
-      >
-        {trigger ?? null}
-      </DialogTrigger>
+    <>
+      {/* Custom trigger: render as-is inside a click wrapper */}
+      {trigger ? (
+        // eslint-disable-next-line jsx-a11y/click-events-have-key-events, jsx-a11y/no-static-element-interactions
+        <div onClick={() => setOpen(true)} style={{ display: "contents" }}>
+          {trigger}
+        </div>
+      ) : (
+        <Dialog open={open} onOpenChange={setOpen}>
+          <DialogTrigger
+            render={
+              <Button variant="outline" className="gap-2" />
+            }
+          >
+            <Phone className="h-4 w-4" />
+            Log Call
+          </DialogTrigger>
+        </Dialog>
+      )}
 
-      <DialogContent className="sm:max-w-[540px] w-[95vw] max-h-[90vh] overflow-y-auto [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
-        <DialogHeader>
-          <DialogTitle>
-            Log Call{leadName ? ` — ${leadName}` : ""}
-          </DialogTitle>
-        </DialogHeader>
+      <Dialog open={open} onOpenChange={setOpen}>
+        <DialogContent className="sm:max-w-[540px] w-[95vw] max-h-[90vh] overflow-y-auto [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
+          <DialogHeader>
+            <DialogTitle>
+              Log Call{leadName ? ` — ${leadName}` : ""}
+            </DialogTitle>
+          </DialogHeader>
 
-        <CallLogForm onClose={() => setOpen(false)} leadName={leadName} />
-      </DialogContent>
-    </Dialog>
+          <CallLogForm onClose={() => setOpen(false)} leadName={leadName} />
+        </DialogContent>
+      </Dialog>
+    </>
   );
 }
