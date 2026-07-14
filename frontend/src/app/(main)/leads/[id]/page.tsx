@@ -2,6 +2,7 @@ import { notFound } from "next/navigation";
 import { mockLeads } from "@/lib/mock-data";
 import { LeadInfoCard } from "@/components/leads/LeadInfoCard";
 import { ActivityTimeline } from "@/components/leads/ActivityTimeline";
+import { LeadStatusSection } from "@/components/leads/LeadStatusSection";
 
 interface LeadPageProps {
   params: Promise<{
@@ -19,10 +20,8 @@ export default async function LeadDetailPage({ params }: LeadPageProps) {
 
   return (
     <div className="space-y-6 pb-10">
-      {/* Placeholder for Tanmay's StatusPipeline component */}
-      <div id="status-pipeline-placeholder" className="w-full h-24 border border-dashed border-border rounded-lg bg-card/30 flex items-center justify-center text-muted-foreground text-sm">
-        Status Pipeline Component (Pending)
-      </div>
+      {/* Status Pipeline — interactive stepper with confirmation dialog */}
+      <LeadStatusSection lead={lead} />
 
       <div className="flex flex-col lg:flex-row gap-6 items-start">
         {/* Left Panel: Sticky Info Card (30% on desktop) */}
