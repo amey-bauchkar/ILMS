@@ -1,16 +1,12 @@
 "use client";
 
+import Link from "next/link";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { mockLeads, Lead } from "@/lib/mock-data";
 import { AlertTriangle, Clock, Phone } from "lucide-react";
 import { avatarColor } from "@/lib/avatar-colors";
 
 const TODAY = new Date("2026-07-14");
-
-function formatDate(dateStr: string) {
-  const d = new Date(dateStr);
-  return d.toLocaleDateString("en-IN", { day: "2-digit", month: "short" });
-}
 
 function daysOverdue(dateStr: string) {
   const d = new Date(dateStr);
@@ -23,7 +19,10 @@ function LeadRow({ lead, badge }: { lead: Lead; badge?: React.ReactNode }) {
   const color = avatarColor(lead.name);
 
   return (
-    <div className="flex items-center gap-3 py-2 border-b border-border/40 last:border-0">
+    <Link
+      href={`/leads/${lead.id}`}
+      className="flex items-center gap-3 py-2 border-b border-border/40 last:border-0 hover:bg-secondary/30 rounded-md px-1 -mx-1 transition-colors group cursor-pointer"
+    >
       <div
         className="w-7 h-7 rounded-full flex items-center justify-center text-xs font-bold shrink-0 text-white"
         style={{ backgroundColor: color }}
@@ -31,11 +30,13 @@ function LeadRow({ lead, badge }: { lead: Lead; badge?: React.ReactNode }) {
         {initials}
       </div>
       <div className="min-w-0 flex-1">
-        <p className="text-sm font-medium truncate">{lead.name}</p>
+        <p className="text-sm font-medium truncate group-hover:text-primary transition-colors">
+          {lead.name}
+        </p>
         <p className="text-xs text-muted-foreground truncate">{lead.company}</p>
       </div>
       {badge}
-    </div>
+    </Link>
   );
 }
 
@@ -66,9 +67,13 @@ export function OverdueFollowUps() {
                 key={lead.id}
                 lead={lead}
                 badge={
-                  <span className="text-xs font-medium text-destructive bg-destructive/10 px-2 py-0.5 rounded-full shrink-0">
-                    {daysOverdue(lead.nextFollowUpDate!)}d overdue
-                  </span>
+                  <div className="flex items-center gap-1.5 shrink-0">
+                    {/* Red overdue indicator dot */}
+                    <span className="w-2 h-2 rounded-full bg-destructive animate-pulse shrink-0" />
+                    <span className="text-xs font-medium text-destructive bg-destructive/10 px-2 py-0.5 rounded-full">
+                      {daysOverdue(lead.nextFollowUpDate!)}d overdue
+                    </span>
+                  </div>
                 }
               />
             ))}
@@ -109,8 +114,18 @@ export function TodaysFollowUps() {
                     <span
                       className="text-xs px-2 py-0.5 rounded-full font-medium"
                       style={{
-                        backgroundColor: lead.priority === "Hot" ? "#ef444420" : lead.priority === "Warm" ? "#e8781120" : "#3b82f620",
-                        color: lead.priority === "Hot" ? "#ef4444" : lead.priority === "Warm" ? "#e87811" : "#3b82f6",
+                        backgroundColor:
+                          lead.priority === "Hot"
+                            ? "#ef444420"
+                            : lead.priority === "Warm"
+                            ? "#e8781120"
+                            : "#3b82f620",
+                        color:
+                          lead.priority === "Hot"
+                            ? "#ef4444"
+                            : lead.priority === "Warm"
+                            ? "#e87811"
+                            : "#3b82f6",
                       }}
                     >
                       {lead.priority}

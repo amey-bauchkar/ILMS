@@ -5,6 +5,15 @@ import { mockLeads, mockTeamMembers } from "@/lib/mock-data";
 import { Trophy } from "lucide-react";
 import { avatarColor } from "@/lib/avatar-colors";
 
+// Display-name mapping (UI only, per BRD name replacement spec):
+// TM-1 Amey → Tanmay | TM-2 Janhavi → Amey | TM-3 Tanmay → Rahul | TM-4 Manish unchanged
+const DISPLAY_NAMES: Record<string, string> = {
+  "TM-1": "Tanmay",
+  "TM-2": "Amey",
+  "TM-3": "Rahul",
+  "TM-4": "Manish",
+};
+
 export function TeamLeaderboard() {
   const leaderboard = mockTeamMembers
     .map((member) => {
@@ -40,13 +49,14 @@ export function TeamLeaderboard() {
       <CardContent>
         <div className="space-y-2">
           {leaderboard.map((entry, idx) => {
-            const initials = entry.member.name
+            const dName = DISPLAY_NAMES[entry.member.id] ?? entry.member.name;
+            const initials = dName
               .split(" ")
               .map((n) => n[0])
               .join("")
               .slice(0, 2)
               .toUpperCase();
-            const color = avatarColor(entry.member.name);
+            const color = avatarColor(dName);
 
             return (
               <div
@@ -68,7 +78,7 @@ export function TeamLeaderboard() {
 
                 {/* Name + role */}
                 <div className="flex-1 min-w-0">
-                  <p className="text-sm font-medium">{entry.member.name}</p>
+                  <p className="text-sm font-medium">{dName}</p>
                   <p className="text-xs text-muted-foreground">{entry.member.role}</p>
                 </div>
 
