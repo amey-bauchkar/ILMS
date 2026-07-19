@@ -1,15 +1,26 @@
 "use client";
 
 import { Bell, Search, User, Menu } from "lucide-react";
+import { useState } from "react";
+import { Sheet, SheetContent, SheetTrigger, SheetTitle } from "@/components/ui/sheet";
+import { SidebarContent } from "./sidebar";
 
 export function Topbar() {
+  const [isOpen, setIsOpen] = useState(false);
+
   return (
     <header className="h-16 bg-card border-b border-border flex items-center justify-between px-4 sticky top-0 z-10">
       <div className="flex items-center gap-4">
         {/* Mobile menu button (hidden on desktop) */}
-        <button className="md:hidden p-2 text-muted-foreground hover:text-foreground">
-          <Menu className="w-6 h-6" />
-        </button>
+        <Sheet open={isOpen} onOpenChange={setIsOpen}>
+          <SheetTrigger className="md:hidden p-2 text-muted-foreground hover:text-foreground">
+            <Menu className="w-6 h-6" />
+          </SheetTrigger>
+          <SheetContent side="left" className="w-64 p-4 flex flex-col">
+            <SheetTitle className="sr-only">Menu</SheetTitle>
+            <SidebarContent onNavItemClick={() => setIsOpen(false)} />
+          </SheetContent>
+        </Sheet>
         
         {/* Global Search */}
         <div className="relative hidden sm:flex items-center">
