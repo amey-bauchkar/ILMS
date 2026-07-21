@@ -4,18 +4,26 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/com
 import { mockLeads, LeadSource } from "@/lib/mock-data";
 import { TrendingUp } from "lucide-react";
 
+import { DateFilter, CustomDateRange, isWithinFilter } from "@/lib/utils";
+
 const SOURCES: LeadSource[] = [
   "Website Inbound", "Referral", "LinkedIn", "Cold Outreach",
   "Google Business Profile", "WhatsApp", "Events", "Reddit",
 ];
 
-export function ConversionRate() {
-  const total = mockLeads.length;
-  const won = mockLeads.filter((l) => l.status === "Won").length;
+interface ConversionRateProps {
+  dateFilter?: DateFilter;
+  customRange?: CustomDateRange;
+}
+
+export function ConversionRate({ dateFilter = "month", customRange }: ConversionRateProps) {
+  const filteredLeads = mockLeads.filter(l => isWithinFilter(l.createdAt, dateFilter, customRange));
+  const total = filteredLeads.length;
+  const won = filteredLeads.filter((l) => l.status === "Won").length;
   const overallRate = total > 0 ? Math.round((won / total) * 100) : 0;
 
   const sourceBreakdown = SOURCES.map((source) => {
-    const sourceLeads = mockLeads.filter((l) => l.source === source);
+    const sourceLeads = filteredLeads.filter((l) => l.source === source);
     const sourceWon = sourceLeads.filter((l) => l.status === "Won").length;
     const rate = sourceLeads.length > 0 ? Math.round((sourceWon / sourceLeads.length) * 100) : 0;
     return { source, total: sourceLeads.length, won: sourceWon, rate };

@@ -5,7 +5,7 @@ import { Lead, statusColors, priorityColors } from "@/lib/mock-data";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Mail, Phone, Building2, Calendar, IndianRupee, Pencil, PhoneCall } from "lucide-react";
+import { Mail, Phone, Building2, Calendar, IndianRupee, Pencil, PhoneCall, User, UserCheck } from "lucide-react";
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
 import { LeadForm } from "./LeadForm";
 import { TagManager } from "./TagManager";
@@ -168,6 +168,24 @@ export function LeadInfoCard({ lead }: LeadInfoCardProps) {
             </span>
             <span className="font-medium">
               {lead.source}
+            </span>
+          </div>
+
+          <div className="flex items-center justify-between text-sm">
+            <span className="text-muted-foreground flex items-center gap-2">
+              <User className="h-4 w-4" /> Added By
+            </span>
+            <span className="font-medium">
+              {lead.createdBy?.name || "System"}
+            </span>
+          </div>
+
+          <div className="flex items-center justify-between text-sm">
+            <span className="text-muted-foreground flex items-center gap-2">
+              <UserCheck className="h-4 w-4" /> Assigned To
+            </span>
+            <span className="font-medium">
+              {lead.owner?.name || "Unassigned"}
             </span>
           </div>
         </div>
