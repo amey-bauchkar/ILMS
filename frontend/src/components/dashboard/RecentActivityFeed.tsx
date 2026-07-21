@@ -1,9 +1,10 @@
 "use client";
 
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
-import { mockLeads, mockTeamMembers, Activity } from "@/lib/mock-data";
+import { mockLeads, mockTeamMembers, Activity, MOCK_ACTIVITIES } from "@/lib/mock-data";
 import { avatarColor } from "@/lib/avatar-colors";
 import { Phone, FileText, ArrowRight, Tag, UserCheck } from "lucide-react";
+import { DateFilter, CustomDateRange, isWithinFilter } from "@/lib/utils";
 
 // Display-name mapping for the activity feed (UI only, per BRD name replacement spec):
 // mockTeamMembers[0] = Amey  → display as "Tanmay"
@@ -21,169 +22,7 @@ function displayName(member: (typeof mockTeamMembers)[number]): string {
   return DISPLAY_NAMES[member.id] ?? member.name;
 }
 
-// 18 deterministic activities (BRD requires 15-20)
-const MOCK_ACTIVITIES: Activity[] = [
-  {
-    id: "ra-1",
-    leadId: "L-1004",
-    type: "call",
-    outcome: "Answered",
-    notes: "Discussed proposal timeline with client.",
-    createdBy: mockTeamMembers[0],
-    createdAt: new Date(Date.now() - 1000 * 60 * 20).toISOString(),
-  },
-  {
-    id: "ra-2",
-    leadId: "L-1001",
-    type: "status_change",
-    fromStatus: "New",
-    toStatus: "Attempted Contact",
-    notes: null,
-    createdBy: mockTeamMembers[2],
-    createdAt: new Date(Date.now() - 1000 * 60 * 60 * 2).toISOString(),
-  },
-  {
-    id: "ra-3",
-    leadId: "L-1003",
-    type: "note",
-    notes: "Client requested revised pricing sheet.",
-    createdBy: mockTeamMembers[2],
-    createdAt: new Date(Date.now() - 1000 * 60 * 60 * 4).toISOString(),
-  },
-  {
-    id: "ra-4",
-    leadId: "L-1008",
-    type: "call",
-    outcome: "Not Answered",
-    notes: null,
-    createdBy: mockTeamMembers[1],
-    createdAt: new Date(Date.now() - 1000 * 60 * 60 * 8).toISOString(),
-  },
-  {
-    id: "ra-5",
-    leadId: "L-1010",
-    type: "status_change",
-    fromStatus: "Contacted",
-    toStatus: "Proposal Sent",
-    notes: null,
-    createdBy: mockTeamMembers[0],
-    createdAt: new Date(Date.now() - 1000 * 60 * 60 * 18).toISOString(),
-  },
-  {
-    id: "ra-6",
-    leadId: "L-1002",
-    type: "tag_change",
-    notes: "Added tag: High Intent",
-    createdBy: mockTeamMembers[1],
-    createdAt: new Date(Date.now() - 1000 * 60 * 60 * 24).toISOString(),
-  },
-  {
-    id: "ra-7",
-    leadId: "L-1009",
-    type: "call",
-    outcome: "Busy",
-    notes: null,
-    createdBy: mockTeamMembers[2],
-    createdAt: new Date(Date.now() - 1000 * 60 * 60 * 26).toISOString(),
-  },
-  {
-    id: "ra-8",
-    leadId: "L-1005",
-    type: "status_change",
-    fromStatus: "Negotiation",
-    toStatus: "Won",
-    notes: null,
-    createdBy: mockTeamMembers[1],
-    createdAt: new Date(Date.now() - 1000 * 60 * 60 * 30).toISOString(),
-  },
-  {
-    id: "ra-9",
-    leadId: "L-1012",
-    type: "note",
-    notes: "Hospital board approved the digital health module. Starting onboarding next week.",
-    createdBy: mockTeamMembers[2],
-    createdAt: new Date(Date.now() - 1000 * 60 * 60 * 36).toISOString(),
-  },
-  {
-    id: "ra-10",
-    leadId: "L-1006",
-    type: "call",
-    outcome: "Voicemail",
-    notes: "Left voicemail about follow-up pricing.",
-    createdBy: mockTeamMembers[0],
-    createdAt: new Date(Date.now() - 1000 * 60 * 60 * 42).toISOString(),
-  },
-  {
-    id: "ra-11",
-    leadId: "L-1011",
-    type: "reassignment",
-    notes: null,
-    createdBy: mockTeamMembers[0],
-    createdAt: new Date(Date.now() - 1000 * 60 * 60 * 48).toISOString(),
-  },
-  {
-    id: "ra-12",
-    leadId: "L-1007",
-    type: "status_change",
-    fromStatus: "Negotiation",
-    toStatus: "Lost",
-    notes: null,
-    createdBy: mockTeamMembers[0],
-    createdAt: new Date(Date.now() - 1000 * 60 * 60 * 52).toISOString(),
-  },
-  {
-    id: "ra-13",
-    leadId: "L-1003",
-    type: "call",
-    outcome: "Answered",
-    notes: "Client confirmed budget approval. Waiting for PO.",
-    createdBy: mockTeamMembers[2],
-    createdAt: new Date(Date.now() - 1000 * 60 * 60 * 60).toISOString(),
-  },
-  {
-    id: "ra-14",
-    leadId: "L-1002",
-    type: "tag_change",
-    notes: "Added tag: Website Rebuild",
-    createdBy: mockTeamMembers[1],
-    createdAt: new Date(Date.now() - 1000 * 60 * 60 * 68).toISOString(),
-  },
-  {
-    id: "ra-15",
-    leadId: "L-1010",
-    type: "note",
-    notes: "Sent revised proposal with revised payment milestones.",
-    createdBy: mockTeamMembers[0],
-    createdAt: new Date(Date.now() - 1000 * 60 * 60 * 72).toISOString(),
-  },
-  {
-    id: "ra-16",
-    leadId: "L-1004",
-    type: "status_change",
-    fromStatus: "Qualified",
-    toStatus: "Proposal Sent",
-    notes: null,
-    createdBy: mockTeamMembers[0],
-    createdAt: new Date(Date.now() - 1000 * 60 * 60 * 78).toISOString(),
-  },
-  {
-    id: "ra-17",
-    leadId: "L-1008",
-    type: "call",
-    outcome: "Call Back Requested",
-    notes: "Client asked to call back Thursday afternoon.",
-    createdBy: mockTeamMembers[1],
-    createdAt: new Date(Date.now() - 1000 * 60 * 60 * 84).toISOString(),
-  },
-  {
-    id: "ra-18",
-    leadId: "L-1001",
-    type: "note",
-    notes: "Initial discovery call done. Strong fit for digital transformation package.",
-    createdBy: mockTeamMembers[2],
-    createdAt: new Date(Date.now() - 1000 * 60 * 60 * 96).toISOString(),
-  },
-];
+
 
 function timeAgo(isoString: string): string {
   const ms = Date.now() - new Date(isoString).getTime();
@@ -230,7 +69,14 @@ function activityDescription(activity: Activity): string {
   }
 }
 
-export function RecentActivityFeed() {
+interface RecentActivityFeedProps {
+  dateFilter?: DateFilter;
+  customRange?: CustomDateRange;
+}
+
+export function RecentActivityFeed({ dateFilter = "month", customRange }: RecentActivityFeedProps) {
+  const filteredActivities = MOCK_ACTIVITIES.filter(a => isWithinFilter(a.createdAt, dateFilter, customRange));
+
   return (
     <Card>
       <CardHeader>
@@ -242,8 +88,11 @@ export function RecentActivityFeed() {
           {/* Vertical timeline line */}
           <div className="absolute left-3.5 top-0 bottom-0 w-px bg-border" aria-hidden="true" />
 
-          {MOCK_ACTIVITIES.map((activity) => {
-            const Icon = ACTIVITY_ICONS[activity.type];
+          {filteredActivities.length === 0 ? (
+            <p className="text-sm text-muted-foreground py-4 text-center">No recent activity found.</p>
+          ) : (
+            filteredActivities.map((activity) => {
+              const Icon = ACTIVITY_ICONS[activity.type];
             const color = ACTIVITY_COLORS[activity.type];
             const name = displayName(activity.createdBy);
             const initials = name.split(" ").map((n) => n[0]).join("").slice(0, 2).toUpperCase();
@@ -278,7 +127,7 @@ export function RecentActivityFeed() {
                 </div>
               </div>
             );
-          })}
+          }))}
         </div>
       </CardContent>
     </Card>

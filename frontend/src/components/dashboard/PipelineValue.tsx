@@ -12,6 +12,7 @@ import {
 } from "recharts";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { mockLeads, mockTeamMembers } from "@/lib/mock-data";
+import { DateFilter, CustomDateRange, isWithinFilter } from "@/lib/utils";
 
 const CustomTooltip = ({
   active,
@@ -37,10 +38,17 @@ const CustomTooltip = ({
   return null;
 };
 
-export function PipelineValue() {
+interface PipelineValueProps {
+  dateFilter?: DateFilter;
+  customRange?: CustomDateRange;
+}
+
+export function PipelineValue({ dateFilter = "month", customRange }: PipelineValueProps) {
+  const filteredLeads = mockLeads.filter(l => isWithinFilter(l.createdAt, dateFilter, customRange));
+
   // Group deal value by owner and status bucket (active / won / lost)
   const data = mockTeamMembers.map((member) => {
-    const memberLeads = mockLeads.filter(
+    const memberLeads = filteredLeads.filter(
       (l) => l.owner.id === member.id && l.dealValue
     );
     const active = memberLeads

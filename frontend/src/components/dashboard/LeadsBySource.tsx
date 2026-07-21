@@ -10,6 +10,7 @@ import {
 } from "recharts";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { mockLeads, LeadSource } from "@/lib/mock-data";
+import { DateFilter, CustomDateRange, isWithinFilter } from "@/lib/utils";
 
 const SOURCE_COLORS: Record<string, string> = {
   "Reddit": "#ff6314",
@@ -36,8 +37,15 @@ const CustomTooltip = ({ active, payload }: { active?: boolean; payload?: Array<
   return null;
 };
 
-export function LeadsBySource() {
-  const sourceCounts = mockLeads.reduce<Record<string, number>>((acc, lead) => {
+interface LeadsBySourceProps {
+  dateFilter?: DateFilter;
+  customRange?: CustomDateRange;
+}
+
+export function LeadsBySource({ dateFilter = "month", customRange }: LeadsBySourceProps) {
+  const filteredLeads = mockLeads.filter(l => isWithinFilter(l.createdAt, dateFilter, customRange));
+
+  const sourceCounts = filteredLeads.reduce<Record<string, number>>((acc, lead) => {
     acc[lead.source] = (acc[lead.source] || 0) + 1;
     return acc;
   }, {});

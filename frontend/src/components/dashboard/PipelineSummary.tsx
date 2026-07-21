@@ -11,6 +11,7 @@ import {
 } from "recharts";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { mockLeads, LeadStatus } from "@/lib/mock-data";
+import { DateFilter, CustomDateRange, isWithinFilter } from "@/lib/utils";
 
 const STATUSES: LeadStatus[] = [
   "New", "Attempted Contact", "Contacted", "Qualified",
@@ -40,10 +41,17 @@ const CustomTooltip = ({ active, payload, label }: { active?: boolean; payload?:
   return null;
 };
 
-export function PipelineSummary() {
+interface PipelineSummaryProps {
+  dateFilter?: DateFilter;
+  customRange?: CustomDateRange;
+}
+
+export function PipelineSummary({ dateFilter = "month", customRange }: PipelineSummaryProps) {
+  const filteredLeads = mockLeads.filter(l => isWithinFilter(l.createdAt, dateFilter, customRange));
+
   const data = STATUSES.map((status) => ({
     name: status,
-    count: mockLeads.filter((l) => l.status === status).length,
+    count: filteredLeads.filter((l) => l.status === status).length,
   })).filter((d) => d.count > 0);
 
   if (data.length === 0) {

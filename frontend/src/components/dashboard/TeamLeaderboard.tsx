@@ -4,6 +4,7 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/com
 import { mockLeads, mockTeamMembers } from "@/lib/mock-data";
 import { Trophy } from "lucide-react";
 import { avatarColor } from "@/lib/avatar-colors";
+import { DateFilter, CustomDateRange, isWithinFilter } from "@/lib/utils";
 
 // Display-name mapping (UI only, per BRD name replacement spec):
 // TM-1 Amey → Tanmay | TM-2 Janhavi → Amey | TM-3 Tanmay → Rahul | TM-4 Manish unchanged
@@ -14,10 +15,17 @@ const DISPLAY_NAMES: Record<string, string> = {
   "TM-4": "Manish",
 };
 
-export function TeamLeaderboard() {
+interface TeamLeaderboardProps {
+  dateFilter?: DateFilter;
+  customRange?: CustomDateRange;
+}
+
+export function TeamLeaderboard({ dateFilter = "month", customRange }: TeamLeaderboardProps) {
+  const filteredLeads = mockLeads.filter(l => isWithinFilter(l.createdAt, dateFilter, customRange));
+
   const leaderboard = mockTeamMembers
     .map((member) => {
-      const memberLeads = mockLeads.filter((l) => l.owner.id === member.id);
+      const memberLeads = filteredLeads.filter((l) => l.owner.id === member.id);
       const won = memberLeads.filter((l) => l.status === "Won").length;
       const pipeline = memberLeads
         .filter((l) => !["Won", "Lost", "Junk"].includes(l.status))

@@ -10,10 +10,12 @@ import { FollowUpsSummary } from "@/components/dashboard/FollowUps";
 import { TeamLeaderboard } from "@/components/dashboard/TeamLeaderboard";
 import { RecentActivityFeed } from "@/components/dashboard/RecentActivityFeed";
 import { WonVsLostTrend } from "@/components/dashboard/WonVsLostTrend";
-import { DashboardDateFilter, type DateFilter } from "@/components/dashboard/DashboardDateFilter";
+import { DashboardDateFilter } from "@/components/dashboard/DashboardDateFilter";
+import { type DateFilter, type CustomDateRange } from "@/lib/utils";
 
 export default function DashboardPage() {
   const [dateFilter, setDateFilter] = useState<DateFilter>("month");
+  const [customRange, setCustomRange] = useState<CustomDateRange>();
 
   return (
     <div className="space-y-6">
@@ -25,24 +27,29 @@ export default function DashboardPage() {
             Welcome back to Foremark CRM. Here&apos;s what&apos;s happening today.
           </p>
         </div>
-        <DashboardDateFilter value={dateFilter} onChange={setDateFilter} />
+        <DashboardDateFilter 
+          value={dateFilter} 
+          onChange={setDateFilter} 
+          customRange={customRange}
+          onCustomRangeChange={setCustomRange}
+        />
       </div>
 
       {/* Row 1 — KPI stats: New Leads + Conversion Rate */}
       <div className="grid gap-4 sm:grid-cols-2">
         <NewLeadsStats />
-        <ConversionRate />
+        <ConversionRate dateFilter={dateFilter} customRange={customRange} />
       </div>
 
       {/* Row 2 — Pipeline Summary + Leads by Source */}
       <div className="grid gap-4 lg:grid-cols-2">
-        <PipelineSummary />
-        <LeadsBySource />
+        <PipelineSummary dateFilter={dateFilter} customRange={customRange} />
+        <LeadsBySource dateFilter={dateFilter} customRange={customRange} />
       </div>
 
       {/* Row 3 — Pipeline Value (Stacked Bar) + Won vs Lost Trend */}
       <div className="grid gap-4 lg:grid-cols-2">
-        <PipelineValue />
+        <PipelineValue dateFilter={dateFilter} customRange={customRange} />
         <WonVsLostTrend />
       </div>
 
@@ -51,8 +58,8 @@ export default function DashboardPage() {
 
       {/* Row 5 — Team Leaderboard + Recent Activity (15-20 entries) */}
       <div className="grid gap-4 lg:grid-cols-2">
-        <TeamLeaderboard />
-        <RecentActivityFeed />
+        <TeamLeaderboard dateFilter={dateFilter} customRange={customRange} />
+        <RecentActivityFeed dateFilter={dateFilter} customRange={customRange} />
       </div>
     </div>
   );
