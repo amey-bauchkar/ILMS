@@ -67,7 +67,7 @@ export default async function SettingsPage() {
       </div>
 
       <Tabs defaultValue="profile" className="space-y-4">
-        <TabsList className="bg-card/50 border border-border p-1 h-auto rounded-lg flex-wrap">
+        <TabsList className="bg-card/50 border border-border p-1 h-auto rounded-lg flex overflow-x-auto overflow-y-hidden whitespace-nowrap justify-start w-full sm:w-fit sm:justify-center">
           <TabsTrigger value="profile" className="rounded-md px-6 py-2 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground transition-all">
             Profile
           </TabsTrigger>

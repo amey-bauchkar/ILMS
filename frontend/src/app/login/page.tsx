@@ -75,7 +75,7 @@ export default function LoginPage() {
                   : "Set up your password to get started."}
               </CardDescription>
             </CardHeader>
-            <form action={handleSubmit}>
+            <form action={handleSubmit} className="flex flex-col gap-6">
               <CardContent className="space-y-4">
                 {error && (
                   <div className="p-3 rounded-md bg-destructive/10 border border-destructive/20 text-destructive text-sm">

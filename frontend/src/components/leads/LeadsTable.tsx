@@ -195,7 +195,7 @@ export default function LeadsTable() {
         <div>
             {/* Underline tabs and Export Button */}
             <div className="flex items-center justify-between border-b border-[#2e2e2e] mb-5">
-                <div className="flex gap-6 overflow-x-auto">
+                <div className="flex gap-6 overflow-x-auto overflow-y-hidden [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
                     {VIEWS.map((v) => (
                     <button
                         key={v.key}
