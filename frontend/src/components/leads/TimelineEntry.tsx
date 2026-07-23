@@ -1,7 +1,6 @@
-import { Activity, statusColors } from "@/lib/mock-data";
 import { Phone, MessageSquare, ArrowRightLeft, Tag, RefreshCcw } from "lucide-react";
 
-export function TimelineEntry({ activity }: { activity: Activity }) {
+export function TimelineEntry({ activity }: { activity: any }) {
   const isStatusChange = activity.type === "status_change";
   const isCall = activity.type === "call";
   const isNote = activity.type === "note";
@@ -34,7 +33,7 @@ export function TimelineEntry({ activity }: { activity: Activity }) {
 
       <div className="flex justify-between items-start mb-1">
         <div className="text-sm">
-          <span className="font-medium text-foreground">{activity.createdBy.name}</span>
+          <span className="font-medium text-foreground">{activity.createdBy?.name || 'System'}</span>
           
           {isCall && (
             <span className="text-muted-foreground">
@@ -48,10 +47,7 @@ export function TimelineEntry({ activity }: { activity: Activity }) {
           
           {isStatusChange && (
             <span className="text-muted-foreground">
-              {" "}changed status from <span className="font-medium text-foreground">{activity.fromStatus}</span> to{" "}
-              <span className="font-medium" style={{ color: activity.toStatus ? statusColors[activity.toStatus] : undefined }}>
-                {activity.toStatus}
-              </span>
+              {" "}changed status
             </span>
           )}
         </div>

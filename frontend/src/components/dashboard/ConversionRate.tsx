@@ -1,26 +1,23 @@
 "use client";
 
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
-import { mockLeads, LeadSource } from "@/lib/mock-data";
+import { EnrichedLead } from "@/hooks/use-data";
 import { TrendingUp } from "lucide-react";
-
 import { DateFilter, CustomDateRange, isWithinFilter } from "@/lib/utils";
 
-const SOURCES: LeadSource[] = [
-  "Website Inbound", "Referral", "LinkedIn", "Cold Outreach",
-  "Google Business Profile", "WhatsApp", "Events", "Reddit",
-];
-
 interface ConversionRateProps {
+  leads: EnrichedLead[];
   dateFilter?: DateFilter;
   customRange?: CustomDateRange;
 }
 
-export function ConversionRate({ dateFilter = "month", customRange }: ConversionRateProps) {
-  const filteredLeads = mockLeads.filter(l => isWithinFilter(l.createdAt, dateFilter, customRange));
+export function ConversionRate({ leads, dateFilter = "month", customRange }: ConversionRateProps) {
+  const filteredLeads = leads.filter(l => isWithinFilter(l.createdAt, dateFilter, customRange));
   const total = filteredLeads.length;
   const won = filteredLeads.filter((l) => l.status === "Won").length;
   const overallRate = total > 0 ? Math.round((won / total) * 100) : 0;
+
+  const SOURCES = Array.from(new Set(filteredLeads.map(l => l.source)));
 
   const sourceBreakdown = SOURCES.map((source) => {
     const sourceLeads = filteredLeads.filter((l) => l.source === source);

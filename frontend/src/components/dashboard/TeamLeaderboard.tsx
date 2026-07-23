@@ -1,29 +1,24 @@
 "use client";
 
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
-import { mockLeads, mockTeamMembers } from "@/lib/mock-data";
+import { EnrichedLead } from "@/hooks/use-data";
 import { Trophy } from "lucide-react";
 import { avatarColor } from "@/lib/avatar-colors";
 import { DateFilter, CustomDateRange, isWithinFilter } from "@/lib/utils";
 
-// Display-name mapping (UI only, per BRD name replacement spec):
-// TM-1 Amey → Tanmay | TM-2 Janhavi → Amey | TM-3 Tanmay → Rahul | TM-4 Manish unchanged
-const DISPLAY_NAMES: Record<string, string> = {
-  "TM-1": "Tanmay",
-  "TM-2": "Amey",
-  "TM-3": "Rahul",
-  "TM-4": "Manish",
-};
-
 interface TeamLeaderboardProps {
+  leads: EnrichedLead[];
   dateFilter?: DateFilter;
   customRange?: CustomDateRange;
 }
 
-export function TeamLeaderboard({ dateFilter = "month", customRange }: TeamLeaderboardProps) {
-  const filteredLeads = mockLeads.filter(l => isWithinFilter(l.createdAt, dateFilter, customRange));
+export function TeamLeaderboard({ leads, dateFilter = "month", customRange }: TeamLeaderboardProps) {
+  const filteredLeads = leads.filter(l => isWithinFilter(l.createdAt, dateFilter, customRange));
 
-  const leaderboard = mockTeamMembers
+  const uniqueMembers = Array.from(new Set(filteredLeads.map(l => l.owner.id)))
+    .map(id => filteredLeads.find(l => l.owner.id === id)!.owner);
+
+  const leaderboard = uniqueMembers
     .map((member) => {
       const memberLeads = filteredLeads.filter((l) => l.owner.id === member.id);
       const won = memberLeads.filter((l) => l.status === "Won").length;
@@ -57,7 +52,7 @@ export function TeamLeaderboard({ dateFilter = "month", customRange }: TeamLeade
       <CardContent>
         <div className="space-y-2">
           {leaderboard.map((entry, idx) => {
-            const dName = DISPLAY_NAMES[entry.member.id] ?? entry.member.name;
+            const dName = entry.member.name;
             const initials = dName
               .split(" ")
               .map((n) => n[0])

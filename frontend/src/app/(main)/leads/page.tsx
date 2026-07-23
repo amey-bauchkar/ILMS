@@ -1,3 +1,6 @@
+"use client";
+
+import { useState } from "react";
 import LeadsTable from "@/components/leads/LeadsTable";
 import { Button } from "@/components/ui/button";
 import { Plus } from "lucide-react";
@@ -5,6 +8,8 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from 
 import { LeadForm } from "@/components/leads/LeadForm";
 
 export default function LeadsPage() {
+  const [dialogOpen, setDialogOpen] = useState(false);
+
   return (
     <div className="space-y-6">
       <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4 border-b border-border pb-4">
@@ -16,7 +21,7 @@ export default function LeadsPage() {
         </div>
 
         <div className="flex items-center gap-2">
-          <Dialog>
+          <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
             <DialogTrigger render={<Button className="gap-2" />}>
               <Plus className="h-4 w-4" />
               Add Lead
@@ -25,7 +30,11 @@ export default function LeadsPage() {
               <DialogHeader className="mb-6">
                 <DialogTitle>Add New Lead</DialogTitle>
               </DialogHeader>
-              <LeadForm />
+              <LeadForm onSuccess={() => {
+                setDialogOpen(false);
+                // LeadsTable will auto-refresh via useLeads hook
+                window.location.reload();
+              }} />
             </DialogContent>
           </Dialog>
         </div>

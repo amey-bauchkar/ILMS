@@ -1,7 +1,8 @@
 "use client";
 
 import { useState } from "react";
-import { Lead, statusColors, priorityColors } from "@/lib/mock-data";
+import type { EnrichedLead } from "@/hooks/use-data";
+import { priorityColors } from "@/hooks/use-data";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -12,7 +13,7 @@ import { TagManager } from "./TagManager";
 import { CallLogModal } from "@/components/shared/CallLogModal";
 
 interface LeadInfoCardProps {
-  lead: Lead;
+  lead: EnrichedLead;
 }
 
 export function LeadInfoCard({ lead }: LeadInfoCardProps) {
@@ -43,19 +44,23 @@ export function LeadInfoCard({ lead }: LeadInfoCardProps) {
               </SheetHeader>
               <LeadForm 
                 initialData={{
+                  id: lead.id,
                   name: lead.name,
-                  company: lead.company,
+                  company: lead.company || undefined,
                   phone: lead.phone,
-                  email: lead.email,
-                  source: lead.source,
-                  status: lead.status,
+                  email: lead.email || undefined,
+                  source: lead.source as any,
+                  status: lead.statusId as any,
                   priority: lead.priority,
                   ownerId: lead.owner.id,
-                  dealValue: lead.dealValue,
-                  nextFollowUpDate: lead.nextFollowUpDate,
+                  dealValue: lead.dealValue || undefined,
+                  nextFollowUpDate: lead.nextFollowUpDate || undefined,
                   lostReason: lead.lostReason as any,
                 }} 
-                onSuccess={() => setIsEditOpen(false)}
+                onSuccess={() => {
+                  setIsEditOpen(false);
+                  window.location.reload();
+                }}
               />
             </SheetContent>
           </Sheet>
@@ -65,8 +70,8 @@ export function LeadInfoCard({ lead }: LeadInfoCardProps) {
           <Badge 
             variant="secondary" 
             style={{ 
-              backgroundColor: `${statusColors[lead.status]}20`, 
-              color: statusColors[lead.status] 
+              backgroundColor: `${lead.statusColor}20`, 
+              color: lead.statusColor 
             }}
           >
             {lead.status}
@@ -88,12 +93,7 @@ export function LeadInfoCard({ lead }: LeadInfoCardProps) {
         <div className="flex gap-2">
           <CallLogModal
             leadName={lead.name}
-            trigger={
-              <Button className="w-full gap-2">
-                <PhoneCall className="h-4 w-4" />
-                Log Call
-              </Button>
-            }
+            leadId={lead.id}
           />
         </div>
 
@@ -173,15 +173,6 @@ export function LeadInfoCard({ lead }: LeadInfoCardProps) {
 
           <div className="flex items-center justify-between text-sm">
             <span className="text-muted-foreground flex items-center gap-2">
-              <User className="h-4 w-4" /> Added By
-            </span>
-            <span className="font-medium">
-              {lead.createdBy?.name || "System"}
-            </span>
-          </div>
-
-          <div className="flex items-center justify-between text-sm">
-            <span className="text-muted-foreground flex items-center gap-2">
               <UserCheck className="h-4 w-4" /> Assigned To
             </span>
             <span className="font-medium">
@@ -195,7 +186,8 @@ export function LeadInfoCard({ lead }: LeadInfoCardProps) {
           <TagManager
             tags={lead.tags}
             onChange={(newTags) => {
-              // In real app, this would call Supabase to update lead_tags
+              // Tags update is complex because it requires diffing lead_tags
+              // We'll leave this unimplemented for now or implement an action for it.
               console.log("Tags updated for lead:", lead.id, newTags);
             }}
           />

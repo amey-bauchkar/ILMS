@@ -10,24 +10,11 @@ import {
   Cell,
 } from "recharts";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
-import { mockLeads, LeadStatus } from "@/lib/mock-data";
+import { EnrichedLead } from "@/hooks/use-data";
 import { DateFilter, CustomDateRange, isWithinFilter } from "@/lib/utils";
 
-const STATUSES: LeadStatus[] = [
-  "New", "Attempted Contact", "Contacted", "Qualified",
-  "Proposal Sent", "Negotiation", "Won", "Lost",
-];
-
-const STATUS_COLORS: Record<string, string> = {
-  "New": "#737373",
-  "Attempted Contact": "#3b82f6",
-  "Contacted": "#06b6d4",
-  "Qualified": "#8b5cf6",
-  "Proposal Sent": "#6366f1",
-  "Negotiation": "#e87811",
-  "Won": "#22c55e",
-  "Lost": "#ef4444",
-};
+// Removed hardcoded STATUSES/COLORS to use dynamic ones from data, 
+// but for order and color consistency, we can group by the actual statuses in `leads`.
 
 const CustomTooltip = ({ active, payload, label }: { active?: boolean; payload?: Array<{ value: number }>; label?: string }) => {
   if (active && payload && payload.length) {
@@ -42,17 +29,28 @@ const CustomTooltip = ({ active, payload, label }: { active?: boolean; payload?:
 };
 
 interface PipelineSummaryProps {
+  leads: EnrichedLead[];
   dateFilter?: DateFilter;
   customRange?: CustomDateRange;
 }
 
-export function PipelineSummary({ dateFilter = "month", customRange }: PipelineSummaryProps) {
-  const filteredLeads = mockLeads.filter(l => isWithinFilter(l.createdAt, dateFilter, customRange));
+export function PipelineSummary({ leads, dateFilter = "month", customRange }: PipelineSummaryProps) {
+  const filteredLeads = leads.filter(l => isWithinFilter(l.createdAt, dateFilter, customRange));
 
-  const data = STATUSES.map((status) => ({
-    name: status,
-    count: filteredLeads.filter((l) => l.status === status).length,
-  })).filter((d) => d.count > 0);
+  // Group by status dynamically from the passed leads
+  const countsByStatus = filteredLeads.reduce((acc, lead) => {
+    if (!acc[lead.status]) {
+      acc[lead.status] = { count: 0, color: lead.statusColor };
+    }
+    acc[lead.status].count += 1;
+    return acc;
+  }, {} as Record<string, { count: number; color: string }>);
+
+  const data = Object.entries(countsByStatus).map(([name, { count, color }]) => ({
+    name,
+    count,
+    color,
+  })).sort((a, b) => b.count - a.count); // sort by count descending
 
   if (data.length === 0) {
     return (
@@ -89,7 +87,7 @@ export function PipelineSummary({ dateFilter = "month", customRange }: PipelineS
             <Tooltip content={<CustomTooltip />} cursor={{ fill: "rgba(255,255,255,0.04)" }} />
             <Bar dataKey="count" radius={[0, 4, 4, 0]} maxBarSize={20}>
               {data.map((entry) => (
-                <Cell key={entry.name} fill={STATUS_COLORS[entry.name] ?? "#e87811"} />
+                <Cell key={entry.name} fill={entry.color} />
               ))}
             </Bar>
           </BarChart>

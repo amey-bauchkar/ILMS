@@ -1,5 +1,6 @@
 "use client";
 
+import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { leadFormSchema, LeadFormData } from "@/lib/validations";
@@ -22,16 +23,28 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
-import { mockTeamMembers } from "@/lib/mock-data";
+import { useStatuses, useTeamMembers, useTags } from "@/hooks/use-data";
+import { useUser } from "@/components/providers/user-provider";
+import { createLead, updateLead } from "@/actions/leads";
 import { TagManager } from "./TagManager";
-import { User, FileText, Tag as TagIcon, Banknote, ListTodo } from "lucide-react";
+import { User, FileText, Tag as TagIcon, Banknote, ListTodo, Loader2 } from "lucide-react";
+import { toast } from "sonner";
 
 interface LeadFormProps {
-  initialData?: Partial<LeadFormData>;
+  initialData?: Partial<LeadFormData> & { id?: string };
   onSuccess?: () => void;
 }
 
 export function LeadForm({ initialData, onSuccess }: LeadFormProps) {
+  const { statuses } = useStatuses();
+  const { members } = useTeamMembers();
+  const { tags: allTags } = useTags();
+  const { user } = useUser();
+  const [saving, setSaving] = useState(false);
+
+  // Find the "New" status id for default
+  const newStatus = statuses.find((s) => s.name === "New");
+
   const form = useForm<LeadFormData>({
     resolver: zodResolver(leadFormSchema),
     defaultValues: {
@@ -40,9 +53,9 @@ export function LeadForm({ initialData, onSuccess }: LeadFormProps) {
       phone: initialData?.phone || "",
       email: initialData?.email || "",
       source: initialData?.source || "Website Inbound",
-      status: initialData?.status || "New",
+      status: initialData?.status || newStatus?.id || "",
       priority: initialData?.priority || "Warm",
-      ownerId: initialData?.ownerId || mockTeamMembers[0].id,
+      ownerId: initialData?.ownerId || user?.id || "",
       dealValue: initialData?.dealValue || undefined,
       nextFollowUpDate: initialData?.nextFollowUpDate || "",
       notes: initialData?.notes || "",
@@ -52,17 +65,69 @@ export function LeadForm({ initialData, onSuccess }: LeadFormProps) {
     },
   });
 
-  const watchStatus = form.watch("status");
+  // Determine if the selected status is "Lost"
+  const watchStatusId = form.watch("status");
+  const selectedStatus = statuses.find((s) => s.id === watchStatusId);
+  const isLostStatus = selectedStatus?.name === "Lost";
 
-  function onSubmit(data: LeadFormData) {
-    if (initialData) {
-      console.log("Updated Lead:", data);
-      // alert("Lead updated successfully!"); // In real app, use a toast
-    } else {
-      console.log("New Lead:", data);
-      // alert("Lead added successfully!"); // In real app, use a toast
+  async function onSubmit(data: LeadFormData) {
+    setSaving(true);
+    try {
+      if (initialData?.id) {
+        // Update existing lead
+        const result = await updateLead(initialData.id, {
+          name: data.name,
+          company_name: data.company || undefined,
+          phone: data.phone,
+          email: data.email || undefined,
+          source: data.source,
+          status_id: data.status,
+          owner_id: data.ownerId,
+          priority: data.priority,
+          estimated_deal_value: data.dealValue ?? undefined,
+          next_followup_date: data.nextFollowUpDate || null,
+          lost_reason: data.lostReason || null,
+          lost_reason_details: data.lostReasonDetails || null,
+        });
+
+        if (result.error) {
+          toast.error(result.error);
+        } else {
+          toast.success("Lead updated successfully!");
+          onSuccess?.();
+        }
+      } else {
+        // Create new lead
+        const result = await createLead({
+          name: data.name,
+          company_name: data.company || undefined,
+          phone: data.phone,
+          email: data.email || undefined,
+          source: data.source,
+          status_id: data.status,
+          owner_id: data.ownerId,
+          priority: data.priority,
+          estimated_deal_value: data.dealValue ?? undefined,
+          next_followup_date: data.nextFollowUpDate || undefined,
+          notes: data.notes || undefined,
+          tags: data.tags,
+          lost_reason: data.lostReason || undefined,
+          lost_reason_details: data.lostReasonDetails || undefined,
+        });
+
+        if (result.error) {
+          toast.error(result.error);
+        } else {
+          toast.success("Lead added successfully!");
+          form.reset();
+          onSuccess?.();
+        }
+      }
+    } catch {
+      toast.error("Something went wrong. Please try again.");
+    } finally {
+      setSaving(false);
     }
-    if (onSuccess) onSuccess();
   }
 
   return (
@@ -191,16 +256,14 @@ export function LeadForm({ initialData, onSuccess }: LeadFormProps) {
                       </SelectTrigger>
                     </FormControl>
                     <SelectContent>
-                      <SelectItem value="New">New</SelectItem>
-                      <SelectItem value="Attempted Contact">Attempted Contact</SelectItem>
-                      <SelectItem value="Contacted">Contacted</SelectItem>
-                      <SelectItem value="Qualified">Qualified</SelectItem>
-                      <SelectItem value="Proposal Sent">Proposal Sent</SelectItem>
-                      <SelectItem value="Negotiation">Negotiation</SelectItem>
-                      <SelectItem value="Won">Won</SelectItem>
-                      <SelectItem value="Lost">Lost</SelectItem>
-                      <SelectItem value="On Hold">On Hold</SelectItem>
-                      <SelectItem value="Junk">Junk</SelectItem>
+                      {statuses.map((s) => (
+                        <SelectItem key={s.id} value={s.id}>
+                          <span className="flex items-center gap-2">
+                            <span className="w-2 h-2 rounded-full" style={{ backgroundColor: s.color }} />
+                            {s.name}
+                          </span>
+                        </SelectItem>
+                      ))}
                     </SelectContent>
                   </Select>
                   <FormMessage />
@@ -241,11 +304,13 @@ export function LeadForm({ initialData, onSuccess }: LeadFormProps) {
                   <Select onValueChange={field.onChange} defaultValue={field.value}>
                     <FormControl>
                       <SelectTrigger className="bg-background border-input shadow-sm transition-colors hover:border-foreground/20 focus-visible:ring-1">
-                        <SelectValue placeholder="Select owner" />
+                        <SelectValue placeholder="Select owner">
+                          {members.find((m) => m.id === field.value)?.name || "Loading..."}
+                        </SelectValue>
                       </SelectTrigger>
                     </FormControl>
                     <SelectContent>
-                      {mockTeamMembers.map((member) => (
+                      {members.map((member) => (
                         <SelectItem key={member.id} value={member.id}>
                           {member.name}
                         </SelectItem>
@@ -259,7 +324,7 @@ export function LeadForm({ initialData, onSuccess }: LeadFormProps) {
           </div>
 
           {/* Conditional Lost Reason */}
-          {watchStatus === "Lost" && (
+          {isLostStatus && (
             <div className="space-y-4 pt-4 mt-4 border-t border-destructive/20">
               <h4 className="font-medium text-destructive">Lost Details</h4>
               <div className="grid sm:grid-cols-2 gap-5">
@@ -421,13 +486,15 @@ export function LeadForm({ initialData, onSuccess }: LeadFormProps) {
         </div>
 
         <div className="flex justify-end gap-3 pt-6 mt-6 border-t border-border">
-          <Button type="submit" size="lg" className="w-full sm:w-auto min-w-[150px] font-semibold">
-            {initialData ? "Save Changes" : "Add Lead"}
+          <Button type="submit" size="lg" className="w-full sm:w-auto min-w-[150px] font-semibold" disabled={saving}>
+            {saving ? (
+              <><Loader2 className="w-4 h-4 animate-spin mr-2" />{initialData?.id ? "Saving..." : "Adding..."}</>
+            ) : (
+              initialData?.id ? "Save Changes" : "Add Lead"
+            )}
           </Button>
         </div>
       </form>
     </Form>
   );
 }
-
-// Force IDE re-evaluation

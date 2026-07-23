@@ -4,23 +4,37 @@ import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { MessageSquare } from "lucide-react";
+import { addNote } from "@/actions/leads";
+import { toast } from "sonner";
+import { useRouter } from "next/navigation";
 
 export function AddNoteInline({ leadId }: { leadId: string }) {
+  const router = useRouter();
   const [note, setNote] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
+  const handleSubmit = async (e?: React.FormEvent) => {
+    if (e) e.preventDefault();
     if (!note.trim()) return;
 
     setIsSubmitting(true);
-    // Simulate API call
-    setTimeout(() => {
-      console.log(`Note added to lead ${leadId}:`, note);
+    const result = await addNote(leadId, note);
+    setIsSubmitting(false);
+
+    if (result.error) {
+      toast.error(result.error);
+    } else {
+      toast.success("Note added!");
       setNote("");
-      setIsSubmitting(false);
-      // alert("Note added!"); // In real app, toast and refetch timeline
-    }, 500);
+      router.refresh();
+    }
+  };
+
+  const handleKeyDown = (e: React.KeyboardEvent) => {
+    if (e.key === "Enter" && !e.shiftKey) {
+      e.preventDefault();
+      handleSubmit();
+    }
   };
 
   return (
@@ -34,10 +48,12 @@ export function AddNoteInline({ leadId }: { leadId: string }) {
           className="min-h-[60px] border-0 focus-visible:ring-0 p-0 resize-none shadow-none bg-transparent dark:bg-transparent"
           value={note}
           onChange={(e) => setNote(e.target.value)}
+          onKeyDown={handleKeyDown}
         />
         <div className="flex justify-between items-center mt-2 pt-2 border-t border-border/40">
           <span className="text-xs text-muted-foreground">Press Enter to save</span>
           <Button 
+            type="submit"
             size="sm" 
             disabled={!note.trim() || isSubmitting}
             className="h-8"

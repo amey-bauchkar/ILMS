@@ -12,28 +12,25 @@ import {
     TableRow,
 } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
-import {
-    Lead,
-    mockLeads,
-    statusColors,
-    priorityColors,
-    currentUser,
-} from "@/lib/mock-data";
+import { useLeads, useStatuses, useTeamMembers, priorityColors, type EnrichedLead } from "@/hooks/use-data";
+import { useUser } from "@/components/providers/user-provider";
+import { Download } from "lucide-react";
 import { avatarColor } from "@/lib/avatar-colors";
 import LeadsFilterBar, { LeadFilters, emptyFilters } from "./LeadsFilterBar";
 import LeadsMobileCard from "./LeadsMobileCard";
+import { Loader2 } from "lucide-react";
 
 type SavedView = "all" | "myOpen" | "overdue" | "hot" | "newWeek";
-type SortKey = keyof Lead | "ownerName";
+type SortKey = string;
 const PAGE_SIZE = 20;
 
-function applySavedView(leads: Lead[], view: SavedView): Lead[] {
+function applySavedView(leads: EnrichedLead[], view: SavedView, currentUserId?: string): EnrichedLead[] {
     const today = startOfDay(new Date());
     switch (view) {
         case "myOpen":
             return leads.filter(
                 (l) =>
-                    l.owner.id === currentUser.id &&
+                    l.owner.id === currentUserId &&
                     !["Won", "Lost", "Junk"].includes(l.status)
             );
         case "overdue":
@@ -52,7 +49,7 @@ function applySavedView(leads: Lead[], view: SavedView): Lead[] {
     }
 }
 
-function applyFilters(leads: Lead[], f: LeadFilters): Lead[] {
+function applyFilters(leads: EnrichedLead[], f: LeadFilters): EnrichedLead[] {
     return leads.filter((l) => {
         if (f.search) {
             const q = f.search.toLowerCase();
@@ -72,7 +69,6 @@ function applyFilters(leads: Lead[], f: LeadFilters): Lead[] {
     });
 }
 
-// ---- Dot badge: small colored dot + soft tinted text, instead of a solid block ----
 function DotBadge({ color, label }: { color: string; label: string }) {
     return (
         <span
@@ -97,6 +93,8 @@ const VIEWS: { key: SavedView; label: string }[] = [
 ];
 
 export default function LeadsTable() {
+    const { leads, loading, error, refresh } = useLeads();
+    const { user } = useUser();
     const [view, setView] = useState<SavedView>("all");
     const [filters, setFilters] = useState<LeadFilters>(emptyFilters);
     const [sortKey, setSortKey] = useState<SortKey>("createdAt");
@@ -105,16 +103,16 @@ export default function LeadsTable() {
 
     const viewCounts = useMemo(() => {
         return {
-            all: mockLeads.length,
-            myOpen: applySavedView(mockLeads, "myOpen").length,
-            overdue: applySavedView(mockLeads, "overdue").length,
-            hot: applySavedView(mockLeads, "hot").length,
-            newWeek: applySavedView(mockLeads, "newWeek").length,
+            all: leads.length,
+            myOpen: applySavedView(leads, "myOpen", user?.id).length,
+            overdue: applySavedView(leads, "overdue", user?.id).length,
+            hot: applySavedView(leads, "hot", user?.id).length,
+            newWeek: applySavedView(leads, "newWeek", user?.id).length,
         };
-    }, []);
+    }, [leads, user?.id]);
 
     const filteredSorted = useMemo(() => {
-        let result = applySavedView(mockLeads, view);
+        let result = applySavedView(leads, view, user?.id);
         result = applyFilters(result, filters);
 
         result = [...result].sort((a, b) => {
@@ -125,10 +123,10 @@ export default function LeadsTable() {
                 aVal = a.owner.name;
                 bVal = b.owner.name;
             } else {
-                const av = a[sortKey as keyof Lead];
-                const bv = b[sortKey as keyof Lead];
-                aVal = av === null || av === undefined ? "" : (av as any);
-                bVal = bv === null || bv === undefined ? "" : (bv as any);
+                const av = (a as any)[sortKey];
+                const bv = (b as any)[sortKey];
+                aVal = av === null || av === undefined ? "" : av;
+                bVal = bv === null || bv === undefined ? "" : bv;
             }
 
             if (aVal < bVal) return sortAsc ? -1 : 1;
@@ -137,7 +135,7 @@ export default function LeadsTable() {
         });
 
         return result;
-    }, [view, filters, sortKey, sortAsc]);
+    }, [leads, view, filters, sortKey, sortAsc, user?.id]);
 
     const totalPages = Math.max(1, Math.ceil(filteredSorted.length / PAGE_SIZE));
     const paginated = filteredSorted.slice(
@@ -175,11 +173,30 @@ export default function LeadsTable() {
         </TableHead>
     );
 
+    if (loading) {
+        return (
+            <div className="flex items-center justify-center py-20">
+                <Loader2 className="w-6 h-6 animate-spin text-primary" />
+                <span className="ml-2 text-muted-foreground">Loading leads...</span>
+            </div>
+        );
+    }
+
+    if (error) {
+        return (
+            <div className="text-center py-20">
+                <p className="text-destructive">Error loading leads: {error}</p>
+                <Button variant="outline" className="mt-4" onClick={refresh}>Retry</Button>
+            </div>
+        );
+    }
+
     return (
         <div>
-            {/* Underline tabs */}
-            <div className="flex gap-6 border-b border-[#2e2e2e] mb-5 overflow-x-auto">
-                {VIEWS.map((v) => (
+            {/* Underline tabs and Export Button */}
+            <div className="flex items-center justify-between border-b border-[#2e2e2e] mb-5">
+                <div className="flex gap-6 overflow-x-auto">
+                    {VIEWS.map((v) => (
                     <button
                         key={v.key}
                         onClick={() => {
@@ -200,6 +217,19 @@ export default function LeadsTable() {
                         )}
                     </button>
                 ))}
+                </div>
+                
+                {(user?.role === "admin" || user?.role === "client_manager") && (
+                    <Button 
+                        variant="outline" 
+                        size="sm" 
+                        className="mb-2 hidden sm:flex" 
+                        onClick={() => window.location.href = "/api/export/leads"}
+                    >
+                        <Download className="w-4 h-4 mr-2" />
+                        Export CSV
+                    </Button>
+                )}
             </div>
 
             <LeadsFilterBar filters={filters} onChange={(f) => { setFilters(f); setPage(1); }} />
@@ -273,7 +303,7 @@ export default function LeadsTable() {
                                             {lead.company ?? <span className="text-[#525252]">—</span>}
                                         </TableCell>
                                         <TableCell>
-                                            <DotBadge color={statusColors[lead.status]} label={lead.status} />
+                                            <DotBadge color={lead.statusColor} label={lead.status} />
                                         </TableCell>
                                         <TableCell>
                                             <DotBadge color={priorityColors[lead.priority]} label={lead.priority} />
@@ -319,7 +349,7 @@ export default function LeadsTable() {
             {/* Pagination */}
             <div className="flex justify-between items-center mt-4">
                 <span className="text-sm text-[#737373]">
-                    Page {page} of {totalPages}
+                    {filteredSorted.length} leads · Page {page} of {totalPages}
                 </span>
                 <div className="flex gap-2">
                     <Button

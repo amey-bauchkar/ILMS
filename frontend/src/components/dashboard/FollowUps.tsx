@@ -2,19 +2,23 @@
 
 import Link from "next/link";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { mockLeads, Lead } from "@/lib/mock-data";
+import { EnrichedLead } from "@/hooks/use-data";
 import { AlertTriangle, Clock, Phone } from "lucide-react";
 import { avatarColor } from "@/lib/avatar-colors";
 
-const TODAY = new Date("2026-07-14");
+function getToday() {
+  const d = new Date();
+  d.setHours(0, 0, 0, 0);
+  return d;
+}
 
 function daysOverdue(dateStr: string) {
   const d = new Date(dateStr);
-  const diff = TODAY.getTime() - d.getTime();
+  const diff = getToday().getTime() - d.getTime();
   return Math.floor(diff / (1000 * 60 * 60 * 24));
 }
 
-function LeadRow({ lead, badge }: { lead: Lead; badge?: React.ReactNode }) {
+function LeadRow({ lead, badge }: { lead: EnrichedLead; badge?: React.ReactNode }) {
   const initials = lead.name.split(" ").map((n) => n[0]).join("").slice(0, 2).toUpperCase();
   const color = avatarColor(lead.name);
 
@@ -40,11 +44,11 @@ function LeadRow({ lead, badge }: { lead: Lead; badge?: React.ReactNode }) {
   );
 }
 
-export function OverdueFollowUps() {
-  const overdue = mockLeads.filter((l) => {
+export function OverdueFollowUps({ leads }: { leads: EnrichedLead[] }) {
+  const overdue = leads.filter((l) => {
     if (!l.nextFollowUpDate) return false;
     const d = new Date(l.nextFollowUpDate);
-    return d < TODAY && l.status !== "Won" && l.status !== "Lost";
+    return d < getToday() && l.status !== "Won" && l.status !== "Lost";
   });
 
   return (
@@ -84,9 +88,9 @@ export function OverdueFollowUps() {
   );
 }
 
-export function TodaysFollowUps() {
-  const todayStr = TODAY.toISOString().split("T")[0];
-  const todayLeads = mockLeads.filter(
+export function TodaysFollowUps({ leads }: { leads: EnrichedLead[] }) {
+  const todayStr = new Date().toISOString().split("T")[0];
+  const todayLeads = leads.filter(
     (l) => l.nextFollowUpDate === todayStr && l.status !== "Won" && l.status !== "Lost"
   );
 
@@ -142,11 +146,11 @@ export function TodaysFollowUps() {
   );
 }
 
-export function FollowUpsSummary() {
+export function FollowUpsSummary({ leads }: { leads: EnrichedLead[] }) {
   return (
     <div className="grid gap-4 md:grid-cols-2">
-      <TodaysFollowUps />
-      <OverdueFollowUps />
+      <TodaysFollowUps leads={leads} />
+      <OverdueFollowUps leads={leads} />
     </div>
   );
 }

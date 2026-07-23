@@ -12,10 +12,21 @@ import { RecentActivityFeed } from "@/components/dashboard/RecentActivityFeed";
 import { WonVsLostTrend } from "@/components/dashboard/WonVsLostTrend";
 import { DashboardDateFilter } from "@/components/dashboard/DashboardDateFilter";
 import { type DateFilter, type CustomDateRange } from "@/lib/utils";
+import { useDashboardData } from "@/hooks/use-data";
+import { Loader2 } from "lucide-react";
 
 export default function DashboardPage() {
   const [dateFilter, setDateFilter] = useState<DateFilter>("month");
   const [customRange, setCustomRange] = useState<CustomDateRange>();
+  const { leads, activities, loading } = useDashboardData();
+
+  if (loading) {
+    return (
+      <div className="flex h-[50vh] items-center justify-center">
+        <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-6">
@@ -37,29 +48,29 @@ export default function DashboardPage() {
 
       {/* Row 1 — KPI stats: New Leads + Conversion Rate */}
       <div className="grid gap-4 sm:grid-cols-2">
-        <NewLeadsStats />
-        <ConversionRate dateFilter={dateFilter} customRange={customRange} />
+        <NewLeadsStats leads={leads} />
+        <ConversionRate leads={leads} dateFilter={dateFilter} customRange={customRange} />
       </div>
 
       {/* Row 2 — Pipeline Summary + Leads by Source */}
       <div className="grid gap-4 lg:grid-cols-2">
-        <PipelineSummary dateFilter={dateFilter} customRange={customRange} />
-        <LeadsBySource dateFilter={dateFilter} customRange={customRange} />
+        <PipelineSummary leads={leads} dateFilter={dateFilter} customRange={customRange} />
+        <LeadsBySource leads={leads} dateFilter={dateFilter} customRange={customRange} />
       </div>
 
       {/* Row 3 — Pipeline Value (Stacked Bar) + Won vs Lost Trend */}
       <div className="grid gap-4 lg:grid-cols-2">
-        <PipelineValue dateFilter={dateFilter} customRange={customRange} />
-        <WonVsLostTrend />
+        <PipelineValue leads={leads} dateFilter={dateFilter} customRange={customRange} />
+        <WonVsLostTrend leads={leads} />
       </div>
 
       {/* Row 4 — Today's Follow-ups + Overdue Follow-ups (clickable rows) */}
-      <FollowUpsSummary />
+      <FollowUpsSummary leads={leads} />
 
       {/* Row 5 — Team Leaderboard + Recent Activity (15-20 entries) */}
       <div className="grid gap-4 lg:grid-cols-2">
-        <TeamLeaderboard dateFilter={dateFilter} customRange={customRange} />
-        <RecentActivityFeed dateFilter={dateFilter} customRange={customRange} />
+        <TeamLeaderboard leads={leads} dateFilter={dateFilter} customRange={customRange} />
+        <RecentActivityFeed leads={leads} activities={activities} dateFilter={dateFilter} customRange={customRange} />
       </div>
     </div>
   );

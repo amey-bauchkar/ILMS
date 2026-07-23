@@ -9,7 +9,7 @@ import {
   ResponsiveContainer,
 } from "recharts";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
-import { mockLeads, LeadSource } from "@/lib/mock-data";
+import { EnrichedLead } from "@/hooks/use-data";
 import { DateFilter, CustomDateRange, isWithinFilter } from "@/lib/utils";
 
 const SOURCE_COLORS: Record<string, string> = {
@@ -38,12 +38,13 @@ const CustomTooltip = ({ active, payload }: { active?: boolean; payload?: Array<
 };
 
 interface LeadsBySourceProps {
+  leads: EnrichedLead[];
   dateFilter?: DateFilter;
   customRange?: CustomDateRange;
 }
 
-export function LeadsBySource({ dateFilter = "month", customRange }: LeadsBySourceProps) {
-  const filteredLeads = mockLeads.filter(l => isWithinFilter(l.createdAt, dateFilter, customRange));
+export function LeadsBySource({ leads, dateFilter = "month", customRange }: LeadsBySourceProps) {
+  const filteredLeads = leads.filter(l => isWithinFilter(l.createdAt, dateFilter, customRange));
 
   const sourceCounts = filteredLeads.reduce<Record<string, number>>((acc, lead) => {
     acc[lead.source] = (acc[lead.source] || 0) + 1;
@@ -86,7 +87,7 @@ export function LeadsBySource({ dateFilter = "month", customRange }: LeadsBySour
               {data.map((entry) => (
                 <Cell
                   key={entry.name}
-                  fill={SOURCE_COLORS[entry.name as LeadSource] ?? "#737373"}
+                  fill={SOURCE_COLORS[entry.name] ?? "#737373"}
                 />
               ))}
             </Pie>

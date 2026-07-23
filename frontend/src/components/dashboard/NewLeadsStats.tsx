@@ -1,7 +1,7 @@
 "use client";
 
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { mockLeads } from "@/lib/mock-data";
+import { EnrichedLead } from "@/hooks/use-data";
 import { Users, TrendingUp } from "lucide-react";
 
 function isWithinDays(dateStr: string, days: number): boolean {
@@ -12,10 +12,10 @@ function isWithinDays(dateStr: string, days: number): boolean {
   return diffDays >= 0 && diffDays <= days;
 }
 
-export function NewLeadsStats() {
-  const today = mockLeads.filter((l) => isWithinDays(l.createdAt, 1)).length;
-  const week = mockLeads.filter((l) => isWithinDays(l.createdAt, 7)).length;
-  const month = mockLeads.filter((l) => isWithinDays(l.createdAt, 30)).length;
+export function NewLeadsStats({ leads }: { leads: EnrichedLead[] }) {
+  const today = leads.filter((l) => isWithinDays(l.createdAt, 1)).length;
+  const week = leads.filter((l) => isWithinDays(l.createdAt, 7)).length;
+  const month = leads.filter((l) => isWithinDays(l.createdAt, 30)).length;
 
   const stats = [
     { label: "Today", value: today, color: "#e87811" },
@@ -53,7 +53,7 @@ export function NewLeadsStats() {
         <div className="mt-4 flex items-center gap-1.5 text-xs text-muted-foreground">
           <TrendingUp className="h-3 w-3 text-green-500" />
           <span>
-            <span className="text-foreground font-medium">{mockLeads.length}</span> total leads in system
+            <span className="text-foreground font-medium">{leads.length}</span> total leads in system
           </span>
         </div>
       </CardContent>

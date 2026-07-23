@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { LeadStatus, statusColors } from "@/lib/mock-data";
+import { useStatuses } from "@/hooks/use-data";
 import {
   Dialog,
   DialogContent,
@@ -24,19 +24,6 @@ import { CheckCircle2, Trophy, ChevronRight } from "lucide-react";
 // Constants
 // ---------------------------------------------------------
 
-const PIPELINE_STATUSES: LeadStatus[] = [
-  "New",
-  "Attempted Contact",
-  "Contacted",
-  "Qualified",
-  "Proposal Sent",
-  "Negotiation",
-  "Won",
-  "Lost",
-  "On Hold",
-  "Junk",
-];
-
 const LOST_REASONS = [
   "Budget",
   "Timing",
@@ -48,26 +35,16 @@ const LOST_REASONS = [
 
 type LostReason = (typeof LOST_REASONS)[number];
 
-// The "linear" progression (Won/Lost/On Hold/Junk are terminal)
-const LINEAR_PIPELINE: LeadStatus[] = [
-  "New",
-  "Attempted Contact",
-  "Contacted",
-  "Qualified",
-  "Proposal Sent",
-  "Negotiation",
-  "Won",
-];
-
-const TERMINAL_STATUSES: LeadStatus[] = ["Won", "Lost", "On Hold", "Junk"];
-const SPECIAL_STATUSES: LeadStatus[] = ["Lost", "On Hold", "Junk"];
+const TERMINAL_STATUS_NAMES = ["Won", "Lost", "On Hold", "Junk"];
+const SPECIAL_STATUS_NAMES = ["Lost", "On Hold", "Junk"];
 
 function getStepState(
-  status: LeadStatus,
-  currentStatus: LeadStatus
+  statusName: string,
+  currentStatusName: string,
+  linearPipelineNames: string[]
 ): "completed" | "current" | "future" {
-  const currentIdx = LINEAR_PIPELINE.indexOf(currentStatus);
-  const statusIdx = LINEAR_PIPELINE.indexOf(status);
+  const currentIdx = linearPipelineNames.indexOf(currentStatusName);
+  const statusIdx = linearPipelineNames.indexOf(statusName);
   if (statusIdx === -1) return "future";
   if (statusIdx < currentIdx) return "completed";
   if (statusIdx === currentIdx) return "current";
@@ -80,25 +57,25 @@ function getStepState(
 
 interface ConfirmDialogProps {
   open: boolean;
-  targetStatus: LeadStatus | null;
-  currentStatus: LeadStatus;
+  targetStatusName: string | null;
+  currentStatusName: string;
   onConfirm: (reason?: LostReason) => void;
   onCancel: () => void;
 }
 
 function ConfirmDialog({
   open,
-  targetStatus,
-  currentStatus,
+  targetStatusName,
+  currentStatusName,
   onConfirm,
   onCancel,
 }: ConfirmDialogProps) {
   const [lostReason, setLostReason] = useState<LostReason | "">("");
 
-  if (!targetStatus) return null;
+  if (!targetStatusName) return null;
 
-  const isWon = targetStatus === "Won";
-  const isLost = targetStatus === "Lost";
+  const isWon = targetStatusName === "Won";
+  const isLost = targetStatusName === "Lost";
 
   function handleConfirm() {
     if (isLost && !lostReason) return;
@@ -115,7 +92,7 @@ function ConfirmDialog({
               ? "🎉 Mark as Won?"
               : isLost
               ? "Mark as Lost"
-              : `Move to "${targetStatus}"?`}
+              : `Move to "${targetStatusName}"?`}
           </DialogTitle>
         </DialogHeader>
 
@@ -135,7 +112,7 @@ function ConfirmDialog({
             <div className="space-y-3">
               <p className="text-sm text-muted-foreground">
                 Current status:{" "}
-                <span className="font-medium text-foreground">{currentStatus}</span>
+                <span className="font-medium text-foreground">{currentStatusName}</span>
               </p>
               <div className="space-y-1.5">
                 <label className="text-sm font-medium">
@@ -163,9 +140,9 @@ function ConfirmDialog({
           {!isWon && !isLost && (
             <p className="text-sm text-muted-foreground">
               Move status from{" "}
-              <span className="font-medium text-foreground">{currentStatus}</span>{" "}
+              <span className="font-medium text-foreground">{currentStatusName}</span>{" "}
               to{" "}
-              <span className="font-medium text-foreground">{targetStatus}</span>?
+              <span className="font-medium text-foreground">{targetStatusName}</span>?
             </p>
           )}
         </div>
@@ -192,35 +169,54 @@ function ConfirmDialog({
 // ---------------------------------------------------------
 
 interface StatusPipelineProps {
-  currentStatus: LeadStatus;
-  onStatusChange?: (newStatus: LeadStatus, lostReason?: string) => void;
+  currentStatus: string;
+  onStatusChange?: (newStatusId: string, lostReason?: string) => void;
 }
 
 export function StatusPipeline({ currentStatus, onStatusChange }: StatusPipelineProps) {
-  const [localStatus, setLocalStatus] = useState<LeadStatus>(currentStatus);
-  const [pendingStatus, setPendingStatus] = useState<LeadStatus | null>(null);
+  const { statuses } = useStatuses();
+  
+  // Create pipelines from real DB statuses
+  const linearPipeline = statuses.filter(s => !SPECIAL_STATUS_NAMES.includes(s.name));
+  const linearPipelineNames = linearPipeline.map(s => s.name);
+  const specialPipeline = statuses.filter(s => SPECIAL_STATUS_NAMES.includes(s.name));
+
+  const [localStatusName, setLocalStatusName] = useState<string>(currentStatus);
+  const [pendingStatusName, setPendingStatusName] = useState<string | null>(null);
   const [dialogOpen, setDialogOpen] = useState(false);
 
-  function handleStepClick(status: LeadStatus) {
-    if (status === localStatus) return;
-    setPendingStatus(status);
+  function handleStepClick(statusName: string) {
+    if (statusName === localStatusName) return;
+    setPendingStatusName(statusName);
     setDialogOpen(true);
   }
 
   function handleConfirm(lostReason?: LostReason) {
-    if (!pendingStatus) return;
-    setLocalStatus(pendingStatus);
-    onStatusChange?.(pendingStatus, lostReason);
+    if (!pendingStatusName) return;
+    setLocalStatusName(pendingStatusName);
+    
+    // Find the ID for the new status
+    const newStatusObj = statuses.find(s => s.name === pendingStatusName);
+    if (newStatusObj) {
+      onStatusChange?.(newStatusObj.id, lostReason);
+    }
+    
     setDialogOpen(false);
-    setPendingStatus(null);
+    setPendingStatusName(null);
   }
 
   function handleCancel() {
     setDialogOpen(false);
-    setPendingStatus(null);
+    setPendingStatusName(null);
   }
 
-  const isTerminal = TERMINAL_STATUSES.includes(localStatus);
+  const isTerminal = TERMINAL_STATUS_NAMES.includes(localStatusName);
+  
+  // Find current status color from DB, fallback to gray
+  const currentStatusObj = statuses.find(s => s.name === localStatusName);
+  const currentStatusColor = currentStatusObj?.color || "#737373";
+
+  if (statuses.length === 0) return <div className="h-20 animate-pulse bg-secondary rounded-lg" />;
 
   return (
     <div className="space-y-4">
@@ -232,10 +228,11 @@ export function StatusPipeline({ currentStatus, onStatusChange }: StatusPipeline
         role="navigation"
       >
         <div className="flex items-center min-w-max gap-0">
-          {LINEAR_PIPELINE.map((status, idx) => {
-            const state = getStepState(status, localStatus);
-            const color = statusColors[status];
-            const isLast = idx === LINEAR_PIPELINE.length - 1;
+          {linearPipeline.map((statusObj, idx) => {
+            const status = statusObj.name;
+            const state = getStepState(status, localStatusName, linearPipelineNames);
+            const color = statusObj.color;
+            const isLast = idx === linearPipeline.length - 1;
 
             return (
               <div key={status} className="flex items-center">
@@ -303,11 +300,11 @@ export function StatusPipeline({ currentStatus, onStatusChange }: StatusPipeline
                     className={cn("h-px w-4 shrink-0 mx-0.5")}
                     style={{
                       backgroundColor:
-                        getStepState(LINEAR_PIPELINE[idx + 1], localStatus) !== "future"
+                        getStepState(linearPipeline[idx + 1].name, localStatusName, linearPipelineNames) !== "future"
                           ? color
                           : "var(--border)",
                       opacity:
-                        getStepState(LINEAR_PIPELINE[idx + 1], localStatus) === "future" ? 0.3 : 1,
+                        getStepState(linearPipeline[idx + 1].name, localStatusName, linearPipelineNames) === "future" ? 0.3 : 1,
                     }}
                     aria-hidden="true"
                   />
@@ -320,9 +317,10 @@ export function StatusPipeline({ currentStatus, onStatusChange }: StatusPipeline
           <ChevronRight className="h-4 w-4 text-border mx-2 shrink-0" aria-hidden="true" />
 
           {/* Special terminal statuses */}
-          {SPECIAL_STATUSES.map((status) => {
-            const isActive = localStatus === status;
-            const color = statusColors[status];
+          {specialPipeline.map((statusObj) => {
+            const status = statusObj.name;
+            const isActive = localStatusName === status;
+            const color = statusObj.color;
 
             return (
               <button
@@ -367,12 +365,12 @@ export function StatusPipeline({ currentStatus, onStatusChange }: StatusPipeline
       <div className="flex items-center gap-2">
         <div
           className="w-2 h-2 rounded-full"
-          style={{ backgroundColor: statusColors[localStatus] }}
+          style={{ backgroundColor: currentStatusColor }}
         />
         <span className="text-sm text-muted-foreground">
           Current status:{" "}
-          <span className="font-medium" style={{ color: statusColors[localStatus] }}>
-            {localStatus}
+          <span className="font-medium" style={{ color: currentStatusColor }}>
+            {localStatusName}
           </span>
         </span>
         {isTerminal && (
@@ -385,8 +383,8 @@ export function StatusPipeline({ currentStatus, onStatusChange }: StatusPipeline
       {/* Confirmation dialog */}
       <ConfirmDialog
         open={dialogOpen}
-        targetStatus={pendingStatus}
-        currentStatus={localStatus}
+        targetStatusName={pendingStatusName}
+        currentStatusName={localStatusName}
         onConfirm={handleConfirm}
         onCancel={handleCancel}
       />

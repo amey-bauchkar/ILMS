@@ -11,26 +11,30 @@ import {
   CartesianGrid,
 } from "recharts";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
-import { mockLeads } from "@/lib/mock-data";
+import { EnrichedLead } from "@/hooks/use-data";
 
-// Build monthly won/lost trend from mock data (last 6 months relative to 2026-07)
-const MONTHS = ["Feb", "Mar", "Apr", "May", "Jun", "Jul"];
-const MONTH_INDICES: Record<string, number> = {
-  Feb: 1, Mar: 2, Apr: 3, May: 4, Jun: 5, Jul: 6,
-};
-
-function buildTrend() {
+function buildTrend(leads: EnrichedLead[]) {
   const counts: Record<string, { won: number; lost: number }> = {};
-  MONTHS.forEach((m) => (counts[m] = { won: 0, lost: 0 }));
+  const MONTHS: string[] = [];
+  
+  // Build the last 6 months dynamically
+  const d = new Date();
+  for (let i = 5; i >= 0; i--) {
+    const dTemp = new Date(d.getFullYear(), d.getMonth() - i, 1);
+    const mStr = dTemp.toLocaleString('default', { month: 'short' });
+    MONTHS.push(mStr);
+    counts[mStr] = { won: 0, lost: 0 };
+  }
 
-  mockLeads.forEach((lead) => {
+  leads.forEach((lead) => {
     const date = new Date(lead.createdAt);
-    const monthIdx = date.getMonth(); // 0-indexed
-    const monthName = MONTHS.find((m) => MONTH_INDICES[m] === monthIdx + 1);
-    if (!monthName) return;
-
-    if (lead.status === "Won") counts[monthName].won += 1;
-    if (lead.status === "Lost") counts[monthName].lost += 1;
+    const mStr = date.toLocaleString('default', { month: 'short' });
+    
+    // Only tally if it's within our last 6 months window
+    if (counts[mStr]) {
+      if (lead.status === "Won") counts[mStr].won += 1;
+      if (lead.status === "Lost") counts[mStr].lost += 1;
+    }
   });
 
   return MONTHS.map((m) => ({ month: m, Won: counts[m].won, Lost: counts[m].lost }));
@@ -60,8 +64,8 @@ const CustomTooltip = ({
   return null;
 };
 
-export function WonVsLostTrend() {
-  const data = buildTrend();
+export function WonVsLostTrend({ leads }: { leads: EnrichedLead[] }) {
+  const data = buildTrend(leads);
 
   return (
     <Card>

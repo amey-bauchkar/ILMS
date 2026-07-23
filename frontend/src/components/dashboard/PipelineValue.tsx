@@ -11,7 +11,7 @@ import {
   CartesianGrid,
 } from "recharts";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
-import { mockLeads, mockTeamMembers } from "@/lib/mock-data";
+import { EnrichedLead } from "@/hooks/use-data";
 import { DateFilter, CustomDateRange, isWithinFilter } from "@/lib/utils";
 
 const CustomTooltip = ({
@@ -39,15 +39,19 @@ const CustomTooltip = ({
 };
 
 interface PipelineValueProps {
+  leads: EnrichedLead[];
   dateFilter?: DateFilter;
   customRange?: CustomDateRange;
 }
 
-export function PipelineValue({ dateFilter = "month", customRange }: PipelineValueProps) {
-  const filteredLeads = mockLeads.filter(l => isWithinFilter(l.createdAt, dateFilter, customRange));
+export function PipelineValue({ leads, dateFilter = "month", customRange }: PipelineValueProps) {
+  const filteredLeads = leads.filter(l => isWithinFilter(l.createdAt, dateFilter, customRange));
+
+  const uniqueOwners = Array.from(new Set(filteredLeads.map(l => l.owner.id)))
+    .map(id => filteredLeads.find(l => l.owner.id === id)!.owner);
 
   // Group deal value by owner and status bucket (active / won / lost)
-  const data = mockTeamMembers.map((member) => {
+  const data = uniqueOwners.map((member) => {
     const memberLeads = filteredLeads.filter(
       (l) => l.owner.id === member.id && l.dealValue
     );

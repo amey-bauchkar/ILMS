@@ -4,17 +4,13 @@ export const leadFormSchema = z.object({
   name: z.string().min(2, "Name must be at least 2 characters"),
   company: z.string().nullable().optional(),
   phone: z.string().min(10, "Enter a valid phone number"),
-  email: z.string().email("Enter a valid email").nullable().optional(),
+  email: z.union([z.literal(""), z.string().email("Enter a valid email")]).nullable().optional(),
   source: z.enum([
     "Reddit", "Google Business Profile", "Referral",
     "Website Inbound", "LinkedIn", "Cold Outreach",
     "WhatsApp", "Upwork", "Events", "Other"
   ]),
-  status: z.enum([
-    "New", "Attempted Contact", "Contacted", "Qualified",
-    "Proposal Sent", "Negotiation", "Won", "Lost",
-    "On Hold", "Junk"
-  ]),
+  status: z.string(),
   priority: z.enum(["Hot", "Warm", "Cold"]),
   ownerId: z.string(),
   dealValue: z.number().min(0).nullable().optional(),

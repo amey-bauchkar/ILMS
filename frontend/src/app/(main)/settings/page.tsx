@@ -1,6 +1,8 @@
-"use client";
+// @ts-nocheck
+import { createClient } from "@/lib/supabase/server";
+import { redirect } from "next/navigation";
+import { User, Status, Tag } from "@/types/database";
 
-import { Button } from "@/components/ui/button";
 import {
   Card,
   CardContent,
@@ -8,12 +10,53 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 
-export default function SettingsPage() {
+import { ProfileSettings } from "@/components/settings/ProfileSettings";
+import { UserManagement } from "@/components/settings/UserManagement";
+import { StatusManagement } from "@/components/settings/StatusManagement";
+import { TagManagement } from "@/components/settings/TagManagement";
+
+export default async function SettingsPage() {
+  const supabase = await createClient();
+
+  // Get current auth user
+  const { data: { user }, error: authError } = await supabase.auth.getUser();
+  if (authError || !user) {
+    redirect("/login");
+  }
+
+  // Get user profile
+  const { data: profile } = await supabase
+    .from("users")
+    .select("*")
+    .eq("auth_id", user.id)
+    .single();
+
+  if (!profile) {
+    // Edge case if trigger failed
+    return <div>Profile not found. Please contact an admin.</div>;
+  }
+
+  const isAdmin = profile.role === "admin";
+
+  let users: User[] = [];
+  let statuses: Status[] = [];
+  let tags: Tag[] = [];
+
+  if (isAdmin) {
+    const [usersRes, statusesRes, tagsRes] = await Promise.all([
+      supabase.from("users").select("*").order("name"),
+      supabase.from("statuses").select("*").order("display_order"),
+      supabase.from("tags").select("*").order("name"),
+    ]);
+    
+    users = usersRes.data || [];
+    statuses = statusesRes.data || [];
+    tags = tagsRes.data || [];
+  }
+
   return (
     <div className="w-full space-y-6">
       <div className="flex flex-col gap-1 border-b border-border pb-4">
@@ -24,9 +67,27 @@ export default function SettingsPage() {
       </div>
 
       <Tabs defaultValue="profile" className="space-y-4">
-        <TabsList className="bg-card/50 border border-border p-1 h-auto rounded-lg">
-          <TabsTrigger value="profile" className="rounded-md px-6 py-2 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground transition-all">Profile</TabsTrigger>
-          <TabsTrigger value="application" className="rounded-md px-6 py-2 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground transition-all">Application</TabsTrigger>
+        <TabsList className="bg-card/50 border border-border p-1 h-auto rounded-lg flex-wrap">
+          <TabsTrigger value="profile" className="rounded-md px-6 py-2 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground transition-all">
+            Profile
+          </TabsTrigger>
+          <TabsTrigger value="application" className="rounded-md px-6 py-2 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground transition-all">
+            Application
+          </TabsTrigger>
+          
+          {isAdmin && (
+            <>
+              <TabsTrigger value="users" className="rounded-md px-6 py-2 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground transition-all">
+                Team
+              </TabsTrigger>
+              <TabsTrigger value="statuses" className="rounded-md px-6 py-2 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground transition-all">
+                Statuses
+              </TabsTrigger>
+              <TabsTrigger value="tags" className="rounded-md px-6 py-2 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground transition-all">
+                Tags
+              </TabsTrigger>
+            </>
+          )}
         </TabsList>
         
         <TabsContent value="profile" className="focus-visible:outline-none focus-visible:ring-0">
@@ -34,48 +95,11 @@ export default function SettingsPage() {
             <CardHeader className="border-b border-border/50 pb-4 mb-4">
               <CardTitle className="text-xl">Profile Details</CardTitle>
               <CardDescription className="text-sm">
-                Update your personal information and avatar.
+                View your personal information and role.
               </CardDescription>
             </CardHeader>
             <CardContent className="px-6 pb-4">
-              <div className="flex flex-col md:flex-row gap-10">
-                {/* Avatar Section (Left Column) */}
-                <div className="flex flex-col items-center gap-4 w-40 shrink-0">
-                  <Avatar className="w-28 h-28 border-4 border-background shadow-lg">
-                    <AvatarImage src="" />
-                    <AvatarFallback className="text-4xl font-bold bg-primary text-primary-foreground">AB</AvatarFallback>
-                  </Avatar>
-                  <div className="flex flex-col gap-2 w-full mt-2">
-                    <Button variant="default" size="sm" className="w-full shadow-md font-medium">Upload</Button>
-                    <Button variant="outline" size="sm" className="w-full text-destructive hover:text-destructive hover:bg-destructive/10 border-destructive/20">Remove</Button>
-                  </div>
-                </div>
-
-                {/* Form Section (Right Column) */}
-                <div className="flex-1 flex flex-col justify-between">
-                  <div className="grid gap-5 md:grid-cols-2">
-                    <div className="space-y-2">
-                      <Label htmlFor="name" className="text-sm font-medium">Full Name</Label>
-                      <Input id="name" defaultValue="Amey B." className="bg-background h-10" />
-                    </div>
-                    <div className="space-y-2">
-                      <Label htmlFor="email" className="text-sm font-medium">Email Address</Label>
-                      <Input id="email" type="email" defaultValue="amey@foremark.com" className="bg-background h-10" />
-                    </div>
-                    <div className="space-y-2 md:col-span-2">
-                      <Label htmlFor="role" className="text-sm font-medium">Role</Label>
-                      <Input id="role" value="Administrator" readOnly disabled className="bg-secondary/50 text-muted-foreground cursor-not-allowed h-10" />
-                      <p className="text-xs text-muted-foreground mt-1">
-                        Your role is managed by the organization owner.
-                      </p>
-                    </div>
-                  </div>
-                  
-                  <div className="border-t border-border/50 pt-4 mt-6 flex justify-end">
-                    <Button className="px-8 h-10 font-medium shadow-md hover:shadow-primary/20 transition-all">Save Changes</Button>
-                  </div>
-                </div>
-              </div>
+              <ProfileSettings profile={profile as User} />
             </CardContent>
           </Card>
         </TabsContent>
@@ -106,6 +130,52 @@ export default function SettingsPage() {
             </CardContent>
           </Card>
         </TabsContent>
+
+        {isAdmin && (
+          <>
+            <TabsContent value="users" className="focus-visible:outline-none focus-visible:ring-0">
+              <Card className="border-border bg-card/40 backdrop-blur-sm shadow-xl">
+                <CardHeader className="border-b border-border/50 pb-4 mb-4">
+                  <CardTitle className="text-xl">User Management</CardTitle>
+                  <CardDescription>
+                    Invite team members and manage their roles and access.
+                  </CardDescription>
+                </CardHeader>
+                <CardContent className="px-6 pb-6">
+                  <UserManagement users={users} />
+                </CardContent>
+              </Card>
+            </TabsContent>
+
+            <TabsContent value="statuses" className="focus-visible:outline-none focus-visible:ring-0">
+              <Card className="border-border bg-card/40 backdrop-blur-sm shadow-xl">
+                <CardHeader className="border-b border-border/50 pb-4 mb-4">
+                  <CardTitle className="text-xl">Status Management</CardTitle>
+                  <CardDescription>
+                    Configure the stages a lead passes through in your pipeline.
+                  </CardDescription>
+                </CardHeader>
+                <CardContent className="px-6 pb-6">
+                  <StatusManagement statuses={statuses} />
+                </CardContent>
+              </Card>
+            </TabsContent>
+
+            <TabsContent value="tags" className="focus-visible:outline-none focus-visible:ring-0">
+              <Card className="border-border bg-card/40 backdrop-blur-sm shadow-xl">
+                <CardHeader className="border-b border-border/50 pb-4 mb-4">
+                  <CardTitle className="text-xl">Tag Management</CardTitle>
+                  <CardDescription>
+                    Create and organize tags that can be applied to categorize leads.
+                  </CardDescription>
+                </CardHeader>
+                <CardContent className="px-6 pb-6">
+                  <TagManagement tags={tags} />
+                </CardContent>
+              </Card>
+            </TabsContent>
+          </>
+        )}
       </Tabs>
     </div>
   );

@@ -1,10 +1,12 @@
 "use client";
 
 import { StatusPipeline } from "@/components/shared/StatusPipeline";
-import { Lead } from "@/lib/mock-data";
+import type { EnrichedLead } from "@/hooks/use-data";
+import { updateLead } from "@/actions/leads";
+import { toast } from "sonner";
 
 interface LeadStatusSectionProps {
-  lead: Lead;
+  lead: EnrichedLead;
 }
 
 export function LeadStatusSection({ lead }: LeadStatusSectionProps) {
@@ -15,13 +17,17 @@ export function LeadStatusSection({ lead }: LeadStatusSectionProps) {
       </p>
       <StatusPipeline
         currentStatus={lead.status}
-        onStatusChange={(newStatus, lostReason) => {
-          console.log("LeadStatusChange:", {
-            leadId: lead.id,
-            leadName: lead.name,
-            newStatus,
-            lostReason: lostReason ?? null,
+        onStatusChange={async (newStatusId, lostReason) => {
+          const result = await updateLead(lead.id, {
+            status_id: newStatusId,
+            lost_reason: lostReason || null,
           });
+          
+          if (result.error) {
+            toast.error(result.error);
+          } else {
+            toast.success("Status updated!");
+          }
         }}
       />
     </div>

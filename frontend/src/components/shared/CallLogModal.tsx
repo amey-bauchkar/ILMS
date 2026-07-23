@@ -31,7 +31,6 @@ import {
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Input } from "@/components/ui/input";
-import { LeadStatus } from "@/lib/mock-data";
 import {
   Phone,
   PhoneOff,
@@ -42,6 +41,10 @@ import {
   CheckCircle2,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
+
+import { logCall, updateLead } from "@/actions/leads";
+import { useStatuses } from "@/hooks/use-data";
+import { useRouter } from "next/navigation";
 
 // ---------------------------------------------------------
 // Types
@@ -71,7 +74,7 @@ const callLogSchema = z
     ] as const),
     notes: z.string().optional(),
     followUpDate: z.string().optional(),
-    newStatus: z.string().optional(),
+    newStatusId: z.string().optional(),
     retryDate: z.string().optional(),
   })
   .superRefine((data, ctx) => {
@@ -111,16 +114,6 @@ const OUTCOMES: {
   },
 ];
 
-const STATUS_OPTIONS: LeadStatus[] = [
-  "Attempted Contact",
-  "Contacted",
-  "Qualified",
-  "Proposal Sent",
-  "Negotiation",
-  "On Hold",
-  "Junk",
-];
-
 // ---------------------------------------------------------
 // Inner form component
 // ---------------------------------------------------------
@@ -128,17 +121,21 @@ const STATUS_OPTIONS: LeadStatus[] = [
 function CallLogForm({
   onClose,
   leadName,
+  leadId,
 }: {
   onClose: () => void;
   leadName?: string;
+  leadId: string;
 }) {
+  const router = useRouter();
+  const { statuses } = useStatuses();
   const form = useForm<CallLogFormData>({
     resolver: zodResolver(callLogSchema),
     defaultValues: {
       outcome: undefined,
       notes: "",
       followUpDate: "",
-      newStatus: undefined,
+      newStatusId: undefined,
       retryDate: "",
     },
   });
@@ -146,20 +143,53 @@ function CallLogForm({
   const outcome = form.watch("outcome");
   const isAnswered = outcome === "Answered";
   const isOther = outcome && outcome !== "Answered";
+  
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
-  function onSubmit(data: CallLogFormData) {
-    const payload = {
-      leadName: leadName ?? "Unknown Lead",
-      ...data,
-      submittedAt: new Date().toISOString(),
-    };
-    console.log("Call Log Payload:", payload);
+  async function onSubmit(data: CallLogFormData) {
+    setIsSubmitting(true);
+    try {
+      const callResult = await logCall(leadId, {
+        outcome: data.outcome,
+        notes: data.notes,
+      });
 
-    toast.success("Call logged successfully!", {
-      description: `Outcome: ${data.outcome}`,
-    });
+      if (callResult.error) {
+        toast.error(callResult.error);
+        return;
+      }
 
-    onClose();
+      // Update lead if status or follow-up changed
+      const updateData: any = {};
+      let needsUpdate = false;
+      
+      if (data.newStatusId && data.newStatusId !== "none") {
+        updateData.status_id = data.newStatusId;
+        needsUpdate = true;
+      }
+      
+      const nextDate = data.followUpDate || data.retryDate;
+      if (nextDate) {
+        // Assume date string in yyyy-MM-dd is valid for supabase timestamp
+        updateData.next_followup_date = new Date(nextDate).toISOString();
+        needsUpdate = true;
+      }
+
+      if (needsUpdate) {
+        const upRes = await updateLead(leadId, updateData);
+        if (upRes.error) {
+          toast.error("Call logged, but failed to update status/date: " + upRes.error);
+        }
+      }
+
+      toast.success("Call logged successfully!", {
+        description: `Outcome: ${data.outcome}`,
+      });
+      router.refresh();
+      onClose();
+    } finally {
+      setIsSubmitting(false);
+    }
   }
 
   return (
@@ -250,7 +280,7 @@ function CallLogForm({
 
               <FormField
                 control={form.control}
-                name="newStatus"
+                name="newStatusId"
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel>Update Status (optional)</FormLabel>
@@ -261,9 +291,10 @@ function CallLogForm({
                         </SelectTrigger>
                       </FormControl>
                       <SelectContent>
-                        {STATUS_OPTIONS.map((s) => (
-                          <SelectItem key={s} value={s}>
-                            {s}
+                        <SelectItem value="none">Keep current</SelectItem>
+                        {statuses.map((s) => (
+                          <SelectItem key={s.id} value={s.id}>
+                            {s.name}
                           </SelectItem>
                         ))}
                       </SelectContent>
@@ -320,11 +351,11 @@ function CallLogForm({
         )}
 
         <DialogFooter>
-          <Button type="button" variant="outline" onClick={onClose}>
+          <Button type="button" variant="outline" onClick={onClose} disabled={isSubmitting}>
             Cancel
           </Button>
-          <Button type="submit" disabled={!outcome}>
-            Log Call
+          <Button type="submit" disabled={!outcome || isSubmitting}>
+            {isSubmitting ? "Logging..." : "Log Call"}
           </Button>
         </DialogFooter>
       </form>
@@ -338,11 +369,12 @@ function CallLogForm({
 
 interface CallLogModalProps {
   leadName?: string;
+  leadId: string;
   /** Optional trigger element. If not provided, renders a default button. */
   trigger?: React.ReactNode;
 }
 
-export function CallLogModal({ leadName, trigger }: CallLogModalProps) {
+export function CallLogModal({ leadName, leadId, trigger }: CallLogModalProps) {
   const [open, setOpen] = useState(false);
 
   return (
@@ -355,11 +387,7 @@ export function CallLogModal({ leadName, trigger }: CallLogModalProps) {
         </div>
       ) : (
         <Dialog open={open} onOpenChange={setOpen}>
-          <DialogTrigger
-            render={
-              <Button variant="outline" className="gap-2" />
-            }
-          >
+          <DialogTrigger render={<Button variant="outline" className="gap-2" />}>
             <Phone className="h-4 w-4" />
             Log Call
           </DialogTrigger>
@@ -374,7 +402,7 @@ export function CallLogModal({ leadName, trigger }: CallLogModalProps) {
             </DialogTitle>
           </DialogHeader>
 
-          <CallLogForm onClose={() => setOpen(false)} leadName={leadName} />
+          {open && <CallLogForm onClose={() => setOpen(false)} leadName={leadName} leadId={leadId} />}
         </DialogContent>
       </Dialog>
     </>

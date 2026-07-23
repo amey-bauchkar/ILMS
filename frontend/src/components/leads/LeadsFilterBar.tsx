@@ -1,6 +1,5 @@
 "use client";
 
-import { useState } from "react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import {
@@ -10,32 +9,23 @@ import {
 } from "@/components/ui/popover";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Badge } from "@/components/ui/badge";
-import { X } from "lucide-react";
-import {
-    LeadStatus,
-    LeadSource,
-    mockTeamMembers,
-    mockLeads,
-    statusColors,
-} from "@/lib/mock-data";
+import { X, Save, Bookmark } from "lucide-react";
+import { useStatuses, useTeamMembers, useTags, useSavedViews } from "@/hooks/use-data";
+import { saveView, deleteView } from "@/actions/views";
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger, DropdownMenuLabel, DropdownMenuSeparator } from "@/components/ui/dropdown-menu";
+import { buttonVariants } from "@/components/ui/button";
+import { cn } from "@/lib/utils";
+import { useState } from "react";
 
-// Collect all unique tags from leads for the tag filter dropdown
-const ALL_TAGS = Array.from(new Set(mockLeads.flatMap((l) => l.tags))).sort();
-
-const ALL_STATUSES: LeadStatus[] = [
-    "New", "Attempted Contact", "Contacted", "Qualified", "Proposal Sent",
-    "Negotiation", "Won", "Lost", "On Hold", "Junk",
-];
-
-const ALL_SOURCES: LeadSource[] = [
+const ALL_SOURCES = [
     "Reddit", "Google Business Profile", "Referral", "Website Inbound",
     "LinkedIn", "Cold Outreach", "WhatsApp", "Upwork", "Events", "Other",
 ];
 
 export interface LeadFilters {
     search: string;
-    statuses: LeadStatus[];
-    sources: LeadSource[];
+    statuses: string[];
+    sources: string[];
     ownerIds: string[];
     tags: string[];
     priority: "Hot" | "Warm" | "Cold" | "All";
@@ -57,7 +47,7 @@ function MultiSelectDropdown({
     onChange,
 }: {
     label: string;
-    options: string[];
+    options: { value: string; label: string }[];
     selected: string[];
     onChange: (vals: string[]) => void;
 }) {
@@ -78,14 +68,14 @@ function MultiSelectDropdown({
                 <div className="flex flex-col gap-1 max-h-64 overflow-y-auto">
                     {options.map((opt) => (
                         <label
-                            key={opt}
+                            key={opt.value}
                             className="flex items-center gap-2 px-2 py-1.5 rounded hover:bg-[#262626] cursor-pointer text-sm"
                         >
                             <Checkbox
-                                checked={selected.includes(opt)}
-                                onCheckedChange={() => toggle(opt)}
+                                checked={selected.includes(opt.value)}
+                                onCheckedChange={() => toggle(opt.value)}
                             />
-                            {opt}
+                            {opt.label}
                         </label>
                     ))}
                 </div>
@@ -101,6 +91,33 @@ export default function LeadsFilterBar({
     filters: LeadFilters;
     onChange: (f: LeadFilters) => void;
 }) {
+    const { statuses } = useStatuses();
+    const { members } = useTeamMembers();
+    const { tags } = useTags();
+    const { views, refresh: refreshViews } = useSavedViews();
+
+    const [isSavingView, setIsSavingView] = useState(false);
+    const [newViewName, setNewViewName] = useState("");
+
+    const handleSaveView = async () => {
+        if (!newViewName.trim()) return;
+        try {
+            await saveView(newViewName, filters as any, false);
+            setNewViewName("");
+            setIsSavingView(false);
+            refreshViews();
+        } catch (err) {
+            console.error("Failed to save view", err);
+        }
+    };
+
+    const handleApplyView = (viewFilters: any) => {
+        onChange(viewFilters as LeadFilters);
+    };
+
+    const statusColorMap: Record<string, string> = {};
+    statuses.forEach((s) => { statusColorMap[s.name] = s.color; });
+
     const hasActiveFilters =
         filters.search !== "" ||
         filters.statuses.length > 0 ||
@@ -121,43 +138,30 @@ export default function LeadsFilterBar({
 
                 <MultiSelectDropdown
                     label="Status"
-                    options={ALL_STATUSES}
+                    options={statuses.map((s) => ({ value: s.name, label: s.name }))}
                     selected={filters.statuses}
-                    onChange={(vals) =>
-                        onChange({ ...filters, statuses: vals as LeadStatus[] })
-                    }
+                    onChange={(vals) => onChange({ ...filters, statuses: vals })}
                 />
 
                 <MultiSelectDropdown
                     label="Source"
-                    options={ALL_SOURCES}
+                    options={ALL_SOURCES.map((s) => ({ value: s, label: s }))}
                     selected={filters.sources}
-                    onChange={(vals) =>
-                        onChange({ ...filters, sources: vals as LeadSource[] })
-                    }
+                    onChange={(vals) => onChange({ ...filters, sources: vals })}
                 />
 
                 <MultiSelectDropdown
                     label="Owner"
-                    options={mockTeamMembers.map((m) => m.name)}
-                    selected={mockTeamMembers
-                        .filter((m) => filters.ownerIds.includes(m.id))
-                        .map((m) => m.name)}
-                    onChange={(names) => {
-                        const ids = mockTeamMembers
-                            .filter((m) => names.includes(m.name))
-                            .map((m) => m.id);
-                        onChange({ ...filters, ownerIds: ids });
-                    }}
+                    options={members.map((m) => ({ value: m.id, label: m.name }))}
+                    selected={filters.ownerIds}
+                    onChange={(vals) => onChange({ ...filters, ownerIds: vals })}
                 />
 
                 <MultiSelectDropdown
                     label="Tags"
-                    options={ALL_TAGS}
+                    options={tags.map((t) => ({ value: t.name, label: t.name }))}
                     selected={filters.tags}
-                    onChange={(vals) =>
-                        onChange({ ...filters, tags: vals })
-                    }
+                    onChange={(vals) => onChange({ ...filters, tags: vals })}
                 />
 
                 <div className="flex gap-1">
@@ -178,6 +182,64 @@ export default function LeadsFilterBar({
                         Clear All
                     </Button>
                 )}
+
+                <div className="flex-1" />
+
+                {/* Saved Views Dropdown */}
+                <DropdownMenu>
+                    <DropdownMenuTrigger className={cn(buttonVariants({ variant: "outline", size: "sm" }), "gap-2")}>
+                        <Bookmark className="w-4 h-4" />
+                        My Views
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent align="end" className="w-56">
+                        <DropdownMenuLabel>Saved Views</DropdownMenuLabel>
+                        <DropdownMenuSeparator />
+                        {views.length === 0 ? (
+                            <div className="p-2 text-xs text-muted-foreground">No saved views.</div>
+                        ) : (
+                            views.map((v) => (
+                                <DropdownMenuItem 
+                                    key={v.id} 
+                                    onClick={() => handleApplyView(v.filters)}
+                                    className="flex justify-between items-center"
+                                >
+                                    <span>{v.name}</span>
+                                    <X 
+                                        className="w-3 h-3 text-muted-foreground hover:text-destructive" 
+                                        onClick={async (e) => {
+                                            e.stopPropagation();
+                                            await deleteView(v.id);
+                                            refreshViews();
+                                        }}
+                                    />
+                                </DropdownMenuItem>
+                            ))
+                        )}
+                    </DropdownMenuContent>
+                </DropdownMenu>
+
+                {/* Save Current View */}
+                {hasActiveFilters && (
+                    <Popover open={isSavingView} onOpenChange={setIsSavingView}>
+                        <PopoverTrigger className={cn(buttonVariants({ variant: "outline", size: "sm" }), "gap-2 text-primary")}>
+                            <Save className="w-4 h-4" />
+                            Save View
+                        </PopoverTrigger>
+                        <PopoverContent align="end" className="w-64 p-3">
+                            <div className="flex flex-col gap-2">
+                                <span className="text-sm font-medium">Save current filters</span>
+                                <Input 
+                                    placeholder="View Name" 
+                                    value={newViewName} 
+                                    onChange={(e) => setNewViewName(e.target.value)}
+                                    className="h-8 text-sm"
+                                    onKeyDown={(e) => e.key === 'Enter' && handleSaveView()}
+                                />
+                                <Button size="sm" onClick={handleSaveView}>Save</Button>
+                            </div>
+                        </PopoverContent>
+                    </Popover>
+                )}
             </div>
 
             {hasActiveFilters && (
@@ -194,7 +256,7 @@ export default function LeadsFilterBar({
                     {filters.statuses.map((s) => (
                         <Badge
                             key={s}
-                            style={{ backgroundColor: statusColors[s], color: "#fff" }}
+                            style={{ backgroundColor: statusColorMap[s] || "#737373", color: "#fff" }}
                             className="gap-1"
                         >
                             {s}

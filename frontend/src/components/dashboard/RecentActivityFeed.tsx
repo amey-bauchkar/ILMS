@@ -1,28 +1,26 @@
 "use client";
 
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
-import { mockLeads, mockTeamMembers, Activity, MOCK_ACTIVITIES } from "@/lib/mock-data";
+import { EnrichedLead } from "@/hooks/use-data";
 import { avatarColor } from "@/lib/avatar-colors";
 import { Phone, FileText, ArrowRight, Tag, UserCheck } from "lucide-react";
 import { DateFilter, CustomDateRange, isWithinFilter } from "@/lib/utils";
 
-// Display-name mapping for the activity feed (UI only, per BRD name replacement spec):
-// mockTeamMembers[0] = Amey  → display as "Tanmay"
-// mockTeamMembers[1] = Janhavi → display as "Amey"
-// mockTeamMembers[2] = Tanmay → display as "Rahul"
-// mockTeamMembers[3] = Manish → unchanged
-const DISPLAY_NAMES: Record<string, string> = {
-  "TM-1": "Tanmay",   // Amey → Tanmay
-  "TM-2": "Amey",    // Janhavi → Amey
-  "TM-3": "Rahul",   // Tanmay → Rahul
-  "TM-4": "Manish",
-};
-
-function displayName(member: (typeof mockTeamMembers)[number]): string {
-  return DISPLAY_NAMES[member.id] ?? member.name;
+export interface Activity {
+  id: string;
+  leadId: string;
+  type: "call" | "note" | "status_change" | "tag_change" | "reassignment";
+  notes?: string;
+  outcome?: string;
+  fromStatus?: string;
+  toStatus?: string;
+  createdAt: string;
+  createdBy: { id: string; name: string; email: string; role: string };
 }
 
-
+function displayName(name: string): string {
+  return name;
+}
 
 function timeAgo(isoString: string): string {
   const ms = Date.now() - new Date(isoString).getTime();
@@ -49,8 +47,8 @@ const ACTIVITY_COLORS: Record<Activity["type"], string> = {
   reassignment: "#22c55e",
 };
 
-function activityDescription(activity: Activity): string {
-  const lead = mockLeads.find((l) => l.id === activity.leadId);
+function activityDescription(activity: Activity, leads: EnrichedLead[]): string {
+  const lead = leads.find((l) => l.id === activity.leadId);
   const leadName = lead?.name ?? "Unknown Lead";
 
   switch (activity.type) {
@@ -70,12 +68,14 @@ function activityDescription(activity: Activity): string {
 }
 
 interface RecentActivityFeedProps {
+  leads: EnrichedLead[];
+  activities: Activity[];
   dateFilter?: DateFilter;
   customRange?: CustomDateRange;
 }
 
-export function RecentActivityFeed({ dateFilter = "month", customRange }: RecentActivityFeedProps) {
-  const filteredActivities = MOCK_ACTIVITIES.filter(a => isWithinFilter(a.createdAt, dateFilter, customRange));
+export function RecentActivityFeed({ leads, activities, dateFilter = "month", customRange }: RecentActivityFeedProps) {
+  const filteredActivities = activities.filter(a => isWithinFilter(a.createdAt, dateFilter, customRange));
 
   return (
     <Card>
@@ -94,7 +94,7 @@ export function RecentActivityFeed({ dateFilter = "month", customRange }: Recent
             filteredActivities.map((activity) => {
               const Icon = ACTIVITY_ICONS[activity.type];
             const color = ACTIVITY_COLORS[activity.type];
-            const name = displayName(activity.createdBy);
+            const name = displayName(activity.createdBy?.name || "System");
             const initials = name.split(" ").map((n) => n[0]).join("").slice(0, 2).toUpperCase();
             const avatarBg = avatarColor(name);
 
@@ -111,7 +111,7 @@ export function RecentActivityFeed({ dateFilter = "month", customRange }: Recent
                 {/* Content */}
                 <div className="flex-1 min-w-0 pt-0.5">
                   <p className="text-sm text-foreground leading-snug">
-                    {activityDescription(activity)}
+                    {activityDescription(activity, leads)}
                   </p>
                   <div className="flex items-center gap-1.5 mt-1">
                     <div

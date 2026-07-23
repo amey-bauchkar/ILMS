@@ -1,0 +1,20 @@
+{
+  "name": "foremark-crm-backend",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Backend service & database layer for Foremark CRM",
+  "scripts": {
+    "db:types": "npx supabase gen types typescript --project-id $SUPABASE_PROJECT_ID > src/types/database.ts",
+    "db:push": "npx supabase db push",
+    "db:reset": "npx supabase db reset"
+  },
+  "dependencies": {
+    "@supabase/supabase-js": "^2.49.0",
+    "resend": "^4.1.0",
+    "@react-email/components": "^0.0.31"
+  },
+  "devDependencies": {
+    "supabase": "^2.15.0",
+    "typescript": "^5.7.0"
+  }
+}
