@@ -41,9 +41,9 @@ export async function getLeadsForExport(filters: {
     .order('created_at', { ascending: false });
 
   if (filters.status_id) query = query.eq('status_id', filters.status_id);
-  if (filters.source) query = query.eq('source', filters.source);
+  if (filters.source) query = query.eq('source', filters.source as any);
   if (filters.owner_id) query = query.eq('owner_id', filters.owner_id);
-  if (filters.priority) query = query.eq('priority', filters.priority);
+  if (filters.priority) query = query.eq('priority', filters.priority as any);
   if (filters.date_from) query = query.gte('created_at', filters.date_from);
   if (filters.date_to) query = query.lte('created_at', filters.date_to);
 
@@ -71,26 +71,33 @@ export async function getLeadsForExport(filters: {
 
 /**
  * Convert array of objects to CSV string.
+ * Includes formula injection protection (CWE-1236).
  */
 export function toCsv(data: Record<string, unknown>[]): string {
   if (data.length === 0) return '';
+
+  const sanitizeCell = (value: string): string => {
+    // Prevent CSV formula injection — prefix dangerous starting characters
+    if (/^[=+\-@\t\r]/.test(value)) {
+      value = "'" + value;
+    }
+    // Escape commas, quotes, and newlines
+    if (value.includes(',') || value.includes('"') || value.includes('\n')) {
+      return `"${value.replace(/"/g, '""')}"`;
+    }
+    return value;
+  };
 
   const headers = Object.keys(data[0]);
   const csvRows = [
     headers.join(','),
     ...data.map((row) =>
       headers
-        .map((header) => {
-          const value = String(row[header] ?? '');
-          // Escape commas, quotes, and newlines
-          if (value.includes(',') || value.includes('"') || value.includes('\n')) {
-            return `"${value.replace(/"/g, '""')}"`;
-          }
-          return value;
-        })
+        .map((header) => sanitizeCell(String(row[header] ?? '')))
         .join(',')
     ),
   ];
 
   return csvRows.join('\n');
 }
+

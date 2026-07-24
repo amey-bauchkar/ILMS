@@ -1,12 +1,21 @@
 /**
  * Run all 14 Supabase migrations in order.
  * Uses the Supabase Management API to execute SQL.
+ * 
+ * SECURITY: Reads secrets from environment variables.
+ * Usage: SUPABASE_URL=https://xxx.supabase.co SUPABASE_SERVICE_ROLE_KEY=eyJ... node scripts/run-migrations.js
  */
 const fs = require('fs');
 const path = require('path');
 
-const SUPABASE_URL = 'https://zbwweqwkivvshwubtkdt.supabase.co';
-const SERVICE_ROLE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inpid3dlcXdraXZ2c2h3dWJ0a2R0Iiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc4NDc0MTQ5NSwiZXhwIjoyMTAwMzE3NDk1fQ.Z8T7ACGw1YKT8pyAXrox8QtlJvvtSs7DaW3cql5L6-Y';
+const SUPABASE_URL = process.env.SUPABASE_URL;
+const SERVICE_ROLE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY;
+
+if (!SUPABASE_URL || !SERVICE_ROLE_KEY) {
+  console.error('ERROR: Missing required environment variables.');
+  console.error('Set SUPABASE_URL and SUPABASE_SERVICE_ROLE_KEY before running.');
+  process.exit(1);
+}
 
 const migrationsDir = path.join(__dirname, '..', 'backend', 'supabase', 'migrations');
 

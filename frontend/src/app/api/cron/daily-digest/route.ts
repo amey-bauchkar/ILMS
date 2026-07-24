@@ -1,6 +1,12 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createServerClient } from '@supabase/ssr';
 import { Resend } from 'resend';
+import { timingSafeEqual } from 'crypto';
+
+function safeCompare(a: string, b: string) {
+  if (a.length !== b.length) return false;
+  return timingSafeEqual(Buffer.from(a), Buffer.from(b));
+}
 
 /**
  * POST /api/cron/daily-digest — Daily Follow-up Email
@@ -12,7 +18,9 @@ import { Resend } from 'resend';
 export async function POST(request: NextRequest) {
   // Verify cron secret
   const authHeader = request.headers.get('authorization');
-  if (authHeader !== `Bearer ${process.env.CRON_SECRET}`) {
+  const expectedHeader = `Bearer ${process.env.CRON_SECRET}`;
+  
+  if (!authHeader || !safeCompare(authHeader, expectedHeader)) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   }
 
@@ -27,13 +35,22 @@ export async function POST(request: NextRequest) {
     const resend = new Resend(process.env.RESEND_API_KEY);
     const today = new Date().toISOString().split('T')[0];
 
-    // Get all active users
-    const { data: users } = await supabase
-      .from('users')
-      .select('id, name, email')
-      .eq('is_active', true);
+    // Get all active users with pagination
+    let allUsers: any[] = [];
+    let userPage = 0;
+    while (true) {
+      const { data: users } = await supabase
+        .from('users')
+        .select('id, name, email')
+        .eq('is_active', true)
+        .range(userPage * 1000, (userPage + 1) * 1000 - 1);
+        
+      if (!users || users.length === 0) break;
+      allUsers = allUsers.concat(users);
+      userPage++;
+    }
 
-    if (!users || users.length === 0) {
+    if (allUsers.length === 0) {
       return NextResponse.json({ message: 'No active users.' });
     }
 
@@ -47,15 +64,24 @@ export async function POST(request: NextRequest) {
 
     let emailsSent = 0;
 
-    for (const user of users) {
-      // Get pending reminders for this user
-      const { data: reminders } = await supabase
-        .from('reminders')
-        .select('title, due_date, lead:leads!reminders_lead_id_fkey(name)')
-        .eq('assigned_to', user.id)
-        .eq('status', 'pending')
-        .lte('due_date', today)
-        .order('due_date', { ascending: true });
+    for (const user of allUsers) {
+      // Get pending reminders for this user with pagination
+      let allReminders: any[] = [];
+      let remPage = 0;
+      while (true) {
+        const { data: reminders } = await supabase
+          .from('reminders')
+          .select('title, due_date, lead:leads!reminders_lead_id_fkey(name)')
+          .eq('assigned_to', user.id)
+          .eq('status', 'pending')
+          .lte('due_date', today)
+          .order('due_date', { ascending: true })
+          .range(remPage * 1000, (remPage + 1) * 1000 - 1);
+          
+        if (!reminders || reminders.length === 0) break;
+        allReminders = allReminders.concat(reminders);
+        remPage++;
+      }
 
       // Get overdue follow-ups for leads owned by this user
       const { data: overdueLeads } = await supabase
@@ -73,7 +99,7 @@ export async function POST(request: NextRequest) {
         .eq('next_followup_date', today)
         .not('status_id', 'in', `(${terminalIds.join(',')})`);
 
-      const totalItems = (reminders?.length || 0) + (overdueLeads?.length || 0) + (todayLeads?.length || 0);
+      const totalItems = (allReminders.length) + (overdueLeads?.length || 0) + (todayLeads?.length || 0);
 
       // Skip if nothing to report
       if (totalItems === 0) continue;
@@ -87,8 +113,8 @@ export async function POST(request: NextRequest) {
         ? `\n📅 Today's Follow-ups (${todayLeads!.length}):\n${todayLeads!.map((l) => `  • ${l.name}`).join('\n')}\n`
         : '';
 
-      const reminderSection = (reminders?.length || 0) > 0
-        ? `\n🔔 Pending Reminders (${reminders!.length}):\n${reminders!.map((r: any) => `  • ${r.title} — ${r.lead?.name || 'Unknown lead'}`).join('\n')}\n`
+      const reminderSection = (allReminders.length) > 0
+        ? `\n🔔 Pending Reminders (${allReminders.length}):\n${allReminders.map((r: any) => `  • ${r.title} — ${r.lead?.name || 'Unknown lead'}`).join('\n')}\n`
         : '';
 
       await resend.emails.send({

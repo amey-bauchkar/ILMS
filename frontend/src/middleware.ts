@@ -68,8 +68,8 @@ export async function middleware(request: NextRequest) {
       .eq('auth_id', user.id)
       .single();
 
-    // Deactivated user → sign out and redirect
-    if (dbUser && !dbUser.is_active) {
+    // Missing or Deactivated user → sign out and redirect
+    if (!dbUser || !dbUser.is_active) {
       await supabase.auth.signOut();
       const url = request.nextUrl.clone();
       url.pathname = '/login';

@@ -44,9 +44,9 @@ export function TagManagement({ tags }: { tags: Tag[] }) {
     setLoading(true);
     try {
       if (editingId) {
-        await updateTag(editingId, { name, color });
+        await updateTag(editingId, { name });
       } else {
-        await createTag(name, color);
+        await createTag(name);
       }
       setIsOpen(false);
     } catch (err: any) {
@@ -96,24 +96,6 @@ export function TagManagement({ tags }: { tags: Tag[] }) {
                     onChange={(e) => setName(e.target.value)} 
                     required 
                   />
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="tag-color">Color (Hex)</Label>
-                  <div className="flex gap-2">
-                    <Input 
-                      id="tag-color" 
-                      type="color" 
-                      value={color} 
-                      onChange={(e) => setColor(e.target.value)} 
-                      className="w-16 p-1 h-10"
-                    />
-                    <Input 
-                      value={color} 
-                      onChange={(e) => setColor(e.target.value)} 
-                      className="flex-1 font-mono"
-                      pattern="^#+([a-fA-F0-9]{6}|[a-fA-F0-9]{3})$"
-                    />
-                  </div>
                 </div>
               </div>
               <DialogFooter>

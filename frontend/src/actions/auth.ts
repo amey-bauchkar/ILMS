@@ -24,10 +24,8 @@ export async function login(formData: FormData) {
   });
 
   if (error) {
-    if (error.message.includes('Invalid login credentials')) {
-      return { error: 'Invalid email or password.' };
-    }
-    return { error: error.message };
+    console.error('Login failed:', error.message);
+    return { error: 'Authentication failed. Check your credentials or contact your admin.' };
   }
 
   revalidatePath('/', 'layout');
@@ -53,6 +51,11 @@ export async function signup(formData: FormData) {
     return { error: 'Password must be at least 8 characters.' };
   }
 
+  // Password complexity check
+  if (!/[A-Z]/.test(password) || !/[0-9]/.test(password)) {
+    return { error: 'Password must contain at least one uppercase letter and one number.' };
+  }
+
   const { error } = await supabase.auth.signUp({
     email,
     password,
@@ -70,7 +73,8 @@ export async function signup(formData: FormData) {
   });
 
   if (loginError) {
-    return { error: 'You are not authorized to access this system. Contact your admin.' };
+    console.error('Signup post-login failed:', loginError.message);
+    return { error: 'Authentication failed. Check your credentials or contact your admin.' };
   }
 
   revalidatePath('/', 'layout');

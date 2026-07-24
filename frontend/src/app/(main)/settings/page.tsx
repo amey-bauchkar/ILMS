@@ -1,4 +1,3 @@
-// @ts-nocheck
 import { createClient } from "@/lib/supabase/server";
 import { redirect } from "next/navigation";
 import { User, Status, Tag } from "@/types/database";
@@ -180,3 +179,4 @@ export default async function SettingsPage() {
     </div>
   );
 }
+

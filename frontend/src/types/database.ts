@@ -57,7 +57,7 @@ export type LostReasonCategory =
 // Table Row Types
 // ============================================================
 
-export interface User {
+export type User = {
   id: string;
   auth_id: string | null;
   email: string;
@@ -69,7 +69,7 @@ export interface User {
   updated_at: string;
 }
 
-export interface Status {
+export type Status = {
   id: string;
   name: string;
   slug: string;
@@ -81,7 +81,7 @@ export interface Status {
   created_at: string;
 }
 
-export interface Lead {
+export type Lead = {
   id: string;
   name: string;
   company_name: string | null;
@@ -102,7 +102,7 @@ export interface Lead {
   updated_at: string;
 }
 
-export interface Activity {
+export type Activity = {
   id: string;
   lead_id: string;
   type: ActivityType;
@@ -116,7 +116,7 @@ export interface Activity {
   created_at: string;
 }
 
-export interface Tag {
+export type Tag = {
   id: string;
   name: string;
   category: string | null;
@@ -124,13 +124,13 @@ export interface Tag {
   created_at: string;
 }
 
-export interface LeadTag {
+export type LeadTag = {
   lead_id: string;
   tag_id: string;
   created_at: string;
 }
 
-export interface Reminder {
+export type Reminder = {
   id: string;
   lead_id: string;
   title: string;
@@ -142,7 +142,7 @@ export interface Reminder {
   created_at: string;
 }
 
-export interface LeadStatusHistory {
+export type LeadStatusHistory = {
   id: string;
   lead_id: string;
   from_status_id: string;
@@ -151,7 +151,7 @@ export interface LeadStatusHistory {
   created_at: string;
 }
 
-export interface SavedView {
+export type SavedView = {
   id: string;
   user_id: string;
   name: string;
@@ -169,77 +169,89 @@ export interface Database {
     Tables: {
       users: {
         Row: User;
-        Insert: Omit<User, 'id' | 'created_at' | 'updated_at'> & {
+        Insert: Partial<Omit<User, 'id' | 'created_at' | 'updated_at'>> & {
           id?: string;
           created_at?: string;
           updated_at?: string;
         };
         Update: Partial<Omit<User, 'id' | 'created_at'>>;
+        Relationships: any[];
       };
       statuses: {
         Row: Status;
-        Insert: Omit<Status, 'id' | 'created_at'> & {
+        Insert: Partial<Omit<Status, 'id' | 'created_at'>> & {
           id?: string;
           created_at?: string;
         };
         Update: Partial<Omit<Status, 'id' | 'created_at'>>;
+        Relationships: any[];
       };
       leads: {
         Row: Lead;
-        Insert: Omit<Lead, 'id' | 'created_at' | 'updated_at' | 'last_contacted_at'> & {
+        Insert: Partial<Omit<Lead, 'id' | 'created_at' | 'updated_at' | 'last_contacted_at'>> & {
           id?: string;
           created_at?: string;
           updated_at?: string;
           last_contacted_at?: string;
         };
         Update: Partial<Omit<Lead, 'id' | 'created_at'>>;
+        Relationships: any[];
       };
       activities: {
         Row: Activity;
-        Insert: Omit<Activity, 'id' | 'created_at'> & {
+        Insert: Partial<Omit<Activity, 'id' | 'created_at'>> & {
           id?: string;
           created_at?: string;
         };
         Update: Partial<Omit<Activity, 'id' | 'created_at'>>;
+        Relationships: any[];
       };
       tags: {
         Row: Tag;
-        Insert: Omit<Tag, 'id' | 'created_at'> & {
+        Insert: Partial<Omit<Tag, 'id' | 'created_at'>> & {
           id?: string;
           created_at?: string;
         };
         Update: Partial<Omit<Tag, 'id' | 'created_at'>>;
+        Relationships: any[];
       };
       lead_tags: {
         Row: LeadTag;
-        Insert: Omit<LeadTag, 'created_at'> & { created_at?: string };
+        Insert: Partial<Omit<LeadTag, 'created_at'>> & { created_at?: string };
         Update: Partial<LeadTag>;
+        Relationships: any[];
       };
       reminders: {
         Row: Reminder;
-        Insert: Omit<Reminder, 'id' | 'created_at'> & {
+        Insert: Partial<Omit<Reminder, 'id' | 'created_at'>> & {
           id?: string;
           created_at?: string;
         };
         Update: Partial<Omit<Reminder, 'id' | 'created_at'>>;
+        Relationships: any[];
       };
       lead_status_history: {
         Row: LeadStatusHistory;
-        Insert: Omit<LeadStatusHistory, 'id' | 'created_at'> & {
+        Insert: Partial<Omit<LeadStatusHistory, 'id' | 'created_at'>> & {
           id?: string;
           created_at?: string;
         };
         Update: never;
+        Relationships: any[];
       };
       saved_views: {
         Row: SavedView;
-        Insert: Omit<SavedView, 'id' | 'created_at'> & {
+        Insert: Partial<Omit<SavedView, 'id' | 'created_at'>> & {
           id?: string;
           created_at?: string;
         };
         Update: Partial<Omit<SavedView, 'id' | 'created_at'>>;
+        Relationships: any[];
       };
     };
+    Views: Record<string, never>;
+    Functions: Record<string, never>;
+    CompositeTypes: Record<string, never>;
     Enums: {
       lead_source: LeadSource;
       lead_priority: LeadPriority;

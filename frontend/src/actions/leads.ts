@@ -1,13 +1,100 @@
-// @ts-nocheck
 'use server';
 
 import { createClient, createAdminClient } from '@/lib/supabase/server';
 import { revalidatePath } from 'next/cache';
+import { z } from 'zod';
 
-/**
- * Create a new lead.
- */
-export async function createLead(data: {
+// ============================================================
+// Server-side validation schemas (H-01)
+// ============================================================
+
+const createLeadSchema = z.object({
+  name: z.string().min(2, 'Name must be at least 2 characters').max(200),
+  company_name: z.string().max(200).optional(),
+  phone: z.string().min(10, 'Enter a valid phone number').max(20),
+  email: z.union([z.literal(''), z.string().email()]).nullable().optional(),
+  source: z.enum([
+    'Reddit', 'Google Business Profile', 'Referral',
+    'Website Inbound', 'LinkedIn', 'Cold Outreach',
+    'WhatsApp', 'Upwork', 'Events', 'Other'
+  ]),
+  status_id: z.string().uuid(),
+  owner_id: z.string().uuid(),
+  priority: z.enum(['Hot', 'Warm', 'Cold']),
+  estimated_deal_value: z.number().min(0).optional(),
+  next_followup_date: z.string().optional(),
+  notes: z.string().max(2000).optional(),
+  tags: z.array(z.string().max(100)).max(50).optional(),
+  lost_reason: z.enum([
+    'Budget', 'Timing', 'Went with competitor',
+    'Not a fit', 'No response', 'Other'
+  ]).optional(),
+  lost_reason_details: z.string().max(1000).optional(),
+  source_link: z.string().url().optional().or(z.literal('')),
+});
+
+const updateLeadSchema = z.object({
+  name: z.string().min(2).max(200).optional(),
+  company_name: z.string().max(200).optional(),
+  phone: z.string().min(10).max(20).optional(),
+  email: z.union([z.literal(''), z.string().email()]).nullable().optional(),
+  source: z.enum([
+    'Reddit', 'Google Business Profile', 'Referral',
+    'Website Inbound', 'LinkedIn', 'Cold Outreach',
+    'WhatsApp', 'Upwork', 'Events', 'Other'
+  ]).optional(),
+  status_id: z.string().uuid().optional(),
+  owner_id: z.string().uuid().optional(),
+  priority: z.enum(['Hot', 'Warm', 'Cold']).optional(),
+  estimated_deal_value: z.number().min(0).optional(),
+  next_followup_date: z.string().nullable().optional(),
+  lost_reason: z.enum([
+    'Budget', 'Timing', 'Went with competitor',
+    'Not a fit', 'No response', 'Other'
+  ]).nullable().optional(),
+  lost_reason_details: z.string().max(1000).nullable().optional(),
+  tags: z.array(z.string().max(100)).max(50).optional(),
+});
+
+// ============================================================
+// Helper: Resolve tag names to UUIDs (C-02 fix)
+// Uses admin client to create new tags since RLS restricts
+// tag creation to admins only.
+// ============================================================
+
+async function resolveTagIds(
+  supabase: Awaited<ReturnType<typeof createClient>>,
+  tagNamesOrIds: string[]
+): Promise<string[]> {
+  const resolvedTagIds: string[] = [];
+
+  for (const tagNameOrId of tagNamesOrIds) {
+    const isUUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(tagNameOrId);
+
+    if (isUUID) {
+      resolvedTagIds.push(tagNameOrId);
+    } else {
+      // Strictly look up existing tag by name (only admins can create tags via Settings)
+      const { data: existingTag } = await supabase
+        .from('tags')
+        .select('id')
+        .eq('name', tagNameOrId)
+        .single();
+
+      if (existingTag) {
+        resolvedTagIds.push(existingTag.id);
+      }
+    }
+  }
+
+  return resolvedTagIds;
+}
+
+// ============================================================
+// createLead
+// ============================================================
+
+export async function createLead(rawData: {
   name: string;
   company_name?: string;
   phone: string;
@@ -24,9 +111,16 @@ export async function createLead(data: {
   lost_reason_details?: string;
   source_link?: string;
 }) {
+  // H-01: Server-side validation
+  const parsed = createLeadSchema.safeParse(rawData);
+  if (!parsed.success) {
+    return { error: parsed.error.issues[0]?.message || 'Invalid input' };
+  }
+  const data = parsed.data;
+
   const supabase = await createClient();
 
-  // Get current user
+  // Authentication check
   const { data: { user: authUser } } = await supabase.auth.getUser();
   if (!authUser) return { error: 'Not authenticated' };
 
@@ -61,42 +155,13 @@ export async function createLead(data: {
     .single();
 
   if (error) {
-    return { error: error.message };
+    console.error('Lead creation failed:', error);
+    return { error: 'Failed to create lead. Please try again.' };
   }
 
-  // Add tags if any — resolve tag names to UUIDs
+  // Add tags if any — resolve tag names to UUIDs (C-02 fix)
   if (data.tags && data.tags.length > 0 && lead) {
-    const resolvedTagIds: string[] = [];
-
-    for (const tagNameOrId of data.tags) {
-      // Check if it's already a valid UUID format
-      const isUUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(tagNameOrId);
-      
-      if (isUUID) {
-        resolvedTagIds.push(tagNameOrId);
-      } else {
-        // It's a tag name — look it up or create it
-        const { data: existingTag } = await supabase
-          .from('tags')
-          .select('id')
-          .eq('name', tagNameOrId)
-          .single();
-
-        if (existingTag) {
-          resolvedTagIds.push(existingTag.id);
-        } else {
-          // Create the tag on the fly
-          const { data: newTag } = await supabase
-            .from('tags')
-            .insert({ name: tagNameOrId, is_active: true })
-            .select('id')
-            .single();
-          if (newTag) {
-            resolvedTagIds.push(newTag.id);
-          }
-        }
-      }
-    }
+    const resolvedTagIds = await resolveTagIds(supabase, data.tags);
 
     if (resolvedTagIds.length > 0) {
       const tagInserts = resolvedTagIds.map((tagId) => ({
@@ -121,12 +186,13 @@ export async function createLead(data: {
   return { success: true, leadId: lead?.id };
 }
 
-/**
- * Update an existing lead.
- */
+// ============================================================
+// updateLead (H-04: authorization check added)
+// ============================================================
+
 export async function updateLead(
   leadId: string,
-  data: {
+  rawData: {
     name?: string;
     company_name?: string;
     phone?: string;
@@ -142,12 +208,51 @@ export async function updateLead(
     tags?: string[];
   }
 ) {
+  // Validate leadId format
+  if (!/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(leadId)) {
+    return { error: 'Invalid lead ID' };
+  }
+
+  // H-01: Server-side validation
+  const parsed = updateLeadSchema.safeParse(rawData);
+  if (!parsed.success) {
+    return { error: parsed.error.issues[0]?.message || 'Invalid input' };
+  }
+  const data = parsed.data;
+
   const supabase = await createClient();
 
   const { data: { user: authUser } } = await supabase.auth.getUser();
   if (!authUser) return { error: 'Not authenticated' };
 
-  const updateData: Record<string, any> = {};
+  // H-04: Defense-in-depth authorization check
+  const { data: dbUser } = await supabase
+    .from('users')
+    .select('id, role')
+    .eq('auth_id', authUser.id)
+    .single();
+
+  if (!dbUser) return { error: 'User not found' };
+
+  // Non-admin users can only edit their own leads
+  if (dbUser.role !== 'admin') {
+    const { data: lead } = await supabase
+      .from('leads')
+      .select('owner_id')
+      .eq('id', leadId)
+      .single();
+
+    if (!lead || lead.owner_id !== dbUser.id) {
+      return { error: 'You can only edit leads assigned to you' };
+    }
+
+    // Prevent non-admins from reassigning leads
+    if (data.owner_id !== undefined && data.owner_id !== dbUser.id) {
+      return { error: 'Only admins can reassign leads to other users' };
+    }
+  }
+
+  const updateData: Partial<Omit<import('@/types/database').Lead, 'id' | 'created_at'>> = {};
   if (data.name !== undefined) updateData.name = data.name;
   if (data.company_name !== undefined) updateData.company_name = data.company_name || null;
   if (data.phone !== undefined) updateData.phone = data.phone;
@@ -167,43 +272,17 @@ export async function updateLead(
     .eq('id', leadId);
 
   if (error) {
-    return { error: error.message };
+    console.error('Lead update failed:', error);
+    return { error: 'Failed to update lead. Please try again.' };
   }
 
-  // Sync tags if provided
+  // Sync tags if provided (C-02 fix)
   if (data.tags !== undefined) {
     // Delete all existing tags for this lead
     await supabase.from('lead_tags').delete().eq('lead_id', leadId);
 
     if (data.tags.length > 0) {
-      const resolvedTagIds: string[] = [];
-
-      for (const tagNameOrId of data.tags) {
-        const isUUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(tagNameOrId);
-        
-        if (isUUID) {
-          resolvedTagIds.push(tagNameOrId);
-        } else {
-          const { data: existingTag } = await supabase
-            .from('tags')
-            .select('id')
-            .eq('name', tagNameOrId)
-            .single();
-
-          if (existingTag) {
-            resolvedTagIds.push(existingTag.id);
-          } else {
-            const { data: newTag } = await supabase
-              .from('tags')
-              .insert({ name: tagNameOrId, is_active: true })
-              .select('id')
-              .single();
-            if (newTag) {
-              resolvedTagIds.push(newTag.id);
-            }
-          }
-        }
-      }
+      const resolvedTagIds = await resolveTagIds(supabase, data.tags);
 
       if (resolvedTagIds.length > 0) {
         const tagInserts = resolvedTagIds.map((tagId) => ({
@@ -220,13 +299,18 @@ export async function updateLead(
   return { success: true };
 }
 
-/**
- * Log a call activity against a lead.
- */
+// ============================================================
+// logCall
+// ============================================================
+
 export async function logCall(leadId: string, data: {
   outcome: string;
   notes?: string;
 }) {
+  if (!/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(leadId)) {
+    return { error: 'Invalid lead ID' };
+  }
+
   const supabase = await createClient();
 
   const { data: { user: authUser } } = await supabase.auth.getUser();
@@ -249,23 +333,33 @@ export async function logCall(leadId: string, data: {
     created_by: dbUser.id,
   });
 
-  if (error) return { error: error.message };
-
-  // Update last_contacted_at
-  await supabase
-    .from('leads')
-    .update({ last_contacted_at: new Date().toISOString() })
-    .eq('id', leadId);
+  if (error) {
+    console.error('Call logging failed:', error);
+    return { error: 'Failed to log call. Please try again.' };
+  }
 
   revalidatePath('/leads');
   revalidatePath(`/leads/${leadId}`);
   return { success: true };
 }
 
-/**
- * Add a note to a lead.
- */
+// ============================================================
+// addNote
+// ============================================================
+
 export async function addNote(leadId: string, notes: string) {
+  if (!/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(leadId)) {
+    return { error: 'Invalid lead ID' };
+  }
+
+  if (!notes || notes.trim().length === 0) {
+    return { error: 'Notes cannot be empty' };
+  }
+
+  if (notes.length > 2000) {
+    return { error: 'Notes must be under 2000 characters' };
+  }
+
   const supabase = await createClient();
 
   const { data: { user: authUser } } = await supabase.auth.getUser();
@@ -286,7 +380,10 @@ export async function addNote(leadId: string, notes: string) {
     created_by: dbUser.id,
   });
 
-  if (error) return { error: error.message };
+  if (error) {
+    console.error('Note creation failed:', error);
+    return { error: 'Failed to add note. Please try again.' };
+  }
 
   revalidatePath(`/leads/${leadId}`);
   return { success: true };

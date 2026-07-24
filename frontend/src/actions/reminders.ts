@@ -1,4 +1,3 @@
-// @ts-nocheck
 'use server';
 
 import { createClient } from '@/lib/supabase/server';
@@ -10,19 +9,34 @@ export async function completeReminder(id: string) {
 
   if (!user) throw new Error('Unauthorized');
 
-  const { error } = await supabase
+  // Get internal user ID (matches RLS and reminders.assigned_to)
+  const { data: dbUser } = await supabase
+    .from('users')
+    .select('id, role')
+    .eq('auth_id', user.id)
+    .single();
+
+  if (!dbUser) throw new Error('User not found');
+
+  let query = supabase
     .from('reminders')
     .update({ 
         status: 'completed',
         completed_at: new Date().toISOString()
     })
-    .eq('id', id)
-    .eq('assigned_to', user.id);
+    .eq('id', id);
+
+  if (dbUser.role !== 'admin') {
+    query = query.eq('assigned_to', dbUser.id);
+  }
+
+  const { error } = await query;
 
   if (error) {
     console.error('Error completing reminder:', error);
     throw new Error('Failed to complete reminder');
   }
 
-  revalidatePath('/'); // Revalidate everywhere the topbar might be
+  revalidatePath('/');
 }
+
