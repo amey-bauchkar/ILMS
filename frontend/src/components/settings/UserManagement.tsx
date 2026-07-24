@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { useRouter } from "next/navigation";
 import { User, UserRole } from "@/types/database";
 import { inviteUser, updateUserRole, deactivateUser } from "@/actions/admin";
 import { Button } from "@/components/ui/button";
@@ -32,7 +33,9 @@ import {
 } from "@/components/ui/dialog";
 import { Badge } from "@/components/ui/badge";
 
-export function UserManagement({ users }: { users: User[] }) {
+export function UserManagement({ users: initialUsers }: { users: User[] }) {
+  const router = useRouter();
+  const [localUsers, setLocalUsers] = useState<User[]>(initialUsers);
   const [isInviteOpen, setIsInviteOpen] = useState(false);
   const [email, setEmail] = useState("");
   const [name, setName] = useState("");
@@ -50,6 +53,7 @@ export function UserManagement({ users }: { users: User[] }) {
       setEmail("");
       setName("");
       setRole("sales");
+      router.refresh();
     } catch (err: any) {
       setError(err.message);
     } finally {
@@ -58,17 +62,35 @@ export function UserManagement({ users }: { users: User[] }) {
   };
 
   const handleRoleChange = async (id: string, newRole: UserRole) => {
+    // Optimistic update
+    setLocalUsers((prev) =>
+      prev.map((u) => (u.id === id ? { ...u, role: newRole } : u))
+    );
     try {
       await updateUserRole(id, newRole);
+      router.refresh();
     } catch (err: any) {
+      // Revert on failure
+      setLocalUsers((prev) =>
+        prev.map((u) => (u.id === id ? { ...u, role: initialUsers.find((iu) => iu.id === id)?.role || u.role } : u))
+      );
       alert("Failed to update role: " + err.message);
     }
   };
 
   const handleToggleActive = async (id: string, currentActive: boolean) => {
+    // Optimistic update
+    setLocalUsers((prev) =>
+      prev.map((u) => (u.id === id ? { ...u, is_active: !currentActive } : u))
+    );
     try {
       await deactivateUser(id, !currentActive);
+      router.refresh();
     } catch (err: any) {
+      // Revert on failure
+      setLocalUsers((prev) =>
+        prev.map((u) => (u.id === id ? { ...u, is_active: currentActive } : u))
+      );
       alert("Failed to update user status: " + err.message);
     }
   };
@@ -151,7 +173,7 @@ export function UserManagement({ users }: { users: User[] }) {
             </TableRow>
           </TableHeader>
           <TableBody>
-            {users.map((user) => (
+            {localUsers.map((user) => (
               <TableRow key={user.id}>
                 <TableCell className="font-medium">{user.name}</TableCell>
                 <TableCell>{user.email}</TableCell>
@@ -186,7 +208,7 @@ export function UserManagement({ users }: { users: User[] }) {
                 </TableCell>
               </TableRow>
             ))}
-            {users.length === 0 && (
+            {localUsers.length === 0 && (
               <TableRow>
                 <TableCell colSpan={5} className="text-center h-24 text-muted-foreground">
                   No users found.

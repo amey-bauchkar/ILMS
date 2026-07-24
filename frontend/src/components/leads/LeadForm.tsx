@@ -27,7 +27,7 @@ import { useStatuses, useTeamMembers, useTags } from "@/hooks/use-data";
 import { useUser } from "@/components/providers/user-provider";
 import { createLead, updateLead } from "@/actions/leads";
 import { TagManager } from "./TagManager";
-import { User, FileText, Tag as TagIcon, Banknote, ListTodo, Loader2 } from "lucide-react";
+import { User, FileText, Tag as TagIcon, Banknote, ListTodo, Loader2, Link2 } from "lucide-react";
 import { toast } from "sonner";
 
 interface LeadFormProps {
@@ -62,6 +62,7 @@ export function LeadForm({ initialData, onSuccess }: LeadFormProps) {
       tags: initialData?.tags || [],
       lostReason: initialData?.lostReason,
       lostReasonDetails: initialData?.lostReasonDetails || "",
+      sourceLink: initialData?.sourceLink || "",
     },
   });
 
@@ -88,6 +89,7 @@ export function LeadForm({ initialData, onSuccess }: LeadFormProps) {
           next_followup_date: data.nextFollowUpDate || null,
           lost_reason: data.lostReason || null,
           lost_reason_details: data.lostReasonDetails || null,
+          tags: data.tags,
         });
 
         if (result.error) {
@@ -113,6 +115,7 @@ export function LeadForm({ initialData, onSuccess }: LeadFormProps) {
           tags: data.tags,
           lost_reason: data.lostReason || undefined,
           lost_reason_details: data.lostReasonDetails || undefined,
+          source_link: data.sourceLink || undefined,
         });
 
         if (result.error) {
@@ -423,9 +426,60 @@ export function LeadForm({ initialData, onSuccess }: LeadFormProps) {
           </div>
         </div>
 
+        {/* Links */}
+        <div className="bg-card border border-border p-6 rounded-xl space-y-5 shadow-sm relative overflow-hidden">
+          <div className="absolute top-0 left-0 w-1 h-full bg-cyan-500" />
+          <div className="flex items-center gap-2 mb-2">
+            <div className="p-2 bg-cyan-500/10 rounded-md">
+              <Link2 className="h-4 w-4 text-cyan-500" />
+            </div>
+            <h3 className="text-sm font-semibold tracking-wide uppercase text-foreground">Links</h3>
+          </div>
+          
+          <FormField
+            control={form.control}
+            name="sourceLink"
+            render={({ field }) => {
+              const source = form.watch("source");
+              const placeholderMap: Record<string, string> = {
+                "Reddit": "https://reddit.com/r/.../comments/...",
+                "Google Business Profile": "https://maps.google.com/...",
+                "LinkedIn": "https://linkedin.com/in/...",
+                "Upwork": "https://upwork.com/...",
+                "Website Inbound": "https://...",
+              };
+              const labelMap: Record<string, string> = {
+                "Reddit": "Reddit Post Link",
+                "Google Business Profile": "GMB Profile Link",
+                "LinkedIn": "LinkedIn Profile Link",
+                "Upwork": "Upwork Job/Profile Link",
+                "Website Inbound": "Website URL",
+              };
+              return (
+                <FormItem>
+                  <FormLabel>{labelMap[source] || "Source Link"}</FormLabel>
+                  <FormControl>
+                    <Input 
+                      type="url" 
+                      placeholder={placeholderMap[source] || "https://..."} 
+                      className="bg-background border-input shadow-sm transition-colors hover:border-foreground/20 focus-visible:ring-1"
+                      {...field} 
+                      value={field.value || ""} 
+                    />
+                  </FormControl>
+                  <FormDescription>
+                    Add the relevant link where this lead was found or their profile.
+                  </FormDescription>
+                  <FormMessage />
+                </FormItem>
+              );
+            }}
+          />
+        </div>
+
         {/* Tags & Notes */}
-        <div className="bg-card border border-border p-6 rounded-xl space-y-6 shadow-sm relative overflow-hidden">
-          <div className="absolute top-0 left-0 w-1 h-full bg-purple-500" />
+        <div className="bg-card border border-border p-6 rounded-xl space-y-6 shadow-sm relative">
+          <div className="absolute top-0 left-0 w-1 h-full bg-purple-500 rounded-l-xl" />
           
           <div className="space-y-4">
             <div className="flex items-center gap-2 mb-2">

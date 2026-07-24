@@ -10,10 +10,19 @@ export async function saveView(name: string, filters: Record<string, unknown>, i
 
   if (!user) throw new Error('Unauthorized');
 
+  // Get internal user ID from users table (matches RLS get_user_id())
+  const { data: dbUser } = await supabase
+    .from('users')
+    .select('id')
+    .eq('auth_id', user.id)
+    .single();
+
+  if (!dbUser) throw new Error('User not found in database');
+
   const { data, error } = await supabase
     .from('saved_views')
     .insert({
-      user_id: user.id,
+      user_id: dbUser.id,
       name,
       filters,
       is_default: isDefault,

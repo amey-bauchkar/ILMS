@@ -3,15 +3,9 @@
 import { useState } from "react";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
-import { X, Plus } from "lucide-react";
+import { X, Plus, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
-
-// In a real app, this would come from the database (BRD Section 2.14 - tags table)
-const SUGGESTED_TAGS = [
-  "IT Services", "High Intent", "Logistics", "Website Rebuild",
-  "E-commerce", "Branding", "Social Media", "SEO", "Care Plan",
-  "Enterprise", "Startup", "B2B", "B2C", "Retainer", "One-time Project",
-];
+import { useTags } from "@/hooks/use-data";
 
 interface TagManagerProps {
   tags: string[];
@@ -22,8 +16,12 @@ interface TagManagerProps {
 export function TagManager({ tags, onChange, readOnly = false }: TagManagerProps) {
   const [inputValue, setInputValue] = useState("");
   const [showSuggestions, setShowSuggestions] = useState(false);
+  
+  const { tags: dbTags, loading } = useTags();
+  
+  const suggestedTags = dbTags.map(t => t.name);
 
-  const filteredSuggestions = SUGGESTED_TAGS.filter(
+  const filteredSuggestions = suggestedTags.filter(
     (t) =>
       t.toLowerCase().includes(inputValue.toLowerCase()) &&
       !tags.includes(t)
@@ -53,6 +51,10 @@ export function TagManager({ tags, onChange, readOnly = false }: TagManagerProps
       setShowSuggestions(false);
     }
   };
+
+  const showCreateOption = inputValue.trim() 
+    && !suggestedTags.some(t => t.toLowerCase() === inputValue.trim().toLowerCase()) 
+    && !tags.some(t => t.toLowerCase() === inputValue.trim().toLowerCase());
 
   return (
     <div className="space-y-3">
@@ -86,9 +88,9 @@ export function TagManager({ tags, onChange, readOnly = false }: TagManagerProps
         )}
       </div>
 
-      {/* Add tag input with autocomplete */}
+      {/* Add tag input */}
       {!readOnly && (
-        <div className="relative">
+        <div>
           <div className="flex gap-2">
             <Input
               placeholder="Add a tag..."
@@ -101,7 +103,6 @@ export function TagManager({ tags, onChange, readOnly = false }: TagManagerProps
                 if (inputValue.length > 0) setShowSuggestions(true);
               }}
               onBlur={() => {
-                // Delay to allow click on suggestion
                 setTimeout(() => setShowSuggestions(false), 200);
               }}
               onKeyDown={handleKeyDown}
@@ -119,9 +120,15 @@ export function TagManager({ tags, onChange, readOnly = false }: TagManagerProps
             </Button>
           </div>
 
-          {/* Autocomplete dropdown */}
-          {showSuggestions && filteredSuggestions.length > 0 && (
-            <div className="absolute z-50 top-full left-0 right-10 mt-1 bg-popover border border-border rounded-md shadow-lg max-h-40 overflow-y-auto">
+          {/* Inline suggestions — renders in normal flow so it works inside scrollable dialogs */}
+          {showSuggestions && (filteredSuggestions.length > 0 || showCreateOption) && (
+            <div className="mt-1 bg-popover border border-border rounded-md shadow-lg max-h-40 overflow-y-auto">
+              {loading && (
+                <div className="flex items-center gap-2 px-3 py-1.5 text-sm text-muted-foreground">
+                  <Loader2 className="h-3 w-3 animate-spin" />
+                  Loading tags...
+                </div>
+              )}
               {filteredSuggestions.map((suggestion) => (
                 <button
                   key={suggestion}
@@ -134,6 +141,18 @@ export function TagManager({ tags, onChange, readOnly = false }: TagManagerProps
                   {suggestion}
                 </button>
               ))}
+              
+              {showCreateOption && (
+                <button
+                  className="w-full text-left px-3 py-1.5 text-sm hover:bg-muted transition-colors text-primary italic"
+                  onMouseDown={(e) => {
+                    e.preventDefault();
+                    addTag(inputValue);
+                  }}
+                >
+                  + Create &quot;{inputValue.trim()}&quot;
+                </button>
+              )}
             </div>
           )}
         </div>

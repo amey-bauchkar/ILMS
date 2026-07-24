@@ -286,6 +286,15 @@ export function useDashboardData() {
         lostReason: row.lost_reason,
       }));
 
+      // Fetch statuses (for resolving UUIDs to names in activities)
+      const { data: statusesData } = await supabase
+        .from("statuses")
+        .select("id, name")
+        .order("display_order", { ascending: true });
+
+      const statusMap: Record<string, string> = {};
+      (statusesData || []).forEach((s: any) => { statusMap[s.id] = s.name; });
+
       // Fetch activities
       const { data: actsData, error: actsError } = await supabase
         .from("activities")
@@ -303,8 +312,8 @@ export function useDashboardData() {
         type: a.type,
         notes: a.notes,
         outcome: a.outcome,
-        fromStatus: a.from_status_id,
-        toStatus: a.to_status_id,
+        fromStatus: statusMap[a.from_status_id] || a.from_status_id,
+        toStatus: statusMap[a.to_status_id] || a.to_status_id,
         createdAt: a.created_at,
         createdBy: a.created_by || { id: "", name: "System", email: "", role: "" }
       }));
@@ -336,16 +345,13 @@ export function useSavedViews() {
   const fetchViews = useCallback(async () => {
     setLoading(true);
     const supabase = createClient();
-    const { data: { user } } = await supabase.auth.getUser();
     
-    if (user) {
-      const { data } = await supabase
-        .from("saved_views")
-        .select("*")
-        .eq("user_id", user.id)
-        .order("created_at", { ascending: false });
-      setViews(data || []);
-    }
+    // RLS policy (saved_views_select_own) automatically filters to current user's views
+    const { data } = await supabase
+      .from("saved_views")
+      .select("*")
+      .order("created_at", { ascending: false });
+    setViews(data || []);
     setLoading(false);
   }, []);
 

@@ -12,7 +12,7 @@ import { Badge } from "@/components/ui/badge";
 import { X, Save, Bookmark } from "lucide-react";
 import { useStatuses, useTeamMembers, useTags, useSavedViews } from "@/hooks/use-data";
 import { saveView, deleteView } from "@/actions/views";
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger, DropdownMenuLabel, DropdownMenuSeparator } from "@/components/ui/dropdown-menu";
+import { DropdownMenu, DropdownMenuContent, DropdownMenuGroup, DropdownMenuItem, DropdownMenuTrigger, DropdownMenuLabel, DropdownMenuSeparator } from "@/components/ui/dropdown-menu";
 import { buttonVariants } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { useState } from "react";
@@ -192,29 +192,31 @@ export default function LeadsFilterBar({
                         My Views
                     </DropdownMenuTrigger>
                     <DropdownMenuContent align="end" className="w-56">
-                        <DropdownMenuLabel>Saved Views</DropdownMenuLabel>
-                        <DropdownMenuSeparator />
-                        {views.length === 0 ? (
-                            <div className="p-2 text-xs text-muted-foreground">No saved views.</div>
-                        ) : (
-                            views.map((v) => (
-                                <DropdownMenuItem 
-                                    key={v.id} 
-                                    onClick={() => handleApplyView(v.filters)}
-                                    className="flex justify-between items-center"
-                                >
-                                    <span>{v.name}</span>
-                                    <X 
-                                        className="w-3 h-3 text-muted-foreground hover:text-destructive" 
-                                        onClick={async (e) => {
-                                            e.stopPropagation();
-                                            await deleteView(v.id);
-                                            refreshViews();
-                                        }}
-                                    />
-                                </DropdownMenuItem>
-                            ))
-                        )}
+                        <DropdownMenuGroup>
+                            <DropdownMenuLabel>Saved Views</DropdownMenuLabel>
+                            <DropdownMenuSeparator />
+                            {views.length === 0 ? (
+                                <div className="p-2 text-xs text-muted-foreground">No saved views.</div>
+                            ) : (
+                                views.map((v) => (
+                                    <DropdownMenuItem 
+                                        key={v.id} 
+                                        onClick={() => handleApplyView(v.filters)}
+                                        className="flex justify-between items-center"
+                                    >
+                                        <span>{v.name}</span>
+                                        <X 
+                                            className="w-3 h-3 text-muted-foreground hover:text-destructive" 
+                                            onClick={async (e) => {
+                                                e.stopPropagation();
+                                                await deleteView(v.id);
+                                                refreshViews();
+                                            }}
+                                        />
+                                    </DropdownMenuItem>
+                                ))
+                            )}
+                        </DropdownMenuGroup>
                     </DropdownMenuContent>
                 </DropdownMenu>
 
@@ -260,52 +262,96 @@ export default function LeadsFilterBar({
                             className="gap-1"
                         >
                             {s}
-                            <X
-                                className="w-3 h-3 cursor-pointer"
-                                onClick={() =>
+                            <button
+                                type="button"
+                                className="ml-0.5 rounded-full hover:bg-black/20 p-0.5"
+                                onClick={(e) => {
+                                    e.preventDefault();
+                                    e.stopPropagation();
                                     onChange({
                                         ...filters,
                                         statuses: filters.statuses.filter((x) => x !== s),
-                                    })
-                                }
-                            />
+                                    });
+                                }}
+                            >
+                                <X className="w-3 h-3" />
+                            </button>
                         </Badge>
                     ))}
                     {filters.sources.map((s) => (
                         <Badge key={s} variant="secondary" className="gap-1">
                             {s}
-                            <X
-                                className="w-3 h-3 cursor-pointer"
-                                onClick={() =>
+                            <button
+                                type="button"
+                                className="ml-0.5 rounded-full hover:bg-black/20 p-0.5"
+                                onClick={(e) => {
+                                    e.preventDefault();
+                                    e.stopPropagation();
                                     onChange({
                                         ...filters,
                                         sources: filters.sources.filter((x) => x !== s),
-                                    })
-                                }
-                            />
+                                    });
+                                }}
+                            >
+                                <X className="w-3 h-3" />
+                            </button>
                         </Badge>
                     ))}
                     {filters.tags.map((t) => (
                         <Badge key={t} variant="secondary" className="gap-1">
                             Tag: {t}
-                            <X
-                                className="w-3 h-3 cursor-pointer"
-                                onClick={() =>
+                            <button
+                                type="button"
+                                className="ml-0.5 rounded-full hover:bg-black/20 p-0.5"
+                                onClick={(e) => {
+                                    e.preventDefault();
+                                    e.stopPropagation();
                                     onChange({
                                         ...filters,
                                         tags: filters.tags.filter((x) => x !== t),
-                                    })
-                                }
-                            />
+                                    });
+                                }}
+                            >
+                                <X className="w-3 h-3" />
+                            </button>
                         </Badge>
                     ))}
+                    {filters.ownerIds.map((o) => {
+                        const memberName = members.find(m => m.id === o)?.name || o;
+                        return (
+                            <Badge key={o} variant="secondary" className="gap-1">
+                                Owner: {memberName}
+                                <button
+                                    type="button"
+                                    className="ml-0.5 rounded-full hover:bg-black/20 p-0.5"
+                                    onClick={(e) => {
+                                        e.preventDefault();
+                                        e.stopPropagation();
+                                        onChange({
+                                            ...filters,
+                                            ownerIds: filters.ownerIds.filter((x) => x !== o),
+                                        });
+                                    }}
+                                >
+                                    <X className="w-3 h-3" />
+                                </button>
+                            </Badge>
+                        );
+                    })}
                     {filters.priority !== "All" && (
                         <Badge variant="secondary" className="gap-1">
                             Priority: {filters.priority}
-                            <X
-                                className="w-3 h-3 cursor-pointer"
-                                onClick={() => onChange({ ...filters, priority: "All" })}
-                            />
+                            <button
+                                type="button"
+                                className="ml-0.5 rounded-full hover:bg-black/20 p-0.5"
+                                onClick={(e) => {
+                                    e.preventDefault();
+                                    e.stopPropagation();
+                                    onChange({ ...filters, priority: "All" });
+                                }}
+                            >
+                                <X className="w-3 h-3" />
+                            </button>
                         </Badge>
                     )}
                 </div>

@@ -22,6 +22,7 @@ export async function createLead(data: {
   tags?: string[];
   lost_reason?: string;
   lost_reason_details?: string;
+  source_link?: string;
 }) {
   const supabase = await createClient();
 
@@ -54,7 +55,7 @@ export async function createLead(data: {
       next_followup_date: data.next_followup_date || null,
       lost_reason: data.lost_reason as any || null,
       lost_reason_details: data.lost_reason_details || null,
-      custom_fields: {},
+      custom_fields: data.source_link ? { source_link: data.source_link } : {},
     })
     .select('id')
     .single();
@@ -63,13 +64,47 @@ export async function createLead(data: {
     return { error: error.message };
   }
 
-  // Add tags if any
+  // Add tags if any — resolve tag names to UUIDs
   if (data.tags && data.tags.length > 0 && lead) {
-    const tagInserts = data.tags.map((tagId) => ({
-      lead_id: lead.id,
-      tag_id: tagId,
-    }));
-    await supabase.from('lead_tags').insert(tagInserts);
+    const resolvedTagIds: string[] = [];
+
+    for (const tagNameOrId of data.tags) {
+      // Check if it's already a valid UUID format
+      const isUUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(tagNameOrId);
+      
+      if (isUUID) {
+        resolvedTagIds.push(tagNameOrId);
+      } else {
+        // It's a tag name — look it up or create it
+        const { data: existingTag } = await supabase
+          .from('tags')
+          .select('id')
+          .eq('name', tagNameOrId)
+          .single();
+
+        if (existingTag) {
+          resolvedTagIds.push(existingTag.id);
+        } else {
+          // Create the tag on the fly
+          const { data: newTag } = await supabase
+            .from('tags')
+            .insert({ name: tagNameOrId, is_active: true })
+            .select('id')
+            .single();
+          if (newTag) {
+            resolvedTagIds.push(newTag.id);
+          }
+        }
+      }
+    }
+
+    if (resolvedTagIds.length > 0) {
+      const tagInserts = resolvedTagIds.map((tagId) => ({
+        lead_id: lead.id,
+        tag_id: tagId,
+      }));
+      await supabase.from('lead_tags').insert(tagInserts);
+    }
   }
 
   // Add initial note as activity if notes provided
@@ -104,6 +139,7 @@ export async function updateLead(
     next_followup_date?: string | null;
     lost_reason?: string | null;
     lost_reason_details?: string | null;
+    tags?: string[];
   }
 ) {
   const supabase = await createClient();
@@ -132,6 +168,51 @@ export async function updateLead(
 
   if (error) {
     return { error: error.message };
+  }
+
+  // Sync tags if provided
+  if (data.tags !== undefined) {
+    // Delete all existing tags for this lead
+    await supabase.from('lead_tags').delete().eq('lead_id', leadId);
+
+    if (data.tags.length > 0) {
+      const resolvedTagIds: string[] = [];
+
+      for (const tagNameOrId of data.tags) {
+        const isUUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(tagNameOrId);
+        
+        if (isUUID) {
+          resolvedTagIds.push(tagNameOrId);
+        } else {
+          const { data: existingTag } = await supabase
+            .from('tags')
+            .select('id')
+            .eq('name', tagNameOrId)
+            .single();
+
+          if (existingTag) {
+            resolvedTagIds.push(existingTag.id);
+          } else {
+            const { data: newTag } = await supabase
+              .from('tags')
+              .insert({ name: tagNameOrId, is_active: true })
+              .select('id')
+              .single();
+            if (newTag) {
+              resolvedTagIds.push(newTag.id);
+            }
+          }
+        }
+      }
+
+      if (resolvedTagIds.length > 0) {
+        const tagInserts = resolvedTagIds.map((tagId) => ({
+          lead_id: leadId,
+          tag_id: tagId,
+        }));
+        await supabase.from('lead_tags').insert(tagInserts);
+      }
+    }
   }
 
   revalidatePath('/leads');

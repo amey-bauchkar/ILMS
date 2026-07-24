@@ -15,12 +15,18 @@ interface TeamLeaderboardProps {
 export function TeamLeaderboard({ leads, dateFilter = "month", customRange }: TeamLeaderboardProps) {
   const filteredLeads = leads.filter(l => isWithinFilter(l.createdAt, dateFilter, customRange));
 
-  const uniqueMembers = Array.from(new Set(filteredLeads.map(l => l.owner.id)))
-    .map(id => filteredLeads.find(l => l.owner.id === id)!.owner);
+  // Group by owner name to merge duplicate user records (e.g. same person with 2 emails)
+  const membersByName = new Map<string, { member: EnrichedLead["owner"]; leads: EnrichedLead[] }>();
+  filteredLeads.forEach((l) => {
+    const key = l.owner.name;
+    if (!membersByName.has(key)) {
+      membersByName.set(key, { member: l.owner, leads: [] });
+    }
+    membersByName.get(key)!.leads.push(l);
+  });
 
-  const leaderboard = uniqueMembers
-    .map((member) => {
-      const memberLeads = filteredLeads.filter((l) => l.owner.id === member.id);
+  const leaderboard = Array.from(membersByName.values())
+    .map(({ member, leads: memberLeads }) => {
       const won = memberLeads.filter((l) => l.status === "Won").length;
       const pipeline = memberLeads
         .filter((l) => !["Won", "Lost", "Junk"].includes(l.status))
