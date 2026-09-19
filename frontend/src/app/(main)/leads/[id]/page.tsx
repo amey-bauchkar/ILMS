@@ -48,6 +48,7 @@ export default async function LeadDetailPage({ params }: LeadPageProps) {
     tags: (row.lead_tags || []).map((lt: any) => lt.tags?.name).filter(Boolean),
     dealValue: row.estimated_deal_value,
     createdAt: row.created_at,
+    location: row.location || (row.custom_fields as any)?.location || null,
     lastContactedAt: row.last_contacted_at,
     nextFollowUpDate: row.next_followup_date,
     lostReason: row.lost_reason,

@@ -14,11 +14,12 @@ import {
 import { Button } from "@/components/ui/button";
 import { useLeads, useStatuses, useTeamMembers, priorityColors, type EnrichedLead } from "@/hooks/use-data";
 import { useUser } from "@/components/providers/user-provider";
-import { Download } from "lucide-react";
+import { Download, Loader2, Pencil } from "lucide-react";
 import { avatarColor } from "@/lib/avatar-colors";
 import LeadsFilterBar, { LeadFilters, emptyFilters } from "./LeadsFilterBar";
 import LeadsMobileCard from "./LeadsMobileCard";
-import { Loader2 } from "lucide-react";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { LeadForm } from "./LeadForm";
 
 type SavedView = "all" | "myOpen" | "overdue" | "hot" | "newWeek";
 type SortKey = string;
@@ -100,6 +101,7 @@ export default function LeadsTable() {
     const [sortKey, setSortKey] = useState<SortKey>("createdAt");
     const [sortAsc, setSortAsc] = useState(false);
     const [page, setPage] = useState(1);
+    const [editingLead, setEditingLead] = useState<EnrichedLead | null>(null);
 
     const viewCounts = useMemo(() => {
         return {
@@ -242,7 +244,13 @@ export default function LeadsTable() {
                         <p className="text-[#737373] text-xs mt-1">Try adjusting your filters.</p>
                     </div>
                 ) : (
-                    paginated.map((lead) => <LeadsMobileCard key={lead.id} lead={lead} />)
+                    paginated.map((lead) => (
+                        <LeadsMobileCard 
+                            key={lead.id} 
+                            lead={lead} 
+                            onEdit={setEditingLead} 
+                        />
+                    ))
                 )}
             </div>
 
@@ -263,12 +271,15 @@ export default function LeadsTable() {
                             <TableHead className="hidden lg:table-cell text-xs uppercase tracking-wide text-[#737373] font-medium">
                                 Created
                             </TableHead>
+                            <TableHead className="text-right text-xs uppercase tracking-wide text-[#737373] font-medium pr-4">
+                                Action
+                            </TableHead>
                         </TableRow>
                     </TableHeader>
                     <TableBody>
                         {paginated.length === 0 ? (
                             <TableRow>
-                                <TableCell colSpan={10} className="text-center py-16">
+                                <TableCell colSpan={11} className="text-center py-16">
                                     <p className="text-[#a3a3a3] text-sm">No leads found.</p>
                                     <p className="text-[#737373] text-xs mt-1">Try adjusting your filters.</p>
                                 </TableCell>
@@ -338,6 +349,21 @@ export default function LeadsTable() {
                                         <TableCell className="hidden lg:table-cell text-[#737373] text-sm">
                                             {format(new Date(lead.createdAt), "MMM d, yyyy")}
                                         </TableCell>
+                                        <TableCell className="text-right pr-4">
+                                            <Button
+                                                variant="ghost"
+                                                size="sm"
+                                                className="h-8 px-2.5 text-[#a3a3a3] hover:text-white hover:bg-[#262626] transition-colors gap-1.5"
+                                                onClick={(e) => {
+                                                    e.preventDefault();
+                                                    e.stopPropagation();
+                                                    setEditingLead(lead);
+                                                }}
+                                            >
+                                                <Pencil className="h-3.5 w-3.5 text-primary" />
+                                                <span className="text-xs font-medium">Edit</span>
+                                            </Button>
+                                        </TableCell>
                                     </TableRow>
                                 );
                             })
@@ -345,6 +371,42 @@ export default function LeadsTable() {
                     </TableBody>
                 </Table>
             </div>
+
+            {/* Edit Lead Modal */}
+            <Dialog open={!!editingLead} onOpenChange={(open) => { if (!open) setEditingLead(null); }}>
+                <DialogContent className="sm:max-w-[800px] w-[95vw] max-h-[90vh] overflow-y-auto [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
+                    <DialogHeader className="mb-6">
+                        <DialogTitle>Edit Lead — {editingLead?.name}</DialogTitle>
+                    </DialogHeader>
+                    {editingLead && (
+                        <LeadForm
+                            key={editingLead.id}
+                            initialData={{
+                                id: editingLead.id,
+                                name: editingLead.name,
+                                company: editingLead.company || undefined,
+                                phone: editingLead.phone,
+                                email: editingLead.email || undefined,
+                                source: editingLead.source as any,
+                                status: editingLead.statusId as any,
+                                priority: editingLead.priority,
+                                ownerId: editingLead.owner.id,
+                                dealValue: editingLead.dealValue || undefined,
+                                createdAt: editingLead.createdAt || undefined,
+                                location: editingLead.location || undefined,
+                                nextFollowUpDate: editingLead.nextFollowUpDate || undefined,
+                                tags: editingLead.tags,
+                                lostReason: editingLead.lostReason as any,
+                                lostReasonDetails: (editingLead as any).lostReasonDetails || undefined,
+                            }}
+                            onSuccess={() => {
+                                setEditingLead(null);
+                                refresh();
+                            }}
+                        />
+                    )}
+                </DialogContent>
+            </Dialog>
 
             {/* Pagination */}
             <div className="flex justify-between items-center mt-4">

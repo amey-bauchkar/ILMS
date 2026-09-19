@@ -13,16 +13,41 @@
 // ============================================================
 
 export type LeadSource =
-  | 'Reddit'
-  | 'Google Business Profile'
-  | 'Referral'
-  | 'Website Inbound'
   | 'LinkedIn'
-  | 'Cold Outreach'
+  | 'Twitter / X'
+  | 'Instagram'
+  | 'Facebook'
+  | 'YouTube'
+  | 'Reddit'
   | 'WhatsApp'
+  | 'Telegram'
+  | 'Discord'
+  | 'Threads'
   | 'Upwork'
-  | 'Events'
-  | 'Other';
+  | 'Fiverr'
+  | 'Freelancer'
+  | 'Indeed'
+  | 'Naukri'
+  | 'Wellfound (AngelList)'
+  | 'Glassdoor'
+  | 'Internshala'
+  | 'TopTal'
+  | 'Guru'
+  | 'PeoplePerHour'
+  | 'Website Inbound'
+  | 'Google Search / SEO'
+  | 'Google My Business'
+  | 'Google Business Profile'
+  | 'Just Dial'
+  | 'Local Business'
+  | 'Referral'
+  | 'Cold Outreach'
+  | 'Events / Conferences'
+  | 'Clutch'
+  | 'Dribbble'
+  | 'Behance'
+  | 'Other'
+  | (string & {});
 
 export type LeadPriority = 'Hot' | 'Warm' | 'Cold';
 
@@ -194,7 +219,7 @@ export interface Database {
           updated_at?: string;
           last_contacted_at?: string;
         };
-        Update: Partial<Omit<Lead, 'id' | 'created_at'>>;
+        Update: Partial<Omit<Lead, 'id'>>;
         Relationships: any[];
       };
       activities: {

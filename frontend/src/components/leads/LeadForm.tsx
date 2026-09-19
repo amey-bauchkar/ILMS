@@ -18,7 +18,9 @@ import { Input } from "@/components/ui/input";
 import {
   Select,
   SelectContent,
+  SelectGroup,
   SelectItem,
+  SelectLabel,
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
@@ -31,7 +33,7 @@ import { User, FileText, Tag as TagIcon, Banknote, ListTodo, Loader2, Link2 } fr
 import { toast } from "sonner";
 
 interface LeadFormProps {
-  initialData?: Partial<LeadFormData> & { id?: string };
+  initialData?: Partial<LeadFormData> & { id?: string; createdAt?: string; location?: string };
   onSuccess?: () => void;
 }
 
@@ -57,6 +59,8 @@ export function LeadForm({ initialData, onSuccess }: LeadFormProps) {
       priority: initialData?.priority || "Warm",
       ownerId: initialData?.ownerId || user?.id || "",
       dealValue: initialData?.dealValue || undefined,
+      createdAt: initialData?.createdAt ? (initialData.createdAt.includes('T') ? initialData.createdAt.split('T')[0] : initialData.createdAt) : "",
+      location: initialData?.location || "",
       nextFollowUpDate: initialData?.nextFollowUpDate || "",
       notes: initialData?.notes || "",
       tags: initialData?.tags || [],
@@ -68,16 +72,35 @@ export function LeadForm({ initialData, onSuccess }: LeadFormProps) {
 
   // Sync status and ownerId as soon as async data resolves
   useEffect(() => {
-    if (!form.getValues("status") && newStatus?.id) {
-      form.setValue("status", newStatus.id);
+    if (initialData) {
+      form.reset({
+        name: initialData.name || "",
+        company: initialData.company || "",
+        phone: initialData.phone || "",
+        email: initialData.email || "",
+        source: initialData.source || "Website Inbound",
+        status: initialData.status || newStatus?.id || "",
+        priority: initialData.priority || "Warm",
+        ownerId: initialData.ownerId || user?.id || "",
+        dealValue: initialData.dealValue || undefined,
+        createdAt: initialData.createdAt ? (initialData.createdAt.includes('T') ? initialData.createdAt.split('T')[0] : initialData.createdAt) : "",
+        location: initialData.location || "",
+        nextFollowUpDate: initialData.nextFollowUpDate || "",
+        notes: initialData.notes || "",
+        tags: initialData.tags || [],
+        lostReason: initialData.lostReason,
+        lostReasonDetails: initialData.lostReasonDetails || "",
+        sourceLink: initialData.sourceLink || "",
+      });
+    } else {
+      if (!form.getValues("status") && newStatus?.id) {
+        form.setValue("status", newStatus.id);
+      }
+      if (!form.getValues("ownerId") && (user?.id || members[0]?.id)) {
+        form.setValue("ownerId", user?.id || members[0]?.id);
+      }
     }
-  }, [newStatus?.id, form]);
-
-  useEffect(() => {
-    if (!form.getValues("ownerId") && (user?.id || members[0]?.id)) {
-      form.setValue("ownerId", user?.id || members[0]?.id);
-    }
-  }, [user?.id, members, form]);
+  }, [initialData, newStatus?.id, user?.id, members, form]);
 
   // Determine if the selected status is "Lost"
   const watchStatusId = form.watch("status");
@@ -99,6 +122,8 @@ export function LeadForm({ initialData, onSuccess }: LeadFormProps) {
           owner_id: data.ownerId,
           priority: data.priority,
           estimated_deal_value: data.dealValue ?? undefined,
+          created_at: data.createdAt ? new Date(data.createdAt).toISOString() : undefined,
+          location: data.location || null,
           next_followup_date: data.nextFollowUpDate || null,
           lost_reason: data.lostReason || null,
           lost_reason_details: data.lostReasonDetails || null,
@@ -123,6 +148,8 @@ export function LeadForm({ initialData, onSuccess }: LeadFormProps) {
           owner_id: data.ownerId,
           priority: data.priority,
           estimated_deal_value: data.dealValue ?? undefined,
+          created_at: data.createdAt ? new Date(data.createdAt).toISOString() : undefined,
+          location: data.location || undefined,
           next_followup_date: data.nextFollowUpDate || undefined,
           notes: data.notes || undefined,
           tags: data.tags,
@@ -242,17 +269,52 @@ export function LeadForm({ initialData, onSuccess }: LeadFormProps) {
                         <SelectValue placeholder="Select a source" />
                       </SelectTrigger>
                     </FormControl>
-                    <SelectContent>
-                      <SelectItem value="Reddit">Reddit</SelectItem>
-                      <SelectItem value="Google Business Profile">Google Business Profile</SelectItem>
-                      <SelectItem value="Referral">Referral</SelectItem>
-                      <SelectItem value="Website Inbound">Website Inbound</SelectItem>
-                      <SelectItem value="LinkedIn">LinkedIn</SelectItem>
-                      <SelectItem value="Cold Outreach">Cold Outreach</SelectItem>
-                      <SelectItem value="WhatsApp">WhatsApp</SelectItem>
-                      <SelectItem value="Upwork">Upwork</SelectItem>
-                      <SelectItem value="Events">Events</SelectItem>
-                      <SelectItem value="Other">Other</SelectItem>
+                    <SelectContent className="max-h-[360px] min-w-[280px]">
+                      <SelectGroup>
+                        <SelectLabel>Social Media & Messaging</SelectLabel>
+                        <SelectItem value="LinkedIn">LinkedIn</SelectItem>
+                        <SelectItem value="Twitter / X">Twitter / X</SelectItem>
+                        <SelectItem value="Instagram">Instagram</SelectItem>
+                        <SelectItem value="Facebook">Facebook</SelectItem>
+                        <SelectItem value="YouTube">YouTube</SelectItem>
+                        <SelectItem value="Reddit">Reddit</SelectItem>
+                        <SelectItem value="WhatsApp">WhatsApp</SelectItem>
+                        <SelectItem value="Telegram">Telegram</SelectItem>
+                        <SelectItem value="Discord">Discord</SelectItem>
+                        <SelectItem value="Threads">Threads</SelectItem>
+                      </SelectGroup>
+                      
+                      <SelectGroup>
+                        <SelectLabel>Job Boards & Freelance</SelectLabel>
+                        <SelectItem value="Upwork">Upwork</SelectItem>
+                        <SelectItem value="Fiverr">Fiverr</SelectItem>
+                        <SelectItem value="Freelancer">Freelancer</SelectItem>
+                        <SelectItem value="Indeed">Indeed</SelectItem>
+                        <SelectItem value="Naukri">Naukri</SelectItem>
+                        <SelectItem value="Wellfound (AngelList)">Wellfound (AngelList)</SelectItem>
+                        <SelectItem value="Glassdoor">Glassdoor</SelectItem>
+                        <SelectItem value="Internshala">Internshala</SelectItem>
+                        <SelectItem value="TopTal">TopTal</SelectItem>
+                        <SelectItem value="Guru">Guru</SelectItem>
+                        <SelectItem value="PeoplePerHour">PeoplePerHour</SelectItem>
+                      </SelectGroup>
+                      
+                      <SelectGroup>
+                        <SelectLabel>Inbound, Directories & Outreach</SelectLabel>
+                        <SelectItem value="Website Inbound">Website Inbound</SelectItem>
+                        <SelectItem value="Google Search / SEO">Google Search / SEO</SelectItem>
+                        <SelectItem value="Google My Business">Google My Business</SelectItem>
+                        <SelectItem value="Google Business Profile">Google Business Profile</SelectItem>
+                        <SelectItem value="Just Dial">Just Dial</SelectItem>
+                        <SelectItem value="Local Business">Local Business</SelectItem>
+                        <SelectItem value="Referral">Referral</SelectItem>
+                        <SelectItem value="Cold Outreach">Cold Outreach</SelectItem>
+                        <SelectItem value="Events / Conferences">Events / Conferences</SelectItem>
+                        <SelectItem value="Clutch">Clutch</SelectItem>
+                        <SelectItem value="Dribbble">Dribbble</SelectItem>
+                        <SelectItem value="Behance">Behance</SelectItem>
+                        <SelectItem value="Other">Other</SelectItem>
+                      </SelectGroup>
                     </SelectContent>
                   </Select>
                   <FormMessage />
@@ -333,6 +395,35 @@ export function LeadForm({ initialData, onSuccess }: LeadFormProps) {
                       ))}
                     </SelectContent>
                   </Select>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+          </div>
+
+          <div className="grid sm:grid-cols-2 gap-5">
+            <FormField
+              control={form.control}
+              name="createdAt"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Lead Creation Date</FormLabel>
+                  <FormControl>
+                    <Input type="date" className="bg-background border-input shadow-sm transition-colors hover:border-foreground/20 focus-visible:ring-1" {...field} value={field.value || ""} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={form.control}
+              name="location"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Location / Place</FormLabel>
+                  <FormControl>
+                    <Input placeholder="e.g. Mumbai, India" className="bg-background border-input shadow-sm transition-colors hover:border-foreground/20 focus-visible:ring-1" {...field} value={field.value || ""} />
+                  </FormControl>
                   <FormMessage />
                 </FormItem>
               )}
@@ -455,18 +546,76 @@ export function LeadForm({ initialData, onSuccess }: LeadFormProps) {
             render={({ field }) => {
               const source = form.watch("source");
               const placeholderMap: Record<string, string> = {
-                "Reddit": "https://reddit.com/r/.../comments/...",
-                "Google Business Profile": "https://maps.google.com/...",
                 "LinkedIn": "https://linkedin.com/in/...",
+                "Twitter / X": "https://x.com/...",
+                "Instagram": "https://instagram.com/...",
+                "Facebook": "https://facebook.com/...",
+                "YouTube": "https://youtube.com/@...",
+                "Reddit": "https://reddit.com/r/.../comments/...",
+                "WhatsApp": "https://wa.me/...",
+                "Telegram": "https://t.me/...",
+                "Discord": "https://discord.gg/...",
+                "Threads": "https://threads.net/@...",
                 "Upwork": "https://upwork.com/...",
+                "Fiverr": "https://fiverr.com/...",
+                "Freelancer": "https://freelancer.com/...",
+                "Indeed": "https://indeed.com/...",
+                "Naukri": "https://naukri.com/...",
+                "Wellfound (AngelList)": "https://wellfound.com/...",
+                "Glassdoor": "https://glassdoor.com/...",
+                "Internshala": "https://internshala.com/...",
+                "TopTal": "https://toptal.com/...",
+                "Guru": "https://guru.com/...",
+                "PeoplePerHour": "https://peopleperhour.com/...",
                 "Website Inbound": "https://...",
+                "Google Search / SEO": "https://...",
+                "Google My Business": "https://maps.google.com/...",
+                "Google Business Profile": "https://maps.google.com/...",
+                "Just Dial": "https://justdial.com/...",
+                "Local Business": "https://...",
+                "Referral": "https://...",
+                "Cold Outreach": "https://...",
+                "Events / Conferences": "https://...",
+                "Clutch": "https://clutch.co/profile/...",
+                "Dribbble": "https://dribbble.com/...",
+                "Behance": "https://behance.net/...",
+                "Other": "https://...",
               };
               const labelMap: Record<string, string> = {
-                "Reddit": "Reddit Post Link",
-                "Google Business Profile": "GMB Profile Link",
                 "LinkedIn": "LinkedIn Profile Link",
-                "Upwork": "Upwork Job/Profile Link",
+                "Twitter / X": "Twitter / X Profile Link",
+                "Instagram": "Instagram Profile Link",
+                "Facebook": "Facebook Profile Link",
+                "YouTube": "YouTube Channel / Video Link",
+                "Reddit": "Reddit Post Link",
+                "WhatsApp": "WhatsApp Link",
+                "Telegram": "Telegram Link",
+                "Discord": "Discord Link",
+                "Threads": "Threads Profile Link",
+                "Upwork": "Upwork Job / Profile Link",
+                "Fiverr": "Fiverr Order / Profile Link",
+                "Freelancer": "Freelancer Project Link",
+                "Indeed": "Indeed Job Link",
+                "Naukri": "Naukri Job / Candidate Link",
+                "Wellfound (AngelList)": "Wellfound Profile Link",
+                "Glassdoor": "Glassdoor Link",
+                "Internshala": "Internshala Applicant Link",
+                "TopTal": "TopTal Profile Link",
+                "Guru": "Guru Project Link",
+                "PeoplePerHour": "PeoplePerHour Link",
                 "Website Inbound": "Website URL",
+                "Google Search / SEO": "Landing Page URL",
+                "Google My Business": "Google My Business (GMB) Link",
+                "Google Business Profile": "GMB Profile Link",
+                "Just Dial": "Just Dial Listing Link",
+                "Local Business": "Business Website / Map Link",
+                "Referral": "Referral Link / Reference",
+                "Cold Outreach": "Campaign / Reference Link",
+                "Events / Conferences": "Event Website / URL",
+                "Clutch": "Clutch Review / Profile Link",
+                "Dribbble": "Dribbble Portfolio Link",
+                "Behance": "Behance Portfolio Link",
+                "Other": "Source Link",
               };
               return (
                 <FormItem>

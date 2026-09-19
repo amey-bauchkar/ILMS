@@ -13,15 +13,12 @@ const createLeadSchema = z.object({
   company_name: z.string().max(200).optional(),
   phone: z.string().min(10, 'Enter a valid phone number').max(20),
   email: z.union([z.literal(''), z.string().email()]).nullable().optional(),
-  source: z.enum([
-    'Reddit', 'Google Business Profile', 'Referral',
-    'Website Inbound', 'LinkedIn', 'Cold Outreach',
-    'WhatsApp', 'Upwork', 'Events', 'Other'
-  ]),
+  source: z.string().min(1, 'Select a valid source'),
   status_id: z.string().uuid(),
   owner_id: z.string().uuid(),
   priority: z.enum(['Hot', 'Warm', 'Cold']),
   estimated_deal_value: z.number().min(0).optional(),
+  created_at: z.string().optional(),
   next_followup_date: z.string().optional(),
   notes: z.string().max(2000).optional(),
   tags: z.array(z.string().max(100)).max(50).optional(),
@@ -31,6 +28,7 @@ const createLeadSchema = z.object({
   ]).optional(),
   lost_reason_details: z.string().max(1000).optional(),
   source_link: z.string().url().optional().or(z.literal('')),
+  location: z.string().max(200).optional().or(z.literal('')),
 });
 
 const updateLeadSchema = z.object({
@@ -38,15 +36,13 @@ const updateLeadSchema = z.object({
   company_name: z.string().max(200).optional(),
   phone: z.string().min(10).max(20).optional(),
   email: z.union([z.literal(''), z.string().email()]).nullable().optional(),
-  source: z.enum([
-    'Reddit', 'Google Business Profile', 'Referral',
-    'Website Inbound', 'LinkedIn', 'Cold Outreach',
-    'WhatsApp', 'Upwork', 'Events', 'Other'
-  ]).optional(),
+  source: z.string().min(1, 'Select a valid source').optional(),
   status_id: z.string().uuid().optional(),
   owner_id: z.string().uuid().optional(),
   priority: z.enum(['Hot', 'Warm', 'Cold']).optional(),
   estimated_deal_value: z.number().min(0).optional(),
+  created_at: z.string().nullable().optional(),
+  location: z.string().max(200).nullable().optional(),
   next_followup_date: z.string().nullable().optional(),
   lost_reason: z.enum([
     'Budget', 'Timing', 'Went with competitor',
@@ -104,6 +100,8 @@ export async function createLead(rawData: {
   owner_id: string;
   priority: string;
   estimated_deal_value?: number;
+  created_at?: string;
+  location?: string;
   next_followup_date?: string;
   notes?: string;
   tags?: string[];
@@ -152,25 +150,35 @@ export async function createLead(rawData: {
   }
   const data = parsed.data;
 
+  const customFields: Record<string, any> = {};
+  if (data.source_link) customFields.source_link = data.source_link;
+  if (data.location) customFields.location = data.location;
+
   // Insert lead
+  const insertPayload: any = {
+    name: data.name,
+    company_name: data.company_name || null,
+    phone: data.phone,
+    email: data.email || null,
+    source: data.source as any,
+    status_id: data.status_id,
+    owner_id: data.owner_id,
+    created_by: dbUser.id,
+    priority: data.priority as any,
+    estimated_deal_value: data.estimated_deal_value || 0,
+    next_followup_date: data.next_followup_date || null,
+    lost_reason: data.lost_reason as any || null,
+    lost_reason_details: data.lost_reason_details || null,
+    custom_fields: customFields,
+  };
+
+  if (data.created_at) {
+    insertPayload.created_at = new Date(data.created_at).toISOString();
+  }
+
   const { data: lead, error } = await supabase
     .from('leads')
-    .insert({
-      name: data.name,
-      company_name: data.company_name || null,
-      phone: data.phone,
-      email: data.email || null,
-      source: data.source as any,
-      status_id: data.status_id,
-      owner_id: data.owner_id,
-      created_by: dbUser.id,
-      priority: data.priority as any,
-      estimated_deal_value: data.estimated_deal_value || 0,
-      next_followup_date: data.next_followup_date || null,
-      lost_reason: data.lost_reason as any || null,
-      lost_reason_details: data.lost_reason_details || null,
-      custom_fields: data.source_link ? { source_link: data.source_link } : {},
-    })
+    .insert(insertPayload)
     .select('id')
     .single();
 
@@ -222,6 +230,8 @@ export async function updateLead(
     owner_id?: string;
     priority?: string;
     estimated_deal_value?: number;
+    created_at?: string | null;
+    location?: string | null;
     next_followup_date?: string | null;
     lost_reason?: string | null;
     lost_reason_details?: string | null;
@@ -272,7 +282,7 @@ export async function updateLead(
     }
   }
 
-  const updateData: Partial<Omit<import('@/types/database').Lead, 'id' | 'created_at'>> = {};
+  const updateData: Partial<Omit<import('@/types/database').Lead, 'id'>> = {};
   if (data.name !== undefined) updateData.name = data.name;
   if (data.company_name !== undefined) updateData.company_name = data.company_name || null;
   if (data.phone !== undefined) updateData.phone = data.phone;
@@ -282,9 +292,17 @@ export async function updateLead(
   if (data.owner_id !== undefined) updateData.owner_id = data.owner_id;
   if (data.priority !== undefined) updateData.priority = data.priority;
   if (data.estimated_deal_value !== undefined) updateData.estimated_deal_value = data.estimated_deal_value;
+  if (data.created_at !== undefined) (updateData as any).created_at = data.created_at ? new Date(data.created_at).toISOString() : new Date().toISOString();
   if (data.next_followup_date !== undefined) updateData.next_followup_date = data.next_followup_date;
   if (data.lost_reason !== undefined) updateData.lost_reason = data.lost_reason;
   if (data.lost_reason_details !== undefined) updateData.lost_reason_details = data.lost_reason_details;
+
+  if (data.location !== undefined) {
+    const { data: existing } = await supabase.from('leads').select('custom_fields').eq('id', leadId).single();
+    const currentCf = (existing?.custom_fields as Record<string, any>) || {};
+    currentCf.location = data.location || null;
+    (updateData as any).custom_fields = currentCf;
+  }
 
   const { error } = await supabase
     .from('leads')

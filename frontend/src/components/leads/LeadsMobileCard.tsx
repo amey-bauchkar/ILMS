@@ -1,9 +1,8 @@
-"use client";
-
 import Link from "next/link";
 import { formatDistanceToNow, isBefore, startOfDay } from "date-fns";
 import { priorityColors, type EnrichedLead } from "@/hooks/use-data";
 import { avatarColor } from "@/lib/avatar-colors";
+import { Pencil } from "lucide-react";
 
 function DotBadge({ color, label }: { color: string; label: string }) {
     return (
@@ -17,17 +16,41 @@ function DotBadge({ color, label }: { color: string; label: string }) {
     );
 }
 
-export default function LeadsMobileCard({ lead }: { lead: EnrichedLead }) {
+export default function LeadsMobileCard({ 
+    lead, 
+    onEdit 
+}: { 
+    lead: EnrichedLead; 
+    onEdit?: (lead: EnrichedLead) => void;
+}) {
     const isOverdue = lead.nextFollowUpDate && isBefore(new Date(lead.nextFollowUpDate), startOfDay(new Date()));
     const initials = lead.owner.name.split(" ").map((p) => p[0]).slice(0, 2).join("").toUpperCase();
     const ownerColor = avatarColor(lead.owner.name);
 
     return (
-        <Link href={`/leads/${lead.id}`} className="block mb-3">
-            <div className="rounded-xl border border-[#2e2e2e] bg-[#0d0d0d] p-4 hover:bg-[#161616] transition-colors">
+        <div className="block mb-3">
+            <div className="rounded-xl border border-[#2e2e2e] bg-[#0d0d0d] p-4 hover:bg-[#161616] transition-colors relative">
                 <div className="flex justify-between items-start mb-2">
-                    <h3 className="font-semibold text-white">{lead.name}</h3>
-                    <DotBadge color={lead.statusColor} label={lead.status} />
+                    <Link href={`/leads/${lead.id}`} className="hover:text-primary transition-colors">
+                        <h3 className="font-semibold text-white hover:text-primary">{lead.name}</h3>
+                    </Link>
+                    <div className="flex items-center gap-2">
+                        <DotBadge color={lead.statusColor} label={lead.status} />
+                        {onEdit && (
+                            <button
+                                type="button"
+                                onClick={(e) => {
+                                    e.preventDefault();
+                                    e.stopPropagation();
+                                    onEdit(lead);
+                                }}
+                                className="p-1.5 rounded-md bg-[#262626] text-[#a3a3a3] hover:text-white hover:bg-[#333333] transition-colors"
+                                title="Edit Lead"
+                            >
+                                <Pencil className="w-3.5 h-3.5" />
+                            </button>
+                        )}
+                    </div>
                 </div>
                 {lead.company && <p className="text-sm text-[#a3a3a3] mb-2">{lead.company}</p>}
                 <div className="flex flex-wrap items-center gap-2 text-xs text-[#737373]">
@@ -47,6 +70,6 @@ export default function LeadsMobileCard({ lead }: { lead: EnrichedLead }) {
                     </p>
                 )}
             </div>
-        </Link>
+        </div>
     );
 }

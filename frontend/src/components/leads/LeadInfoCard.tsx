@@ -6,7 +6,7 @@ import { priorityColors } from "@/hooks/use-data";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Mail, Phone, Building2, Calendar, IndianRupee, Pencil, PhoneCall, User, UserCheck } from "lucide-react";
+import { Mail, Phone, Building2, Calendar, IndianRupee, Pencil, PhoneCall, User, UserCheck, MapPin } from "lucide-react";
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
 import { LeadForm } from "./LeadForm";
 import { TagManager } from "./TagManager";
@@ -54,8 +54,12 @@ export function LeadInfoCard({ lead }: LeadInfoCardProps) {
                   priority: lead.priority,
                   ownerId: lead.owner.id,
                   dealValue: lead.dealValue || undefined,
+                  createdAt: lead.createdAt || undefined,
+                  location: lead.location || undefined,
                   nextFollowUpDate: lead.nextFollowUpDate || undefined,
                   lostReason: lead.lostReason as any,
+                  lostReasonDetails: (lead as any).lostReasonDetails || undefined,
+                  tags: lead.tags,
                 }} 
                 onSuccess={() => {
                   setIsEditOpen(false);
@@ -170,6 +174,17 @@ export function LeadInfoCard({ lead }: LeadInfoCardProps) {
               {lead.source}
             </span>
           </div>
+
+          {lead.location && (
+            <div className="flex items-center justify-between text-sm">
+              <span className="text-muted-foreground flex items-center gap-2">
+                <MapPin className="h-4 w-4" /> Location
+              </span>
+              <span className="font-medium">
+                {lead.location}
+              </span>
+            </div>
+          )}
 
           <div className="flex items-center justify-between text-sm">
             <span className="text-muted-foreground flex items-center gap-2">

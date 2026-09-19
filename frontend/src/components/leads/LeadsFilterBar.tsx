@@ -16,11 +16,9 @@ import { DropdownMenu, DropdownMenuContent, DropdownMenuGroup, DropdownMenuItem,
 import { buttonVariants } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { useState } from "react";
+import { LEAD_SOURCES } from "@/lib/validations";
 
-const ALL_SOURCES = [
-    "Reddit", "Google Business Profile", "Referral", "Website Inbound",
-    "LinkedIn", "Cold Outreach", "WhatsApp", "Upwork", "Events", "Other",
-];
+const ALL_SOURCES = LEAD_SOURCES;
 
 export interface LeadFilters {
     search: string;
