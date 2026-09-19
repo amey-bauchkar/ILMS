@@ -16,7 +16,7 @@ INSERT INTO public.users (email, name, role) VALUES
   ('amey@foremark.in',    'Amey',    'admin'),
   ('janhavi@foremark.in', 'Janhavi', 'client_manager'),
   ('tanmay@foremark.in',  'Tanmay',  'client_manager'),
-  ('manish@foremark.in',  'Manish',  'sales');
+  ('manish@foremark.in',  'Manish',  'admin');
 
 -- -------------------------------------------------------
 -- 2. Pipeline Statuses (BRD §2.6 — with colors from mock-data.ts)
