@@ -111,13 +111,6 @@ export async function createLead(rawData: {
   lost_reason_details?: string;
   source_link?: string;
 }) {
-  // H-01: Server-side validation
-  const parsed = createLeadSchema.safeParse(rawData);
-  if (!parsed.success) {
-    return { error: parsed.error.issues[0]?.message || 'Invalid input' };
-  }
-  const data = parsed.data;
-
   const supabase = await createClient();
 
   // Authentication check
@@ -131,6 +124,33 @@ export async function createLead(rawData: {
     .single();
 
   if (!dbUser) return { error: 'User not found in database' };
+
+  // Fallback resolution for status_id and owner_id if not provided
+  let resolvedStatusId = rawData.status_id;
+  if (!resolvedStatusId || resolvedStatusId.trim() === '') {
+    const { data: defaultStatus } = await supabase
+      .from('statuses')
+      .select('id')
+      .eq('slug', 'new')
+      .single();
+    resolvedStatusId = defaultStatus?.id || '';
+  }
+
+  let resolvedOwnerId = rawData.owner_id;
+  if (!resolvedOwnerId || resolvedOwnerId.trim() === '') {
+    resolvedOwnerId = dbUser.id;
+  }
+
+  // H-01: Server-side validation
+  const parsed = createLeadSchema.safeParse({
+    ...rawData,
+    status_id: resolvedStatusId,
+    owner_id: resolvedOwnerId,
+  });
+  if (!parsed.success) {
+    return { error: parsed.error.issues[0]?.message || 'Invalid input' };
+  }
+  const data = parsed.data;
 
   // Insert lead
   const { data: lead, error } = await supabase

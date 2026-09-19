@@ -6,3 +6,4 @@ backend/.env
 test_automation.py
 test_*.png
 test_error.png
+screenshot_*.png

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { leadFormSchema, LeadFormData } from "@/lib/validations";
@@ -65,6 +65,19 @@ export function LeadForm({ initialData, onSuccess }: LeadFormProps) {
       sourceLink: initialData?.sourceLink || "",
     },
   });
+
+  // Sync status and ownerId as soon as async data resolves
+  useEffect(() => {
+    if (!form.getValues("status") && newStatus?.id) {
+      form.setValue("status", newStatus.id);
+    }
+  }, [newStatus?.id, form]);
+
+  useEffect(() => {
+    if (!form.getValues("ownerId") && (user?.id || members[0]?.id)) {
+      form.setValue("ownerId", user?.id || members[0]?.id);
+    }
+  }, [user?.id, members, form]);
 
   // Determine if the selected status is "Lost"
   const watchStatusId = form.watch("status");
