@@ -287,7 +287,11 @@ function CallLogForm({
                     <Select onValueChange={field.onChange} value={field.value}>
                       <FormControl>
                         <SelectTrigger className="bg-background border-input w-full">
-                          <SelectValue placeholder="Keep current" />
+                          <SelectValue placeholder="Keep current">
+                            {field.value === "none" || !field.value
+                              ? "Keep current"
+                              : statuses.find((s) => s.id === field.value)?.name || "Keep current"}
+                          </SelectValue>
                         </SelectTrigger>
                       </FormControl>
                       <SelectContent>

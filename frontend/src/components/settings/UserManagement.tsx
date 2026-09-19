@@ -183,7 +183,9 @@ export function UserManagement({ users: initialUsers }: { users: User[] }) {
                     onValueChange={(val) => handleRoleChange(user.id, val as UserRole)}
                   >
                     <SelectTrigger className="w-[140px] h-8 text-xs">
-                      <SelectValue />
+                      <SelectValue>
+                        {user.role === "client_manager" ? "Client Manager" : user.role === "admin" ? "Admin" : "Sales"}
+                      </SelectValue>
                     </SelectTrigger>
                     <SelectContent>
                       <SelectItem value="admin">Admin</SelectItem>

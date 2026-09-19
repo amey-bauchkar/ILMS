@@ -324,29 +324,41 @@ export function LeadForm({ initialData, onSuccess }: LeadFormProps) {
             <FormField
               control={form.control}
               name="status"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Status *</FormLabel>
-                  <Select onValueChange={field.onChange} value={field.value}>
-                    <FormControl>
-                      <SelectTrigger className="bg-background border-input shadow-sm transition-colors hover:border-foreground/20 focus-visible:ring-1">
-                        <SelectValue placeholder="Select status" />
-                      </SelectTrigger>
-                    </FormControl>
-                    <SelectContent>
-                      {statuses.map((s) => (
-                        <SelectItem key={s.id} value={s.id}>
-                          <span className="flex items-center gap-2">
-                            <span className="w-2 h-2 rounded-full" style={{ backgroundColor: s.color }} />
-                            {s.name}
-                          </span>
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                  <FormMessage />
-                </FormItem>
-              )}
+              render={({ field }) => {
+                const currentStatus = statuses.find((s) => s.id === field.value);
+                return (
+                  <FormItem>
+                    <FormLabel>Status *</FormLabel>
+                    <Select onValueChange={field.onChange} value={field.value}>
+                      <FormControl>
+                        <SelectTrigger className="bg-background border-input shadow-sm transition-colors hover:border-foreground/20 focus-visible:ring-1">
+                          <SelectValue placeholder="Select status">
+                            {currentStatus ? (
+                              <span className="flex items-center gap-2">
+                                <span className="w-2 h-2 rounded-full shrink-0" style={{ backgroundColor: currentStatus.color }} />
+                                {currentStatus.name}
+                              </span>
+                            ) : (
+                              "Select status"
+                            )}
+                          </SelectValue>
+                        </SelectTrigger>
+                      </FormControl>
+                      <SelectContent>
+                        {statuses.map((s) => (
+                          <SelectItem key={s.id} value={s.id}>
+                            <span className="flex items-center gap-2">
+                              <span className="w-2 h-2 rounded-full" style={{ backgroundColor: s.color }} />
+                              {s.name}
+                            </span>
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                    <FormMessage />
+                  </FormItem>
+                );
+              }}
             />
           </div>
 
@@ -376,28 +388,31 @@ export function LeadForm({ initialData, onSuccess }: LeadFormProps) {
             <FormField
               control={form.control}
               name="ownerId"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Owner *</FormLabel>
-                  <Select onValueChange={field.onChange} value={field.value}>
-                    <FormControl>
-                      <SelectTrigger className="bg-background border-input shadow-sm transition-colors hover:border-foreground/20 focus-visible:ring-1">
-                        <SelectValue placeholder="Select owner">
-                          {members.find((m) => m.id === field.value)?.name || "Loading..."}
-                        </SelectValue>
-                      </SelectTrigger>
-                    </FormControl>
-                    <SelectContent>
-                      {members.map((member) => (
-                        <SelectItem key={member.id} value={member.id}>
-                          {member.name}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                  <FormMessage />
-                </FormItem>
-              )}
+              render={({ field }) => {
+                const currentOwner = members.find((m) => m.id === field.value);
+                return (
+                  <FormItem>
+                    <FormLabel>Owner *</FormLabel>
+                    <Select onValueChange={field.onChange} value={field.value}>
+                      <FormControl>
+                        <SelectTrigger className="bg-background border-input shadow-sm transition-colors hover:border-foreground/20 focus-visible:ring-1">
+                          <SelectValue placeholder="Select owner">
+                            {currentOwner?.name || (members.length > 0 ? "Select owner" : "Loading...")}
+                          </SelectValue>
+                        </SelectTrigger>
+                      </FormControl>
+                      <SelectContent>
+                        {members.map((member) => (
+                          <SelectItem key={member.id} value={member.id}>
+                            {member.name}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                    <FormMessage />
+                  </FormItem>
+                );
+              }}
             />
           </div>
 
