@@ -263,7 +263,7 @@ export function LeadForm({ initialData, onSuccess }: LeadFormProps) {
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>Source *</FormLabel>
-                  <Select onValueChange={field.onChange} defaultValue={field.value}>
+                  <Select onValueChange={field.onChange} value={field.value}>
                     <FormControl>
                       <SelectTrigger className="bg-background border-input shadow-sm transition-colors hover:border-foreground/20 focus-visible:ring-1">
                         <SelectValue placeholder="Select a source" />
@@ -327,7 +327,7 @@ export function LeadForm({ initialData, onSuccess }: LeadFormProps) {
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>Status *</FormLabel>
-                  <Select onValueChange={field.onChange} defaultValue={field.value}>
+                  <Select onValueChange={field.onChange} value={field.value}>
                     <FormControl>
                       <SelectTrigger className="bg-background border-input shadow-sm transition-colors hover:border-foreground/20 focus-visible:ring-1">
                         <SelectValue placeholder="Select status" />
@@ -357,7 +357,7 @@ export function LeadForm({ initialData, onSuccess }: LeadFormProps) {
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>Priority *</FormLabel>
-                  <Select onValueChange={field.onChange} defaultValue={field.value}>
+                  <Select onValueChange={field.onChange} value={field.value}>
                     <FormControl>
                       <SelectTrigger className="bg-background border-input shadow-sm transition-colors hover:border-foreground/20 focus-visible:ring-1">
                         <SelectValue placeholder="Select priority" />
@@ -379,7 +379,7 @@ export function LeadForm({ initialData, onSuccess }: LeadFormProps) {
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>Owner *</FormLabel>
-                  <Select onValueChange={field.onChange} defaultValue={field.value}>
+                  <Select onValueChange={field.onChange} value={field.value}>
                     <FormControl>
                       <SelectTrigger className="bg-background border-input shadow-sm transition-colors hover:border-foreground/20 focus-visible:ring-1">
                         <SelectValue placeholder="Select owner">
@@ -441,7 +441,7 @@ export function LeadForm({ initialData, onSuccess }: LeadFormProps) {
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel>Reason for Loss</FormLabel>
-                      <Select onValueChange={field.onChange} defaultValue={field.value}>
+                      <Select onValueChange={field.onChange} value={field.value}>
                         <FormControl>
                           <SelectTrigger className="bg-background border-input shadow-sm transition-colors hover:border-foreground/20 focus-visible:ring-1">
                             <SelectValue placeholder="Select a reason" />
