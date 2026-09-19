@@ -14,8 +14,6 @@
 
 INSERT INTO public.users (email, name, role) VALUES
   ('amey@foremark.in',    'Amey',    'admin'),
-  ('janhavi@foremark.in', 'Janhavi', 'client_manager'),
-  ('tanmay@foremark.in',  'Tanmay',  'client_manager'),
   ('manish@foremark.in',  'Manish',  'admin');
 
 -- -------------------------------------------------------
