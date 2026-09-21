@@ -394,6 +394,7 @@ export default function LeadsTable() {
                                 dealValue: editingLead.dealValue || undefined,
                                 createdAt: editingLead.createdAt || undefined,
                                 location: editingLead.location || undefined,
+                                sourceLink: editingLead.sourceLink || undefined,
                                 nextFollowUpDate: editingLead.nextFollowUpDate || undefined,
                                 tags: editingLead.tags,
                                 lostReason: editingLead.lostReason as any,

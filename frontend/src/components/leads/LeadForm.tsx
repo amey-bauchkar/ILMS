@@ -125,6 +125,8 @@ export function LeadForm({ initialData, onSuccess }: LeadFormProps) {
           estimated_deal_value: data.dealValue ?? undefined,
           created_at: data.createdAt ? new Date(data.createdAt).toISOString() : undefined,
           location: data.location || null,
+          source_link: data.sourceLink || null,
+          notes: data.notes || undefined,
           next_followup_date: data.nextFollowUpDate || null,
           lost_reason: data.lostReason || null,
           lost_reason_details: data.lostReasonDetails || null,

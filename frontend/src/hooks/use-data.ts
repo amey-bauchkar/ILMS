@@ -24,6 +24,7 @@ export interface EnrichedLead {
   dealValue: number | null;
   createdAt: string;
   location?: string | null;
+  sourceLink?: string | null;
   lastContactedAt: string | null;
   nextFollowUpDate: string | null;
   lostReason: string | null;
@@ -66,7 +67,8 @@ export function useLeads() {
       company: row.company_name,
       phone: row.phone,
       email: row.email,
-      source: row.source,
+      source: (row.custom_fields as any)?.source || row.source,
+      sourceLink: (row.custom_fields as any)?.source_link || null,
       status: row.status?.name || "Unknown",
       statusColor: row.status?.color || "#737373",
       statusId: row.status_id,

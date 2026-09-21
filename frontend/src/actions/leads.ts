@@ -10,47 +10,56 @@ import { z } from 'zod';
 
 const createLeadSchema = z.object({
   name: z.string().min(2, 'Name must be at least 2 characters').max(200),
-  company_name: z.string().max(200).optional(),
+  company_name: z.string().max(200).nullable().optional(),
   phone: z.string().min(10, 'Enter a valid phone number').max(20),
   email: z.union([z.literal(''), z.string().email()]).nullable().optional(),
   source: z.string().min(1, 'Select a valid source'),
   status_id: z.string().uuid(),
   owner_id: z.string().uuid(),
   priority: z.enum(['Hot', 'Warm', 'Cold']),
-  estimated_deal_value: z.number().min(0).optional(),
-  created_at: z.string().optional(),
-  next_followup_date: z.string().optional(),
-  notes: z.string().max(2000).optional(),
-  tags: z.array(z.string().max(100)).max(50).optional(),
-  lost_reason: z.enum([
-    'Budget', 'Timing', 'Went with competitor',
-    'Not a fit', 'No response', 'Other'
-  ]).optional(),
-  lost_reason_details: z.string().max(1000).optional(),
-  source_link: z.string().url().optional().or(z.literal('')),
-  location: z.string().max(200).optional().or(z.literal('')),
+  estimated_deal_value: z.number().min(0).nullable().optional(),
+  created_at: z.string().nullable().optional(),
+  next_followup_date: z.string().nullable().optional(),
+  notes: z.string().max(2000).nullable().optional(),
+  tags: z.array(z.string().max(100)).max(50).nullable().optional(),
+  lost_reason: z.string().nullable().optional(),
+  lost_reason_details: z.string().max(1000).nullable().optional(),
+  source_link: z.string().nullable().optional(),
+  location: z.string().max(200).nullable().optional(),
 });
 
 const updateLeadSchema = z.object({
   name: z.string().min(2).max(200).optional(),
-  company_name: z.string().max(200).optional(),
+  company_name: z.string().max(200).nullable().optional(),
   phone: z.string().min(10).max(20).optional(),
   email: z.union([z.literal(''), z.string().email()]).nullable().optional(),
   source: z.string().min(1, 'Select a valid source').optional(),
   status_id: z.string().uuid().optional(),
   owner_id: z.string().uuid().optional(),
   priority: z.enum(['Hot', 'Warm', 'Cold']).optional(),
-  estimated_deal_value: z.number().min(0).optional(),
+  estimated_deal_value: z.number().min(0).nullable().optional(),
   created_at: z.string().nullable().optional(),
   location: z.string().max(200).nullable().optional(),
+  source_link: z.string().nullable().optional(),
+  notes: z.string().max(2000).nullable().optional(),
   next_followup_date: z.string().nullable().optional(),
-  lost_reason: z.enum([
-    'Budget', 'Timing', 'Went with competitor',
-    'Not a fit', 'No response', 'Other'
-  ]).nullable().optional(),
+  lost_reason: z.string().nullable().optional(),
   lost_reason_details: z.string().max(1000).nullable().optional(),
-  tags: z.array(z.string().max(100)).max(50).optional(),
+  tags: z.array(z.string().max(100)).max(50).nullable().optional(),
 });
+
+const VALID_DB_ENUM_SOURCES = [
+  'Reddit',
+  'Google Business Profile',
+  'Referral',
+  'Website Inbound',
+  'LinkedIn',
+  'Cold Outreach',
+  'WhatsApp',
+  'Upwork',
+  'Events',
+  'Other',
+];
 
 // ============================================================
 // Helper: Resolve tag names to UUIDs (C-02 fix)
@@ -115,11 +124,20 @@ export async function createLead(rawData: {
   const { data: { user: authUser } } = await supabase.auth.getUser();
   if (!authUser) return { error: 'Not authenticated' };
 
-  const { data: dbUser } = await supabase
+  let { data: dbUser } = await supabase
     .from('users')
-    .select('id')
+    .select('id, role')
     .eq('auth_id', authUser.id)
     .single();
+
+  if (!dbUser && authUser.email) {
+    const { data: userByEmail } = await supabase
+      .from('users')
+      .select('id, role')
+      .eq('email', authUser.email)
+      .single();
+    dbUser = userByEmail;
+  }
 
   if (!dbUser) return { error: 'User not found in database' };
 
@@ -151,8 +169,11 @@ export async function createLead(rawData: {
   const data = parsed.data;
 
   const customFields: Record<string, any> = {};
+  customFields.source = data.source;
   if (data.source_link) customFields.source_link = data.source_link;
   if (data.location) customFields.location = data.location;
+
+  const safeDbSource = VALID_DB_ENUM_SOURCES.includes(data.source) ? data.source : 'Other';
 
   // Insert lead
   const insertPayload: any = {
@@ -160,7 +181,7 @@ export async function createLead(rawData: {
     company_name: data.company_name || null,
     phone: data.phone,
     email: data.email || null,
-    source: data.source as any,
+    source: safeDbSource as any,
     status_id: data.status_id,
     owner_id: data.owner_id,
     created_by: dbUser.id,
@@ -173,36 +194,54 @@ export async function createLead(rawData: {
   };
 
   if (data.created_at) {
-    insertPayload.created_at = new Date(data.created_at).toISOString();
+    try {
+      insertPayload.created_at = new Date(data.created_at).toISOString();
+    } catch {
+      // ignore
+    }
   }
 
-  const { data: lead, error } = await supabase
+  const clientToUse = dbUser.role === 'admin' ? (await createAdminClient()) : supabase;
+
+  let { data: lead, error } = await clientToUse
     .from('leads')
     .insert(insertPayload)
     .select('id')
     .single();
 
+  // Retry with 'Other' as source enum fallback if needed
+  if (error && insertPayload.source !== 'Other') {
+    insertPayload.source = 'Other';
+    const retryResult = await clientToUse
+      .from('leads')
+      .insert(insertPayload)
+      .select('id')
+      .single();
+    lead = retryResult.data;
+    error = retryResult.error;
+  }
+
   if (error) {
     console.error('Lead creation failed:', error);
-    return { error: 'Failed to create lead. Please try again.' };
+    return { error: error.message || 'Failed to create lead. Please try again.' };
   }
 
   // Add tags if any — resolve tag names to UUIDs (C-02 fix)
   if (data.tags && data.tags.length > 0 && lead) {
-    const resolvedTagIds = await resolveTagIds(supabase, data.tags);
+    const resolvedTagIds = await resolveTagIds(clientToUse, data.tags);
 
     if (resolvedTagIds.length > 0) {
       const tagInserts = resolvedTagIds.map((tagId) => ({
         lead_id: lead.id,
         tag_id: tagId,
       }));
-      await supabase.from('lead_tags').insert(tagInserts);
+      await clientToUse.from('lead_tags').insert(tagInserts);
     }
   }
 
   // Add initial note as activity if notes provided
   if (data.notes && lead) {
-    await supabase.from('activities').insert({
+    await clientToUse.from('activities').insert({
       lead_id: lead.id,
       type: 'note' as any,
       notes: data.notes,
@@ -232,6 +271,8 @@ export async function updateLead(
     estimated_deal_value?: number;
     created_at?: string | null;
     location?: string | null;
+    source_link?: string | null;
+    notes?: string | null;
     next_followup_date?: string | null;
     lost_reason?: string | null;
     lost_reason_details?: string | null;
@@ -255,18 +296,28 @@ export async function updateLead(
   const { data: { user: authUser } } = await supabase.auth.getUser();
   if (!authUser) return { error: 'Not authenticated' };
 
-  // H-04: Defense-in-depth authorization check
-  const { data: dbUser } = await supabase
+  let { data: dbUser } = await supabase
     .from('users')
     .select('id, role')
     .eq('auth_id', authUser.id)
     .single();
 
+  if (!dbUser && authUser.email) {
+    const { data: userByEmail } = await supabase
+      .from('users')
+      .select('id, role')
+      .eq('email', authUser.email)
+      .single();
+    dbUser = userByEmail;
+  }
+
   if (!dbUser) return { error: 'User not found' };
+
+  const clientToUse = dbUser.role === 'admin' ? (await createAdminClient()) : supabase;
 
   // Non-admin users can only edit their own leads
   if (dbUser.role !== 'admin') {
-    const { data: lead } = await supabase
+    const { data: lead } = await clientToUse
       .from('leads')
       .select('owner_id')
       .eq('id', leadId)
@@ -282,37 +333,90 @@ export async function updateLead(
     }
   }
 
-  const updateData: Partial<Omit<import('@/types/database').Lead, 'id'>> = {};
+  const { data: existing } = await clientToUse.from('leads').select('custom_fields, source').eq('id', leadId).single();
+  const currentCf = (existing?.custom_fields as Record<string, any>) || {};
+
+  if (data.source !== undefined) currentCf.source = data.source;
+  if (data.source_link !== undefined) currentCf.source_link = data.source_link || null;
+  if (data.location !== undefined) currentCf.location = data.location || null;
+
+  const updateData: any = {};
   if (data.name !== undefined) updateData.name = data.name;
   if (data.company_name !== undefined) updateData.company_name = data.company_name || null;
   if (data.phone !== undefined) updateData.phone = data.phone;
   if (data.email !== undefined) updateData.email = data.email || null;
-  if (data.source !== undefined) updateData.source = data.source;
+  if (data.source !== undefined) {
+    const safeDbSource = VALID_DB_ENUM_SOURCES.includes(data.source) ? data.source : 'Other';
+    updateData.source = safeDbSource;
+  }
   if (data.status_id !== undefined) updateData.status_id = data.status_id;
   if (data.owner_id !== undefined) updateData.owner_id = data.owner_id;
   if (data.priority !== undefined) updateData.priority = data.priority;
   if (data.estimated_deal_value !== undefined) updateData.estimated_deal_value = data.estimated_deal_value;
-  if (data.created_at !== undefined) (updateData as any).created_at = data.created_at ? new Date(data.created_at).toISOString() : new Date().toISOString();
+  if (data.created_at !== undefined) {
+    try {
+      updateData.created_at = data.created_at ? new Date(data.created_at).toISOString() : new Date().toISOString();
+    } catch {
+      // ignore
+    }
+  }
   if (data.next_followup_date !== undefined) updateData.next_followup_date = data.next_followup_date;
   if (data.lost_reason !== undefined) updateData.lost_reason = data.lost_reason;
   if (data.lost_reason_details !== undefined) updateData.lost_reason_details = data.lost_reason_details;
+  updateData.custom_fields = currentCf;
 
-  if (data.location !== undefined) {
-    const { data: existing } = await supabase.from('leads').select('custom_fields').eq('id', leadId).single();
-    const currentCf = (existing?.custom_fields as Record<string, any>) || {};
-    currentCf.location = data.location || null;
-    (updateData as any).custom_fields = currentCf;
-  }
-
-  const { error } = await supabase
+  let { error } = await clientToUse
     .from('leads')
     .update(updateData)
     .eq('id', leadId);
 
+  // Retry with 'Other' as source enum fallback if needed
+  if (error && updateData.source && updateData.source !== 'Other') {
+    updateData.source = 'Other';
+    const retry = await clientToUse
+      .from('leads')
+      .update(updateData)
+      .eq('id', leadId);
+    error = retry.error;
+  }
+
   if (error) {
     console.error('Lead update failed:', error);
-    return { error: 'Failed to update lead. Please try again.' };
+    return { error: error.message || 'Failed to update lead. Please try again.' };
   }
+
+  // Sync tags if provided (C-02 fix)
+  if (data.tags !== undefined) {
+    // Delete all existing tags for this lead
+    await clientToUse.from('lead_tags').delete().eq('lead_id', leadId);
+
+    if (data.tags.length > 0) {
+      const resolvedTagIds = await resolveTagIds(clientToUse, data.tags);
+
+      if (resolvedTagIds.length > 0) {
+        const tagInserts = resolvedTagIds.map((tagId) => ({
+          lead_id: leadId,
+          tag_id: tagId,
+        }));
+        await clientToUse.from('lead_tags').insert(tagInserts);
+      }
+    }
+  }
+
+  // Add note activity if note provided during update
+  if (data.notes && data.notes.trim()) {
+    await clientToUse.from('activities').insert({
+      lead_id: leadId,
+      type: 'note' as any,
+      notes: data.notes.trim(),
+      created_by: dbUser.id,
+    });
+  }
+
+  revalidatePath('/leads');
+  revalidatePath(`/leads/${leadId}`);
+  return { success: true };
+}
 
   // Sync tags if provided (C-02 fix)
   if (data.tags !== undefined) {

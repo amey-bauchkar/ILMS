@@ -56,6 +56,7 @@ export function LeadInfoCard({ lead }: LeadInfoCardProps) {
                   dealValue: lead.dealValue || undefined,
                   createdAt: lead.createdAt || undefined,
                   location: lead.location || undefined,
+                  sourceLink: lead.sourceLink || undefined,
                   nextFollowUpDate: lead.nextFollowUpDate || undefined,
                   lostReason: lead.lostReason as any,
                   lostReasonDetails: (lead as any).lostReasonDetails || undefined,
