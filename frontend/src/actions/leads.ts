@@ -212,7 +212,7 @@ export async function createLead(rawData: {
     }
   }
 
-  const clientToUse = dbUser.role === 'admin' ? (await createAdminClient()) : supabase;
+  const clientToUse = await createAdminClient();
 
   let { data: lead, error } = await clientToUse
     .from('leads')
@@ -341,10 +341,10 @@ export async function updateLead(
 
   if (!dbUser) return { error: 'User not found' };
 
-  const clientToUse = dbUser.role === 'admin' ? (await createAdminClient()) : supabase;
+  const clientToUse = await createAdminClient();
 
-  // Non-admin users can only edit their own leads
-  if (dbUser.role !== 'admin') {
+  // Admins and client managers can edit all leads; sales reps can only edit their own leads
+  if (dbUser.role !== 'admin' && dbUser.role !== 'client_manager') {
     const { data: lead } = await clientToUse
       .from('leads')
       .select('owner_id')
@@ -355,7 +355,7 @@ export async function updateLead(
       return { error: 'You can only edit leads assigned to you' };
     }
 
-    // Prevent non-admins from reassigning leads
+    // Prevent sales reps from reassigning leads
     if (data.owner_id !== undefined && data.owner_id !== dbUser.id) {
       return { error: 'Only admins can reassign leads to other users' };
     }

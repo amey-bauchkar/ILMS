@@ -47,13 +47,13 @@ export type LeadSourceOption = (typeof LEAD_SOURCES)[number];
 export const leadFormSchema = z.object({
   name: z.string().min(2, "Name must be at least 2 characters"),
   company: z.string().nullable().optional(),
-  phone: z.string().min(10, "Enter a valid phone number"),
+  phone: z.string().min(6, "Enter a valid phone number"),
   email: z.union([z.literal(""), z.string().email("Enter a valid email")]).nullable().optional(),
   source: z.string().min(1, "Select a source"),
-  status: z.string(),
+  status: z.string().min(1, "Select a status"),
   priority: z.enum(["Hot", "Warm", "Cold"]),
-  ownerId: z.string(),
-  dealValue: z.number().min(0).nullable().optional(),
+  ownerId: z.string().min(1, "Select an owner"),
+  dealValue: z.union([z.number().min(0), z.nan()]).nullable().optional(),
   createdAt: z.string().nullable().optional(),
   lastContactedAt: z.string().nullable().optional(),
   location: z.string().nullable().optional(),
@@ -64,11 +64,11 @@ export const leadFormSchema = z.object({
   sourceLink: z.string().nullable().optional(),
   
   // Conditional fields for "Lost" status
-  lostReason: z.enum([
-    "Budget", "Timing", "Went with competitor", 
-    "Not a fit", "No response", "Other"
-  ]).optional(),
-  lostReasonDetails: z.string().optional(),
+  lostReason: z.union([
+    z.enum(["Budget", "Timing", "Went with competitor", "Not a fit", "No response", "Other"]),
+    z.literal(""),
+  ]).nullable().optional(),
+  lostReasonDetails: z.string().nullable().optional(),
 });
 
 export type LeadFormData = z.infer<typeof leadFormSchema>;

@@ -133,9 +133,9 @@ export function LeadForm({ initialData, onSuccess }: LeadFormProps) {
     },
   });
 
-  // Sync status and ownerId as soon as async data resolves
+  // Sync status and ownerId when opening a lead
   useEffect(() => {
-    if (initialData) {
+    if (initialData?.id) {
       form.reset({
         name: initialData.name || "",
         company: initialData.company || "",
@@ -153,7 +153,7 @@ export function LeadForm({ initialData, onSuccess }: LeadFormProps) {
         nextFollowUpTime: initialData.nextFollowUpTime || (initialData.nextFollowUpDate ? parseTimePart(initialData.nextFollowUpDate) : "10:00"),
         notes: initialData.notes || "",
         tags: initialData.tags || [],
-        lostReason: initialData.lostReason,
+        lostReason: (initialData.lostReason as any) || undefined,
         lostReasonDetails: initialData.lostReasonDetails || "",
         sourceLink: initialData.sourceLink || "",
       });
@@ -165,12 +165,23 @@ export function LeadForm({ initialData, onSuccess }: LeadFormProps) {
         form.setValue("ownerId", user?.id || members[0]?.id);
       }
     }
-  }, [initialData, newStatus?.id, user?.id, members, form]);
+  }, [initialData?.id, newStatus?.id, user?.id]);
 
   // Determine if the selected status is "Lost"
   const watchStatusId = form.watch("status");
   const selectedStatus = statuses.find((s) => s.id === watchStatusId);
   const isLostStatus = selectedStatus?.name === "Lost";
+
+  const onInvalid = (errors: any) => {
+    console.error("Form validation errors:", errors);
+    const firstKey = Object.keys(errors)[0];
+    const firstErr = errors[firstKey];
+    if (firstErr?.message) {
+      toast.error(`${firstKey}: ${firstErr.message}`);
+    } else {
+      toast.error("Please fill in all required fields correctly.");
+    }
+  };
 
   async function onSubmit(data: LeadFormData) {
     setSaving(true);
@@ -185,6 +196,8 @@ export function LeadForm({ initialData, onSuccess }: LeadFormProps) {
         }
       }
 
+      const cleanDealValue = typeof data.dealValue === "number" && !isNaN(data.dealValue) ? data.dealValue : undefined;
+
       if (initialData?.id) {
         // Update existing lead
         const result = await updateLead(initialData.id, {
@@ -196,14 +209,14 @@ export function LeadForm({ initialData, onSuccess }: LeadFormProps) {
           status_id: data.status,
           owner_id: data.ownerId,
           priority: data.priority,
-          estimated_deal_value: data.dealValue ?? undefined,
+          estimated_deal_value: cleanDealValue,
           created_at: data.createdAt ? new Date(data.createdAt).toISOString() : undefined,
           last_contacted_at: data.lastContactedAt ? new Date(data.lastContactedAt).toISOString() : null,
           location: data.location || null,
           source_link: data.sourceLink || null,
           notes: data.notes || undefined,
           next_followup_date: combinedFollowUp,
-          lost_reason: data.lostReason || null,
+          lost_reason: (data.lostReason as any) || null,
           lost_reason_details: data.lostReasonDetails || null,
           tags: data.tags,
         });
@@ -225,14 +238,14 @@ export function LeadForm({ initialData, onSuccess }: LeadFormProps) {
           status_id: data.status,
           owner_id: data.ownerId,
           priority: data.priority,
-          estimated_deal_value: data.dealValue ?? undefined,
+          estimated_deal_value: cleanDealValue,
           created_at: data.createdAt ? new Date(data.createdAt).toISOString() : undefined,
           last_contacted_at: data.lastContactedAt ? new Date(data.lastContactedAt).toISOString() : undefined,
           location: data.location || undefined,
           next_followup_date: combinedFollowUp || undefined,
           notes: data.notes || undefined,
           tags: data.tags,
-          lost_reason: data.lostReason || undefined,
+          lost_reason: (data.lostReason as any) || undefined,
           lost_reason_details: data.lostReasonDetails || undefined,
           source_link: data.sourceLink || undefined,
         });
@@ -254,7 +267,7 @@ export function LeadForm({ initialData, onSuccess }: LeadFormProps) {
 
   return (
     <Form {...form}>
-      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+      <form onSubmit={form.handleSubmit(onSubmit, onInvalid)} className="space-y-6">
         
         {/* Contact Info */}
         <div className="bg-card border border-border p-6 rounded-xl space-y-5 shadow-sm relative overflow-hidden">
