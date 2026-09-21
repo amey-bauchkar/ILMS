@@ -3,10 +3,8 @@
 import * as React from "react";
 import { useState, useRef, useEffect, useMemo } from "react";
 import { Check, ChevronDown, Search, X, Plus } from "lucide-react";
-import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
-import { LEAD_SOURCES } from "@/lib/validations";
 
 export interface SourceCategory {
   category: string;
@@ -138,9 +136,25 @@ export function SourceCombobox({
 }: SourceComboboxProps) {
   const [open, setOpen] = useState(false);
   const [search, setSearch] = useState("");
+  const containerRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
 
-  // Focus search input when popover opens
+  // Close dropdown on outside click
+  useEffect(() => {
+    function handleClickOutside(event: MouseEvent) {
+      if (containerRef.current && !containerRef.current.contains(event.target as Node)) {
+        setOpen(false);
+      }
+    }
+    if (open) {
+      document.addEventListener("mousedown", handleClickOutside);
+    }
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, [open]);
+
+  // Focus search input when opening
   useEffect(() => {
     if (open) {
       setTimeout(() => {
@@ -186,9 +200,12 @@ export function SourceCombobox({
   const displayValue = value || "Select a source";
 
   return (
-    <Popover open={open} onOpenChange={setOpen}>
-      <PopoverTrigger
+    <div ref={containerRef} className="relative w-full">
+      {/* Trigger Button */}
+      <button
+        type="button"
         disabled={disabled}
+        onClick={() => setOpen((prev) => !prev)}
         className={cn(
           "flex h-9 w-full items-center justify-between gap-2 rounded-lg border border-input bg-background px-3 py-2 text-sm shadow-sm transition-colors hover:border-foreground/20 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50 text-foreground text-left",
           !value && "text-muted-foreground",
@@ -196,100 +213,105 @@ export function SourceCombobox({
         )}
       >
         <span className="truncate">{displayValue}</span>
-        <ChevronDown className={cn("h-4 w-4 shrink-0 text-muted-foreground transition-transform duration-200", open && "rotate-180")} />
-      </PopoverTrigger>
-
-      <PopoverContent
-        align="start"
-        side="bottom"
-        sideOffset={4}
-        collisionAvoidance={{ side: "none" }}
-        className="w-[var(--anchor-width)] min-w-[300px] max-w-[calc(100vw-2rem)] p-0 shadow-2xl border-border bg-popover/95 backdrop-blur-md rounded-xl overflow-hidden"
-      >
-        {/* Search Input Box */}
-        <div className="relative border-b border-border p-2.5 bg-secondary/30">
-          <Search className="absolute left-4.5 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground pointer-events-none" />
-          <input
-            ref={inputRef}
-            type="text"
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-            onKeyDown={handleKeyDown}
-            placeholder="Type to search (e.g. Just dial, GMB)..."
-            className="w-full bg-background border border-input rounded-lg pl-8.5 pr-8 py-1.5 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-primary shadow-inner"
-          />
-          {search && (
-            <button
-              type="button"
-              onClick={() => setSearch("")}
-              className="absolute right-4.5 top-1/2 -translate-y-1/2 p-0.5 rounded-full text-muted-foreground hover:text-foreground hover:bg-muted"
-            >
-              <X className="h-3.5 w-3.5" />
-            </button>
+        <ChevronDown
+          className={cn(
+            "h-4 w-4 shrink-0 text-muted-foreground transition-transform duration-200",
+            open && "rotate-180"
           )}
-        </div>
+        />
+      </button>
 
-        {/* Sources List */}
-        <div className="max-h-[280px] overflow-y-auto p-1.5 space-y-3">
-          {filteredCategories.length > 0 ? (
-            filteredCategories.map((group) => (
-              <div key={group.category} className="space-y-1">
-                <div className="px-2.5 py-1 text-xs font-semibold uppercase tracking-wider text-muted-foreground/80">
-                  {group.category}
+      {/* Downward Dropdown Menu */}
+      {open && (
+        <div
+          className="absolute top-[calc(100%+6px)] left-0 w-full min-w-[300px] z-[100] rounded-xl border border-border bg-popover/98 backdrop-blur-md shadow-2xl overflow-hidden animate-in fade-in-0 zoom-in-95 duration-100"
+          style={{ transformOrigin: "top center" }}
+        >
+          {/* Search Input Box */}
+          <div className="relative border-b border-border p-2.5 bg-secondary/30">
+            <Search className="absolute left-4.5 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground pointer-events-none" />
+            <input
+              ref={inputRef}
+              type="text"
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+              onKeyDown={handleKeyDown}
+              placeholder="Type to search (e.g. Just dial, GMB)..."
+              className="w-full bg-background border border-input rounded-lg pl-8.5 pr-8 py-1.5 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-primary shadow-inner"
+            />
+            {search && (
+              <button
+                type="button"
+                onClick={() => setSearch("")}
+                className="absolute right-4.5 top-1/2 -translate-y-1/2 p-0.5 rounded-full text-muted-foreground hover:text-foreground hover:bg-muted"
+              >
+                <X className="h-3.5 w-3.5" />
+              </button>
+            )}
+          </div>
+
+          {/* Sources List */}
+          <div className="max-h-[260px] overflow-y-auto p-1.5 space-y-3">
+            {filteredCategories.length > 0 ? (
+              filteredCategories.map((group) => (
+                <div key={group.category} className="space-y-1">
+                  <div className="px-2.5 py-1 text-xs font-semibold uppercase tracking-wider text-muted-foreground/80">
+                    {group.category}
+                  </div>
+                  <div className="space-y-0.5">
+                    {group.sources.map((source) => {
+                      const isSelected = value === source;
+                      return (
+                        <button
+                          key={source}
+                          type="button"
+                          onClick={() => handleSelect(source)}
+                          className={cn(
+                            "w-full flex items-center justify-between px-2.5 py-1.5 rounded-md text-sm text-left transition-colors",
+                            isSelected
+                              ? "bg-primary/15 text-primary font-medium"
+                              : "text-foreground hover:bg-accent hover:text-accent-foreground"
+                          )}
+                        >
+                          <span className="truncate">{source}</span>
+                          {isSelected && (
+                            <Check className="h-4 w-4 text-primary shrink-0 ml-2" />
+                          )}
+                        </button>
+                      );
+                    })}
+                  </div>
                 </div>
-                <div className="space-y-0.5">
-                  {group.sources.map((source) => {
-                    const isSelected = value === source;
-                    return (
-                      <button
-                        key={source}
-                        type="button"
-                        onClick={() => handleSelect(source)}
-                        className={cn(
-                          "w-full flex items-center justify-between px-2.5 py-1.5 rounded-md text-sm text-left transition-colors",
-                          isSelected
-                            ? "bg-primary/15 text-primary font-medium"
-                            : "text-foreground hover:bg-accent hover:text-accent-foreground"
-                        )}
-                      >
-                        <span className="truncate">{source}</span>
-                        {isSelected && (
-                          <Check className="h-4 w-4 text-primary shrink-0 ml-2" />
-                        )}
-                      </button>
-                    );
-                  })}
-                </div>
+              ))
+            ) : (
+              <div className="p-4 text-center space-y-2">
+                <p className="text-sm text-muted-foreground">
+                  No standard source matching <span className="font-medium text-foreground">&quot;{search}&quot;</span>
+                </p>
+                {search.trim() && (
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="sm"
+                    onClick={() => handleSelect(search.trim())}
+                    className="w-full gap-1.5 text-xs border-dashed border-primary/40 hover:border-primary text-primary"
+                  >
+                    <Plus className="h-3.5 w-3.5" />
+                    Use &quot;{search.trim()}&quot; as source
+                  </Button>
+                )}
               </div>
-            ))
-          ) : (
-            <div className="p-4 text-center space-y-2">
-              <p className="text-sm text-muted-foreground">
-                No standard source matching <span className="font-medium text-foreground">&quot;{search}&quot;</span>
-              </p>
-              {search.trim() && (
-                <Button
-                  type="button"
-                  variant="outline"
-                  size="sm"
-                  onClick={() => handleSelect(search.trim())}
-                  className="w-full gap-1.5 text-xs border-dashed border-primary/40 hover:border-primary text-primary"
-                >
-                  <Plus className="h-3.5 w-3.5" />
-                  Use &quot;{search.trim()}&quot; as source
-                </Button>
-              )}
+            )}
+          </div>
+
+          {/* Quick Footer */}
+          {search.trim() && allFilteredSources.length > 0 && (
+            <div className="p-2 border-t border-border/60 bg-muted/20 text-[11px] text-muted-foreground text-center">
+              Press <kbd className="px-1 py-0.5 rounded bg-muted border border-border text-foreground font-mono">Enter ↵</kbd> to select <span className="text-foreground font-medium">{allFilteredSources[0]}</span>
             </div>
           )}
         </div>
-
-        {/* Quick Footer */}
-        {search.trim() && allFilteredSources.length > 0 && (
-          <div className="p-2 border-t border-border/60 bg-muted/20 text-[11px] text-muted-foreground text-center">
-            Press <kbd className="px-1 py-0.5 rounded bg-muted border border-border text-foreground font-mono">Enter ↵</kbd> to select <span className="text-foreground font-medium">{allFilteredSources[0]}</span>
-          </div>
-        )}
-      </PopoverContent>
-    </Popover>
+      )}
+    </div>
   );
 }

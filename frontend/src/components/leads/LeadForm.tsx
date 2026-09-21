@@ -248,8 +248,8 @@ export function LeadForm({ initialData, onSuccess }: LeadFormProps) {
         </div>
 
         {/* Lead Details */}
-        <div className="bg-card border border-border p-6 rounded-xl space-y-5 shadow-sm relative overflow-hidden">
-          <div className="absolute top-0 left-0 w-1 h-full bg-blue-500" />
+        <div className="bg-card border border-border p-6 rounded-xl space-y-5 shadow-sm relative">
+          <div className="absolute top-0 left-0 w-1 h-full bg-blue-500 rounded-l-xl" />
           <div className="flex items-center gap-2 mb-2">
             <div className="p-2 bg-blue-500/10 rounded-md">
               <ListTodo className="h-4 w-4 text-blue-500" />
