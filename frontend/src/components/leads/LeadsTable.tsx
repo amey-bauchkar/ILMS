@@ -295,7 +295,7 @@ export default function LeadsTable() {
                             <TableHead className="hidden lg:table-cell text-xs uppercase tracking-wide text-[#737373] font-medium">
                                 Created
                             </TableHead>
-                            <TableHead className="text-right text-xs uppercase tracking-wide text-[#737373] font-medium pr-4">
+                            <TableHead className="text-right text-xs uppercase tracking-wide text-[#737373] font-medium pr-4 min-w-[150px]">
                                 Action
                             </TableHead>
                         </TableRow>
@@ -373,8 +373,8 @@ export default function LeadsTable() {
                                         <TableCell className="hidden lg:table-cell text-[#737373] text-sm">
                                             {format(new Date(lead.createdAt), "MMM d, yyyy")}
                                         </TableCell>
-                                        <TableCell className="text-right pr-4">
-                                            <div className="flex items-center justify-end gap-1">
+                                        <TableCell className="text-right pr-4 whitespace-nowrap">
+                                            <div className="flex items-center justify-end gap-1.5">
                                                 <Button
                                                     variant="ghost"
                                                     size="sm"
@@ -392,7 +392,7 @@ export default function LeadsTable() {
                                                 <Button
                                                     variant="ghost"
                                                     size="sm"
-                                                    className="h-8 px-2 text-[#a3a3a3] hover:text-red-400 hover:bg-red-500/10 transition-colors gap-1.5"
+                                                    className="h-8 px-2.5 text-red-500 hover:text-red-400 hover:bg-red-500/10 transition-colors gap-1.5"
                                                     onClick={(e) => {
                                                         e.preventDefault();
                                                         e.stopPropagation();
@@ -401,7 +401,7 @@ export default function LeadsTable() {
                                                     title="Delete Lead"
                                                 >
                                                     <Trash2 className="h-3.5 w-3.5 text-red-500" />
-                                                    <span className="text-xs font-medium sr-only sm:not-sr-only">Delete</span>
+                                                    <span className="text-xs font-medium text-red-400">Delete</span>
                                                 </Button>
                                             </div>
                                         </TableCell>

@@ -27,10 +27,11 @@ import {
 import { Textarea } from "@/components/ui/textarea";
 import { useStatuses, useTeamMembers, useTags } from "@/hooks/use-data";
 import { useUser } from "@/components/providers/user-provider";
-import { createLead, updateLead } from "@/actions/leads";
+import { createLead, updateLead, deleteLead } from "@/actions/leads";
 import { TagManager } from "./TagManager";
 import { SourceCombobox } from "./SourceCombobox";
-import { User, FileText, Tag as TagIcon, Banknote, ListTodo, Loader2, Link2 } from "lucide-react";
+import { User, FileText, Tag as TagIcon, Banknote, ListTodo, Loader2, Link2, Trash2 } from "lucide-react";
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { toast } from "sonner";
 
 interface LeadFormProps {
@@ -44,6 +45,27 @@ export function LeadForm({ initialData, onSuccess }: LeadFormProps) {
   const { tags: allTags } = useTags();
   const { user } = useUser();
   const [saving, setSaving] = useState(false);
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+  const [isDeleting, setIsDeleting] = useState(false);
+
+  const handleDeleteLead = async () => {
+    if (!initialData?.id) return;
+    setIsDeleting(true);
+    try {
+      const res = await deleteLead(initialData.id);
+      if (res.error) {
+        toast.error(res.error);
+      } else {
+        toast.success("Lead deleted successfully!");
+        setShowDeleteConfirm(false);
+        onSuccess?.();
+      }
+    } catch (err: any) {
+      toast.error("Failed to delete lead. Please try again.");
+    } finally {
+      setIsDeleting(false);
+    }
+  };
 
   // Find the "New" status id for default
   const newStatus = statuses.find((s) => s.name === "New");
@@ -675,8 +697,24 @@ export function LeadForm({ initialData, onSuccess }: LeadFormProps) {
           </div>
         </div>
 
-        <div className="flex justify-end gap-3 pt-6 mt-6 border-t border-border">
-          <Button type="submit" size="lg" className="w-full sm:w-auto min-w-[150px] font-semibold" disabled={saving}>
+        <div className="flex flex-col sm:flex-row items-center justify-between gap-3 pt-6 mt-6 border-t border-border">
+          {initialData?.id ? (
+            <Button
+              type="button"
+              variant="ghost"
+              size="sm"
+              className="text-red-500 hover:text-red-400 hover:bg-red-500/10 gap-1.5 w-full sm:w-auto"
+              onClick={() => setShowDeleteConfirm(true)}
+              disabled={saving || isDeleting}
+            >
+              <Trash2 className="w-4 h-4 text-red-500" />
+              Delete Lead
+            </Button>
+          ) : (
+            <div />
+          )}
+
+          <Button type="submit" size="lg" className="w-full sm:w-auto min-w-[150px] font-semibold" disabled={saving || isDeleting}>
             {saving ? (
               <><Loader2 className="w-4 h-4 animate-spin mr-2" />{initialData?.id ? "Saving..." : "Adding..."}</>
             ) : (
@@ -684,6 +722,46 @@ export function LeadForm({ initialData, onSuccess }: LeadFormProps) {
             )}
           </Button>
         </div>
+
+        {/* Delete Lead Confirmation Modal */}
+        {initialData?.id && (
+          <Dialog open={showDeleteConfirm} onOpenChange={setShowDeleteConfirm}>
+            <DialogContent className="sm:max-w-[425px]">
+              <DialogHeader>
+                <DialogTitle>Delete Lead</DialogTitle>
+                <DialogDescription>
+                  Are you sure you want to delete <span className="font-semibold text-foreground">{initialData?.name}</span>? This action cannot be undone and will remove all associated activities and notes.
+                </DialogDescription>
+              </DialogHeader>
+              <DialogFooter className="mt-4 flex gap-2 sm:justify-end">
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={() => setShowDeleteConfirm(false)}
+                  disabled={isDeleting}
+                >
+                  Cancel
+                </Button>
+                <Button
+                  type="button"
+                  variant="destructive"
+                  onClick={handleDeleteLead}
+                  disabled={isDeleting}
+                  className="bg-red-600 hover:bg-red-700 text-white"
+                >
+                  {isDeleting ? (
+                    <>
+                      <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                      Deleting...
+                    </>
+                  ) : (
+                    "Delete Lead"
+                  )}
+                </Button>
+              </DialogFooter>
+            </DialogContent>
+          </Dialog>
+        )}
       </form>
     </Form>
   );
