@@ -55,6 +55,7 @@ export const leadFormSchema = z.object({
   ownerId: z.string(),
   dealValue: z.number().min(0).nullable().optional(),
   createdAt: z.string().nullable().optional(),
+  lastContactedAt: z.string().nullable().optional(),
   location: z.string().nullable().optional(),
   nextFollowUpDate: z.string().nullable().optional(),
   tags: z.array(z.string()).optional(),

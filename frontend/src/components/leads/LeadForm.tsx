@@ -35,7 +35,7 @@ import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, D
 import { toast } from "sonner";
 
 interface LeadFormProps {
-  initialData?: Partial<LeadFormData> & { id?: string; createdAt?: string; location?: string };
+  initialData?: Partial<LeadFormData> & { id?: string; createdAt?: string; location?: string; lastContactedAt?: string };
   onSuccess?: () => void;
 }
 
@@ -83,6 +83,7 @@ export function LeadForm({ initialData, onSuccess }: LeadFormProps) {
       ownerId: initialData?.ownerId || user?.id || "",
       dealValue: initialData?.dealValue || undefined,
       createdAt: initialData?.createdAt ? (initialData.createdAt.includes('T') ? initialData.createdAt.split('T')[0] : initialData.createdAt) : "",
+      lastContactedAt: initialData?.lastContactedAt ? (initialData.lastContactedAt.includes('T') ? initialData.lastContactedAt.split('T')[0] : initialData.lastContactedAt) : "",
       location: initialData?.location || "",
       nextFollowUpDate: initialData?.nextFollowUpDate || "",
       notes: initialData?.notes || "",
@@ -146,6 +147,7 @@ export function LeadForm({ initialData, onSuccess }: LeadFormProps) {
           priority: data.priority,
           estimated_deal_value: data.dealValue ?? undefined,
           created_at: data.createdAt ? new Date(data.createdAt).toISOString() : undefined,
+          last_contacted_at: data.lastContactedAt ? new Date(data.lastContactedAt).toISOString() : null,
           location: data.location || null,
           source_link: data.sourceLink || null,
           notes: data.notes || undefined,
@@ -174,6 +176,7 @@ export function LeadForm({ initialData, onSuccess }: LeadFormProps) {
           priority: data.priority,
           estimated_deal_value: data.dealValue ?? undefined,
           created_at: data.createdAt ? new Date(data.createdAt).toISOString() : undefined,
+          last_contacted_at: data.lastContactedAt ? new Date(data.lastContactedAt).toISOString() : undefined,
           location: data.location || undefined,
           next_followup_date: data.nextFollowUpDate || undefined,
           notes: data.notes || undefined,
@@ -408,6 +411,22 @@ export function LeadForm({ initialData, onSuccess }: LeadFormProps) {
                 </FormItem>
               )}
             />
+            <FormField
+              control={form.control}
+              name="lastContactedAt"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Last Contacted Date</FormLabel>
+                  <FormControl>
+                    <Input type="date" className="bg-background border-input shadow-sm transition-colors hover:border-foreground/20 focus-visible:ring-1" {...field} value={field.value || ""} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+          </div>
+
+          <div className="grid sm:grid-cols-2 gap-5">
             <FormField
               control={form.control}
               name="location"

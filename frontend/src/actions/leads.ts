@@ -19,6 +19,7 @@ const createLeadSchema = z.object({
   priority: z.enum(['Hot', 'Warm', 'Cold']),
   estimated_deal_value: z.number().min(0).nullable().optional(),
   created_at: z.string().nullable().optional(),
+  last_contacted_at: z.string().nullable().optional(),
   next_followup_date: z.string().nullable().optional(),
   notes: z.string().max(2000).nullable().optional(),
   tags: z.array(z.string().max(100)).max(50).nullable().optional(),
@@ -39,6 +40,7 @@ const updateLeadSchema = z.object({
   priority: z.enum(['Hot', 'Warm', 'Cold']).optional(),
   estimated_deal_value: z.number().min(0).nullable().optional(),
   created_at: z.string().nullable().optional(),
+  last_contacted_at: z.string().nullable().optional(),
   location: z.string().max(200).nullable().optional(),
   source_link: z.string().nullable().optional(),
   notes: z.string().max(2000).nullable().optional(),
@@ -110,6 +112,7 @@ export async function createLead(rawData: {
   priority: string;
   estimated_deal_value?: number;
   created_at?: string;
+  last_contacted_at?: string;
   location?: string;
   next_followup_date?: string;
   notes?: string;
@@ -201,6 +204,14 @@ export async function createLead(rawData: {
     }
   }
 
+  if (data.last_contacted_at) {
+    try {
+      insertPayload.last_contacted_at = new Date(data.last_contacted_at).toISOString();
+    } catch {
+      // ignore
+    }
+  }
+
   const clientToUse = dbUser.role === 'admin' ? (await createAdminClient()) : supabase;
 
   let { data: lead, error } = await clientToUse
@@ -270,6 +281,7 @@ export async function updateLead(
     priority?: string;
     estimated_deal_value?: number;
     created_at?: string | null;
+    last_contacted_at?: string | null;
     location?: string | null;
     source_link?: string | null;
     notes?: string | null;
@@ -358,6 +370,13 @@ export async function updateLead(
       updateData.created_at = data.created_at ? new Date(data.created_at).toISOString() : new Date().toISOString();
     } catch {
       // ignore
+    }
+  }
+  if (data.last_contacted_at !== undefined) {
+    try {
+      updateData.last_contacted_at = data.last_contacted_at ? new Date(data.last_contacted_at).toISOString() : null;
+    } catch {
+      updateData.last_contacted_at = null;
     }
   }
   if (data.next_followup_date !== undefined) updateData.next_followup_date = data.next_followup_date;

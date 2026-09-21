@@ -81,6 +81,7 @@ export function LeadInfoCard({ lead }: LeadInfoCardProps) {
                     ownerId: lead.owner.id,
                     dealValue: lead.dealValue || undefined,
                     createdAt: lead.createdAt || undefined,
+                    lastContactedAt: lead.lastContactedAt || undefined,
                     location: lead.location || undefined,
                     sourceLink: lead.sourceLink || undefined,
                     nextFollowUpDate: lead.nextFollowUpDate || undefined,

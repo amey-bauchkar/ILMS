@@ -428,6 +428,7 @@ export default function LeadsTable() {
                                 ownerId: editingLead.owner.id,
                                 dealValue: editingLead.dealValue || undefined,
                                 createdAt: editingLead.createdAt || undefined,
+                                lastContactedAt: editingLead.lastContactedAt || undefined,
                                 location: editingLead.location || undefined,
                                 sourceLink: editingLead.sourceLink || undefined,
                                 nextFollowUpDate: editingLead.nextFollowUpDate || undefined,
