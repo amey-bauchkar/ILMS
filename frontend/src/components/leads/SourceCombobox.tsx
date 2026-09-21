@@ -203,7 +203,8 @@ export function SourceCombobox({
         align="start"
         side="bottom"
         sideOffset={4}
-        className="w-[320px] sm:w-[360px] p-0 shadow-2xl border-border bg-popover/95 backdrop-blur-md rounded-xl overflow-hidden"
+        collisionAvoidance={{ side: "none" }}
+        className="w-[var(--anchor-width)] min-w-[300px] max-w-[calc(100vw-2rem)] p-0 shadow-2xl border-border bg-popover/95 backdrop-blur-md rounded-xl overflow-hidden"
       >
         {/* Search Input Box */}
         <div className="relative border-b border-border p-2.5 bg-secondary/30">
