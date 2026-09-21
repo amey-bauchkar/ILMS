@@ -210,7 +210,7 @@ export function LeadInfoCard({ lead }: LeadInfoCardProps) {
           
           <div className="flex items-center justify-between text-sm">
             <span className="text-muted-foreground flex items-center gap-2">
-              <Calendar className="h-4 w-4" /> Created
+              <Calendar className="h-4 w-4" /> Last Creation Date
             </span>
             <span className="font-medium">
               {new Date(lead.createdAt).toLocaleDateString("en-IN", {

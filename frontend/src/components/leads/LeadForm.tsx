@@ -400,7 +400,7 @@ export function LeadForm({ initialData, onSuccess }: LeadFormProps) {
               name="createdAt"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Lead Creation Date</FormLabel>
+                  <FormLabel>Last Creation Date</FormLabel>
                   <FormControl>
                     <Input type="date" className="bg-background border-input shadow-sm transition-colors hover:border-foreground/20 focus-visible:ring-1" {...field} value={field.value || ""} />
                   </FormControl>

@@ -293,7 +293,7 @@ export default function LeadsTable() {
                             <SortableHead label="Next Follow-up" sortField="nextFollowUpDate" />
                             <SortableHead label="Last Contacted" sortField="lastContactedAt" />
                             <TableHead className="hidden lg:table-cell text-xs uppercase tracking-wide text-[#737373] font-medium">
-                                Created
+                                Last Creation Date
                             </TableHead>
                             <TableHead className="text-right text-xs uppercase tracking-wide text-[#737373] font-medium pr-4 min-w-[150px]">
                                 Action
