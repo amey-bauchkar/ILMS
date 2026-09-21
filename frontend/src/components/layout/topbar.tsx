@@ -1,30 +1,16 @@
 "use client";
 
-import { Bell, Search, User, Menu, LogOut } from "lucide-react";
+import { Search, Menu, LogOut } from "lucide-react";
 import { useState } from "react";
 import { Sheet, SheetContent, SheetTrigger, SheetTitle } from "@/components/ui/sheet";
 import { SidebarContent } from "./sidebar";
 import { useUser } from "@/components/providers/user-provider";
 import { logout } from "@/actions/auth";
-import { DropdownMenu, DropdownMenuContent, DropdownMenuGroup, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
-import { useReminders } from "@/hooks/use-data";
-import { completeReminder } from "@/actions/reminders";
-import { Check, Calendar } from "lucide-react";
-import { format } from "date-fns";
+import { NotificationPanel } from "@/components/notifications/NotificationPanel";
 
 export function Topbar() {
   const [isOpen, setIsOpen] = useState(false);
   const { user, loading } = useUser();
-  const { reminders, refresh: refreshReminders } = useReminders();
-
-  const handleCompleteReminder = async (id: string) => {
-    try {
-      await completeReminder(id);
-      refreshReminders();
-    } catch (err) {
-      console.error(err);
-    }
-  };
 
   // Get display name: first name or email
   const displayName = user
@@ -67,55 +53,10 @@ export function Topbar() {
         </div>
       </div>
 
+      {/* Right side controls */}
       <div className="flex items-center gap-4">
-        <DropdownMenu>
-          <DropdownMenuTrigger className="relative p-2 text-muted-foreground hover:text-foreground transition-colors rounded-full hover:bg-secondary outline-none">
-            <Bell className="w-5 h-5" />
-            {reminders.length > 0 && (
-              <span className="absolute top-1.5 right-1.5 w-2 h-2 bg-destructive rounded-full"></span>
-            )}
-          </DropdownMenuTrigger>
-          <DropdownMenuContent align="end" className="w-80">
-            <DropdownMenuGroup>
-              <DropdownMenuLabel>Reminders & Follow-ups</DropdownMenuLabel>
-              <DropdownMenuSeparator />
-              {reminders.length === 0 ? (
-                <div className="p-4 text-center text-sm text-muted-foreground">
-                  You're all caught up!
-                </div>
-              ) : (
-                <div className="max-h-96 overflow-y-auto">
-                  {reminders.map((reminder) => (
-                    <DropdownMenuItem key={reminder.id} className="flex flex-col items-start gap-1 p-3 cursor-default" onSelect={(e) => e.preventDefault()}>
-                      <div className="flex w-full justify-between items-start">
-                        <div className="font-medium text-sm">{reminder.title}</div>
-                        <button 
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            handleCompleteReminder(reminder.id);
-                          }}
-                          className="text-muted-foreground hover:text-green-500 transition-colors p-1"
-                          title="Mark as Done"
-                        >
-                          <Check className="w-4 h-4" />
-                        </button>
-                      </div>
-                      {reminder.lead && (
-                        <div className="text-xs text-muted-foreground truncate w-full">
-                          Lead: {reminder.lead.name} {reminder.lead.company_name ? `(${reminder.lead.company_name})` : ''}
-                        </div>
-                      )}
-                      <div className="flex items-center gap-1 text-[10px] text-muted-foreground mt-1">
-                        <Calendar className="w-3 h-3" />
-                        {format(new Date(reminder.due_date), "MMM d, h:mm a")}
-                      </div>
-                    </DropdownMenuItem>
-                  ))}
-                </div>
-              )}
-            </DropdownMenuGroup>
-          </DropdownMenuContent>
-        </DropdownMenu>
+        {/* Notification Panel on the right side */}
+        <NotificationPanel />
         
         {/* User info + Logout */}
         <div className="flex items-center gap-2">

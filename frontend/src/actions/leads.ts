@@ -260,6 +260,22 @@ export async function createLead(rawData: {
     });
   }
 
+  // Create reminder if next_followup_date is set
+  if (data.next_followup_date && lead) {
+    try {
+      await clientToUse.from('reminders').insert({
+        lead_id: lead.id,
+        title: `Follow-up: ${data.name}`,
+        due_date: new Date(data.next_followup_date).toISOString(),
+        status: 'pending' as any,
+        assigned_to: data.owner_id,
+        created_by: dbUser.id,
+      });
+    } catch (err) {
+      console.debug('Reminder sync failed:', err);
+    }
+  }
+
   revalidatePath('/leads');
   return { success: true, leadId: lead?.id };
 }
@@ -430,6 +446,30 @@ export async function updateLead(
       notes: data.notes.trim(),
       created_by: dbUser.id,
     });
+  }
+
+  // Sync reminder if next_followup_date was modified
+  if (data.next_followup_date !== undefined) {
+    try {
+      if (data.next_followup_date) {
+        await clientToUse.from('reminders').insert({
+          lead_id: leadId,
+          title: `Follow-up: ${data.name || 'Lead'}`,
+          due_date: new Date(data.next_followup_date).toISOString(),
+          status: 'pending' as any,
+          assigned_to: data.owner_id || dbUser.id,
+          created_by: dbUser.id,
+        });
+      } else {
+        await clientToUse
+          .from('reminders')
+          .update({ status: 'completed' as any, completed_at: new Date().toISOString() })
+          .eq('lead_id', leadId)
+          .eq('status', 'pending');
+      }
+    } catch (err) {
+      console.debug('Reminder update sync failed:', err);
+    }
   }
 
   revalidatePath('/leads');
