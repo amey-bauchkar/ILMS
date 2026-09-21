@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { createServerClient } from '@supabase/ssr';
+import { createAdminClient } from '@/lib/supabase/server';
 import { Resend } from 'resend';
 
 /**
@@ -17,11 +17,7 @@ export async function POST(request: NextRequest) {
   }
 
   try {
-    const supabase = createServerClient(
-      process.env.NEXT_PUBLIC_SUPABASE_URL!,
-      process.env.SUPABASE_SERVICE_ROLE_KEY!,
-      { cookies: { getAll: () => [], setAll: () => {} } }
-    );
+    const supabase = await createAdminClient();
 
     const resend = new Resend(process.env.RESEND_API_KEY);
 

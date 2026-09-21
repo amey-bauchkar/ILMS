@@ -11,18 +11,17 @@ import { NextResponse, type NextRequest } from 'next/server';
  * BRD §2.3: "Only pre-approved email addresses can log in."
  * BRD §2.13: "Session handling via JWT."
  */
+const SUPABASE_URL = process.env.NEXT_PUBLIC_SUPABASE_URL || 'https://xcsnxduxnyvurpikiyhh.supabase.co';
+const SUPABASE_ANON_KEY = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inhjc254ZHV4bnl2dXJwaWtpeWhoIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODk3MzQzODEsImV4cCI6MjEwNTMxMDM4MX0.UX7eBCr4vWr_elVBGgAJCE4KaZjO5MefXfnA6yr7i2o';
+
 export async function middleware(request: NextRequest) {
   let supabaseResponse = NextResponse.next({
     request,
   });
 
-  if (!process.env.NEXT_PUBLIC_SUPABASE_URL || !process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY) {
-    return supabaseResponse;
-  }
-
   const supabase = createServerClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL,
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY,
+    SUPABASE_URL,
+    SUPABASE_ANON_KEY,
     {
       cookies: {
         getAll() {

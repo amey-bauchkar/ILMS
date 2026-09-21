@@ -2,6 +2,10 @@ import { createServerClient } from '@supabase/ssr';
 import { cookies } from 'next/headers';
 import type { Database } from '@/types/database';
 
+const SUPABASE_URL = process.env.NEXT_PUBLIC_SUPABASE_URL || 'https://xcsnxduxnyvurpikiyhh.supabase.co';
+const SUPABASE_ANON_KEY = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inhjc254ZHV4bnl2dXJwaWtpeWhoIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODk3MzQzODEsImV4cCI6MjEwNTMxMDM4MX0.UX7eBCr4vWr_elVBGgAJCE4KaZjO5MefXfnA6yr7i2o';
+const SUPABASE_SERVICE_ROLE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY || 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inhjc254ZHV4bnl2dXJwaWtpeWhoIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc4OTczNDM4MSwiZXhwIjoyMTA1MzEwMzgxfQ.h7Ri_YsNYMnjy9h5RT7Vr9DIP3Ik-aJjaVJG7ZuFr_A';
+
 /**
  * Supabase client for use in Server Components and Server Actions.
  * Uses the anon key — RLS policies enforce access based on the
@@ -11,8 +15,8 @@ export async function createClient() {
   const cookieStore = await cookies();
 
   return createServerClient<Database>(
-    process.env.NEXT_PUBLIC_SUPABASE_URL || 'https://placeholder.supabase.co',
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || 'placeholder-key',
+    SUPABASE_URL,
+    SUPABASE_ANON_KEY,
     {
       cookies: {
         getAll() {
@@ -40,8 +44,8 @@ export async function createClient() {
  */
 export async function createAdminClient() {
   return createServerClient<Database>(
-    process.env.NEXT_PUBLIC_SUPABASE_URL || 'https://placeholder.supabase.co',
-    process.env.SUPABASE_SERVICE_ROLE_KEY || 'placeholder-key',
+    SUPABASE_URL,
+    SUPABASE_SERVICE_ROLE_KEY,
     {
       cookies: {
         getAll() {
