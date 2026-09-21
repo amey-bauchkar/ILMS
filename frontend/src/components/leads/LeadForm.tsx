@@ -588,18 +588,21 @@ export function LeadForm({ initialData, onSuccess }: LeadFormProps) {
               };
               return (
                 <FormItem>
-                  <FormLabel>{labelMap[source] || "Source Link"}</FormLabel>
+                  <FormLabel>
+                    {labelMap[source] || "Source Link"}{" "}
+                    <span className="text-xs text-muted-foreground font-normal">(Optional)</span>
+                  </FormLabel>
                   <FormControl>
                     <Input 
-                      type="url" 
-                      placeholder={placeholderMap[source] || "https://..."} 
+                      type="text" 
+                      placeholder={placeholderMap[source] || "e.g. link or reference"} 
                       className="bg-background border-input shadow-sm transition-colors hover:border-foreground/20 focus-visible:ring-1"
                       {...field} 
                       value={field.value || ""} 
                     />
                   </FormControl>
                   <FormDescription>
-                    Add the relevant link where this lead was found or their profile.
+                    Optional reference link or URL where this lead was found.
                   </FormDescription>
                   <FormMessage />
                 </FormItem>

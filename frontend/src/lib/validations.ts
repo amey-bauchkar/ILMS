@@ -59,7 +59,7 @@ export const leadFormSchema = z.object({
   nextFollowUpDate: z.string().nullable().optional(),
   tags: z.array(z.string()).optional(),
   notes: z.string().max(2000).optional(),
-  sourceLink: z.string().url("Enter a valid URL").optional().or(z.literal("")),
+  sourceLink: z.string().nullable().optional(),
   
   // Conditional fields for "Lost" status
   lostReason: z.enum([
