@@ -418,29 +418,6 @@ export async function updateLead(
   return { success: true };
 }
 
-  // Sync tags if provided (C-02 fix)
-  if (data.tags !== undefined) {
-    // Delete all existing tags for this lead
-    await supabase.from('lead_tags').delete().eq('lead_id', leadId);
-
-    if (data.tags.length > 0) {
-      const resolvedTagIds = await resolveTagIds(supabase, data.tags);
-
-      if (resolvedTagIds.length > 0) {
-        const tagInserts = resolvedTagIds.map((tagId) => ({
-          lead_id: leadId,
-          tag_id: tagId,
-        }));
-        await supabase.from('lead_tags').insert(tagInserts);
-      }
-    }
-  }
-
-  revalidatePath('/leads');
-  revalidatePath(`/leads/${leadId}`);
-  return { success: true };
-}
-
 // ============================================================
 // logCall
 // ============================================================
