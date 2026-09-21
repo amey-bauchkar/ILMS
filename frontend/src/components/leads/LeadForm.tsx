@@ -34,22 +34,41 @@ import { User, FileText, Tag as TagIcon, Banknote, ListTodo, Loader2, Link2, Tra
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { toast } from "sonner";
 
-function formatForDateTimeLocal(dateStr?: string | null) {
-  if (!dateStr) return "";
+function parseDatePart(isoOrDateStr?: string | null): string {
+  if (!isoOrDateStr) return "";
   try {
-    if (dateStr.length === 10 && !dateStr.includes("T")) {
-      return `${dateStr}T10:00`;
+    if (isoOrDateStr.includes("T")) {
+      const d = new Date(isoOrDateStr);
+      if (!isNaN(d.getTime())) {
+        const year = d.getFullYear();
+        const month = String(d.getMonth() + 1).padStart(2, '0');
+        const day = String(d.getDate()).padStart(2, '0');
+        return `${year}-${month}-${day}`;
+      }
+      return isoOrDateStr.split("T")[0];
     }
-    const d = new Date(dateStr);
-    if (isNaN(d.getTime())) return dateStr.slice(0, 16);
-    const year = d.getFullYear();
-    const month = String(d.getMonth() + 1).padStart(2, '0');
-    const day = String(d.getDate()).padStart(2, '0');
-    const hours = String(d.getHours()).padStart(2, '0');
-    const minutes = String(d.getMinutes()).padStart(2, '0');
-    return `${year}-${month}-${day}T${hours}:${minutes}`;
+    return isoOrDateStr.slice(0, 10);
   } catch {
-    return dateStr.slice(0, 16);
+    return "";
+  }
+}
+
+function parseTimePart(isoOrDateStr?: string | null): string {
+  if (!isoOrDateStr) return "10:00";
+  try {
+    if (isoOrDateStr.includes("T")) {
+      const d = new Date(isoOrDateStr);
+      if (!isNaN(d.getTime())) {
+        const hours = String(d.getHours()).padStart(2, '0');
+        const minutes = String(d.getMinutes()).padStart(2, '0');
+        return `${hours}:${minutes}`;
+      }
+      const timePart = isoOrDateStr.split("T")[1];
+      return timePart ? timePart.slice(0, 5) : "10:00";
+    }
+    return "10:00";
+  } catch {
+    return "10:00";
   }
 }
 
@@ -104,7 +123,8 @@ export function LeadForm({ initialData, onSuccess }: LeadFormProps) {
       createdAt: initialData?.createdAt ? (initialData.createdAt.includes('T') ? initialData.createdAt.split('T')[0] : initialData.createdAt) : "",
       lastContactedAt: initialData?.lastContactedAt ? (initialData.lastContactedAt.includes('T') ? initialData.lastContactedAt.split('T')[0] : initialData.lastContactedAt) : "",
       location: initialData?.location || "",
-      nextFollowUpDate: formatForDateTimeLocal(initialData?.nextFollowUpDate),
+      nextFollowUpDate: parseDatePart(initialData?.nextFollowUpDate),
+      nextFollowUpTime: initialData?.nextFollowUpTime || (initialData?.nextFollowUpDate ? parseTimePart(initialData.nextFollowUpDate) : "10:00"),
       notes: initialData?.notes || "",
       tags: initialData?.tags || [],
       lostReason: initialData?.lostReason,
@@ -129,7 +149,8 @@ export function LeadForm({ initialData, onSuccess }: LeadFormProps) {
         createdAt: initialData.createdAt ? (initialData.createdAt.includes('T') ? initialData.createdAt.split('T')[0] : initialData.createdAt) : "",
         lastContactedAt: initialData.lastContactedAt ? (initialData.lastContactedAt.includes('T') ? initialData.lastContactedAt.split('T')[0] : initialData.lastContactedAt) : "",
         location: initialData.location || "",
-        nextFollowUpDate: formatForDateTimeLocal(initialData.nextFollowUpDate),
+        nextFollowUpDate: parseDatePart(initialData.nextFollowUpDate),
+        nextFollowUpTime: initialData.nextFollowUpTime || (initialData.nextFollowUpDate ? parseTimePart(initialData.nextFollowUpDate) : "10:00"),
         notes: initialData.notes || "",
         tags: initialData.tags || [],
         lostReason: initialData.lostReason,
@@ -154,6 +175,16 @@ export function LeadForm({ initialData, onSuccess }: LeadFormProps) {
   async function onSubmit(data: LeadFormData) {
     setSaving(true);
     try {
+      let combinedFollowUp: string | null = null;
+      if (data.nextFollowUpDate && data.nextFollowUpDate.trim() !== "") {
+        const time = data.nextFollowUpTime && data.nextFollowUpTime.trim() !== "" ? data.nextFollowUpTime : "10:00";
+        try {
+          combinedFollowUp = new Date(`${data.nextFollowUpDate}T${time}:00`).toISOString();
+        } catch {
+          combinedFollowUp = `${data.nextFollowUpDate}T${time}:00`;
+        }
+      }
+
       if (initialData?.id) {
         // Update existing lead
         const result = await updateLead(initialData.id, {
@@ -171,7 +202,7 @@ export function LeadForm({ initialData, onSuccess }: LeadFormProps) {
           location: data.location || null,
           source_link: data.sourceLink || null,
           notes: data.notes || undefined,
-          next_followup_date: data.nextFollowUpDate || null,
+          next_followup_date: combinedFollowUp,
           lost_reason: data.lostReason || null,
           lost_reason_details: data.lostReasonDetails || null,
           tags: data.tags,
@@ -198,7 +229,7 @@ export function LeadForm({ initialData, onSuccess }: LeadFormProps) {
           created_at: data.createdAt ? new Date(data.createdAt).toISOString() : undefined,
           last_contacted_at: data.lastContactedAt ? new Date(data.lastContactedAt).toISOString() : undefined,
           location: data.location || undefined,
-          next_followup_date: data.nextFollowUpDate || undefined,
+          next_followup_date: combinedFollowUp || undefined,
           notes: data.notes || undefined,
           tags: data.tags,
           lost_reason: data.lostReason || undefined,
@@ -546,19 +577,34 @@ export function LeadForm({ initialData, onSuccess }: LeadFormProps) {
                 </FormItem>
               )}
             />
-            <FormField
-              control={form.control}
-              name="nextFollowUpDate"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Next Follow-up Date & Time</FormLabel>
-                  <FormControl>
-                    <Input type="datetime-local" className="bg-background border-input shadow-sm transition-colors hover:border-foreground/20 focus-visible:ring-1" {...field} value={field.value || ""} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
+            <div className="grid sm:grid-cols-2 gap-3">
+              <FormField
+                control={form.control}
+                name="nextFollowUpDate"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Next Follow-up Date</FormLabel>
+                    <FormControl>
+                      <Input type="date" className="bg-background border-input shadow-sm transition-colors hover:border-foreground/20 focus-visible:ring-1" {...field} value={field.value || ""} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
+                name="nextFollowUpTime"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Next Follow-up Time</FormLabel>
+                    <FormControl>
+                      <Input type="time" className="bg-background border-input shadow-sm transition-colors hover:border-foreground/20 focus-visible:ring-1" {...field} value={field.value || "10:00"} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            </div>
           </div>
         </div>
 

@@ -58,6 +58,7 @@ export const leadFormSchema = z.object({
   lastContactedAt: z.string().nullable().optional(),
   location: z.string().nullable().optional(),
   nextFollowUpDate: z.string().nullable().optional(),
+  nextFollowUpTime: z.string().nullable().optional(),
   tags: z.array(z.string()).optional(),
   notes: z.string().max(2000).optional(),
   sourceLink: z.string().nullable().optional(),

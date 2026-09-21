@@ -237,13 +237,27 @@ export function LeadInfoCard({ lead }: LeadInfoCardProps) {
             </span>
             <span className="font-medium">
               {lead.nextFollowUpDate ? (
-                lead.nextFollowUpDate.includes("T") && !lead.nextFollowUpDate.endsWith("T00:00:00.000Z") && !lead.nextFollowUpDate.endsWith("T00:00:00Z")
-                  ? new Date(lead.nextFollowUpDate).toLocaleString("en-IN", {
-                      day: "numeric", month: "short", year: "numeric", hour: "numeric", minute: "2-digit", hour12: true
-                    })
-                  : new Date(lead.nextFollowUpDate).toLocaleDateString("en-IN", {
-                      day: "numeric", month: "short", year: "numeric"
-                    })
+                (() => {
+                  try {
+                    let d: Date;
+                    if (lead.nextFollowUpDate.length === 10 && !lead.nextFollowUpDate.includes("T")) {
+                      d = new Date(`${lead.nextFollowUpDate}T10:00:00`);
+                    } else {
+                      d = new Date(lead.nextFollowUpDate);
+                    }
+                    if (isNaN(d.getTime())) return lead.nextFollowUpDate;
+                    return d.toLocaleString("en-IN", {
+                      day: "numeric",
+                      month: "short",
+                      year: "numeric",
+                      hour: "numeric",
+                      minute: "2-digit",
+                      hour12: true,
+                    });
+                  } catch {
+                    return lead.nextFollowUpDate;
+                  }
+                })()
               ) : "—"}
             </span>
           </div>

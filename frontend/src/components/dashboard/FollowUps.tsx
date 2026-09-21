@@ -89,10 +89,15 @@ export function OverdueFollowUps({ leads }: { leads: EnrichedLead[] }) {
 }
 
 export function TodaysFollowUps({ leads }: { leads: EnrichedLead[] }) {
-  const todayStr = new Date().toISOString().split("T")[0];
-  const todayLeads = leads.filter(
-    (l) => l.nextFollowUpDate === todayStr && l.status !== "Won" && l.status !== "Lost"
-  );
+  const startToday = getToday();
+  const endToday = new Date(startToday);
+  endToday.setDate(endToday.getDate() + 1);
+
+  const todayLeads = leads.filter((l) => {
+    if (!l.nextFollowUpDate) return false;
+    const d = new Date(l.nextFollowUpDate);
+    return d >= startToday && d < endToday && l.status !== "Won" && l.status !== "Lost";
+  });
 
   return (
     <Card>

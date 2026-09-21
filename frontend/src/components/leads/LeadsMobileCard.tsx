@@ -82,7 +82,20 @@ export default function LeadsMobileCard({
                 )}
                 {lead.nextFollowUpDate && (
                     <p className={`text-xs mt-1 ${isOverdue ? "text-[#ef4444]" : "text-[#737373]"}`}>
-                        Follow-up: {lead.nextFollowUpDate}
+                        Follow-up: {(() => {
+                            try {
+                                let d: Date;
+                                if (lead.nextFollowUpDate.length === 10 && !lead.nextFollowUpDate.includes("T")) {
+                                    d = new Date(`${lead.nextFollowUpDate}T10:00:00`);
+                                } else {
+                                    d = new Date(lead.nextFollowUpDate);
+                                }
+                                if (isNaN(d.getTime())) return lead.nextFollowUpDate;
+                                return format(d, "MMM d, yyyy · h:mm a");
+                            } catch {
+                                return lead.nextFollowUpDate;
+                            }
+                        })()}
                     </p>
                 )}
                 {lead.lastContactedAt && (
