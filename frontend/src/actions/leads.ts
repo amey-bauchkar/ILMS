@@ -507,3 +507,63 @@ export async function addNote(leadId: string, notes: string) {
   revalidatePath(`/leads/${leadId}`);
   return { success: true };
 }
+
+// ============================================================
+// deleteLead
+// ============================================================
+
+export async function deleteLead(leadId: string) {
+  if (!/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(leadId)) {
+    return { error: 'Invalid lead ID' };
+  }
+
+  const supabase = await createClient();
+
+  const { data: { user: authUser } } = await supabase.auth.getUser();
+  if (!authUser) return { error: 'Not authenticated' };
+
+  let { data: dbUser } = await supabase
+    .from('users')
+    .select('id, role')
+    .eq('auth_id', authUser.id)
+    .single();
+
+  if (!dbUser && authUser.email) {
+    const { data: userByEmail } = await supabase
+      .from('users')
+      .select('id, role')
+      .eq('email', authUser.email)
+      .single();
+    dbUser = userByEmail;
+  }
+
+  if (!dbUser) return { error: 'User not found' };
+
+  const clientToUse = dbUser.role === 'admin' ? (await createAdminClient()) : supabase;
+
+  // Non-admin users can only delete their own leads
+  if (dbUser.role !== 'admin') {
+    const { data: lead } = await clientToUse
+      .from('leads')
+      .select('owner_id')
+      .eq('id', leadId)
+      .single();
+
+    if (!lead || lead.owner_id !== dbUser.id) {
+      return { error: 'You can only delete leads assigned to you' };
+    }
+  }
+
+  const { error } = await clientToUse
+    .from('leads')
+    .delete()
+    .eq('id', leadId);
+
+  if (error) {
+    console.error('Lead deletion failed:', error);
+    return { error: error.message || 'Failed to delete lead. Please try again.' };
+  }
+
+  revalidatePath('/leads');
+  return { success: true };
+}

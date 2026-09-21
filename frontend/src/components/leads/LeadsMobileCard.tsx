@@ -2,7 +2,7 @@ import Link from "next/link";
 import { formatDistanceToNow, isBefore, startOfDay } from "date-fns";
 import { priorityColors, type EnrichedLead } from "@/hooks/use-data";
 import { avatarColor } from "@/lib/avatar-colors";
-import { Pencil } from "lucide-react";
+import { Pencil, Trash2 } from "lucide-react";
 
 function DotBadge({ color, label }: { color: string; label: string }) {
     return (
@@ -18,10 +18,12 @@ function DotBadge({ color, label }: { color: string; label: string }) {
 
 export default function LeadsMobileCard({ 
     lead, 
-    onEdit 
+    onEdit,
+    onDelete,
 }: { 
     lead: EnrichedLead; 
     onEdit?: (lead: EnrichedLead) => void;
+    onDelete?: (lead: EnrichedLead) => void;
 }) {
     const isOverdue = lead.nextFollowUpDate && isBefore(new Date(lead.nextFollowUpDate), startOfDay(new Date()));
     const initials = lead.owner.name.split(" ").map((p) => p[0]).slice(0, 2).join("").toUpperCase();
@@ -34,7 +36,7 @@ export default function LeadsMobileCard({
                     <Link href={`/leads/${lead.id}`} className="hover:text-primary transition-colors">
                         <h3 className="font-semibold text-white hover:text-primary">{lead.name}</h3>
                     </Link>
-                    <div className="flex items-center gap-2">
+                    <div className="flex items-center gap-1.5">
                         <DotBadge color={lead.statusColor} label={lead.status} />
                         {onEdit && (
                             <button
@@ -48,6 +50,20 @@ export default function LeadsMobileCard({
                                 title="Edit Lead"
                             >
                                 <Pencil className="w-3.5 h-3.5" />
+                            </button>
+                        )}
+                        {onDelete && (
+                            <button
+                                type="button"
+                                onClick={(e) => {
+                                    e.preventDefault();
+                                    e.stopPropagation();
+                                    onDelete(lead);
+                                }}
+                                className="p-1.5 rounded-md bg-[#262626] text-red-400 hover:text-red-300 hover:bg-red-500/20 transition-colors"
+                                title="Delete Lead"
+                            >
+                                <Trash2 className="w-3.5 h-3.5" />
                             </button>
                         )}
                     </div>

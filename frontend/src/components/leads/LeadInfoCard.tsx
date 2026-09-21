@@ -1,23 +1,48 @@
 "use client";
 
 import { useState } from "react";
+import { useRouter } from "next/navigation";
 import type { EnrichedLead } from "@/hooks/use-data";
 import { priorityColors } from "@/hooks/use-data";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Mail, Phone, Building2, Calendar, IndianRupee, Pencil, PhoneCall, User, UserCheck, MapPin } from "lucide-react";
+import { Mail, Phone, Building2, Calendar, IndianRupee, Pencil, PhoneCall, User, UserCheck, MapPin, Trash2, Loader2 } from "lucide-react";
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { LeadForm } from "./LeadForm";
 import { TagManager } from "./TagManager";
 import { CallLogModal } from "@/components/shared/CallLogModal";
+import { deleteLead } from "@/actions/leads";
+import { toast } from "sonner";
 
 interface LeadInfoCardProps {
   lead: EnrichedLead;
 }
 
 export function LeadInfoCard({ lead }: LeadInfoCardProps) {
+  const router = useRouter();
   const [isEditOpen, setIsEditOpen] = useState(false);
+  const [isDeleteOpen, setIsDeleteOpen] = useState(false);
+  const [isDeleting, setIsDeleting] = useState(false);
+
+  const handleDelete = async () => {
+    setIsDeleting(true);
+    try {
+      const res = await deleteLead(lead.id);
+      if (res.error) {
+        toast.error(res.error);
+      } else {
+        toast.success("Lead deleted successfully!");
+        setIsDeleteOpen(false);
+        router.push("/leads");
+      }
+    } catch (err: any) {
+      toast.error("Failed to delete lead. Please try again.");
+    } finally {
+      setIsDeleting(false);
+    }
+  };
 
   return (
     <Card className="shadow-sm border-border">
@@ -33,43 +58,92 @@ export function LeadInfoCard({ lead }: LeadInfoCardProps) {
             )}
           </div>
           
-          <Sheet open={isEditOpen} onOpenChange={setIsEditOpen}>
-            <SheetTrigger render={<Button variant="ghost" size="icon" className="h-8 w-8 shrink-0" />}>
-              <Pencil className="h-4 w-4" />
-              <span className="sr-only">Edit lead</span>
-            </SheetTrigger>
-            <SheetContent className="sm:max-w-[500px] w-[90vw] overflow-y-auto">
-              <SheetHeader className="mb-6">
-                <SheetTitle>Edit Lead</SheetTitle>
-              </SheetHeader>
-              <LeadForm 
-                initialData={{
-                  id: lead.id,
-                  name: lead.name,
-                  company: lead.company || undefined,
-                  phone: lead.phone,
-                  email: lead.email || undefined,
-                  source: lead.source as any,
-                  status: lead.statusId as any,
-                  priority: lead.priority,
-                  ownerId: lead.owner.id,
-                  dealValue: lead.dealValue || undefined,
-                  createdAt: lead.createdAt || undefined,
-                  location: lead.location || undefined,
-                  sourceLink: lead.sourceLink || undefined,
-                  nextFollowUpDate: lead.nextFollowUpDate || undefined,
-                  lostReason: lead.lostReason as any,
-                  lostReasonDetails: (lead as any).lostReasonDetails || undefined,
-                  tags: lead.tags,
-                }} 
-                onSuccess={() => {
-                  setIsEditOpen(false);
-                  window.location.reload();
-                }}
-              />
-            </SheetContent>
-          </Sheet>
+          <div className="flex items-center gap-1 shrink-0">
+            <Sheet open={isEditOpen} onOpenChange={setIsEditOpen}>
+              <SheetTrigger render={<Button variant="ghost" size="icon" className="h-8 w-8" />}>
+                <Pencil className="h-4 w-4" />
+                <span className="sr-only">Edit lead</span>
+              </SheetTrigger>
+              <SheetContent className="sm:max-w-[500px] w-[90vw] overflow-y-auto">
+                <SheetHeader className="mb-6">
+                  <SheetTitle>Edit Lead</SheetTitle>
+                </SheetHeader>
+                <LeadForm 
+                  initialData={{
+                    id: lead.id,
+                    name: lead.name,
+                    company: lead.company || undefined,
+                    phone: lead.phone,
+                    email: lead.email || undefined,
+                    source: lead.source as any,
+                    status: lead.statusId as any,
+                    priority: lead.priority,
+                    ownerId: lead.owner.id,
+                    dealValue: lead.dealValue || undefined,
+                    createdAt: lead.createdAt || undefined,
+                    location: lead.location || undefined,
+                    sourceLink: lead.sourceLink || undefined,
+                    nextFollowUpDate: lead.nextFollowUpDate || undefined,
+                    lostReason: lead.lostReason as any,
+                    lostReasonDetails: (lead as any).lostReasonDetails || undefined,
+                    tags: lead.tags,
+                  }} 
+                  onSuccess={() => {
+                    setIsEditOpen(false);
+                    window.location.reload();
+                  }}
+                />
+              </SheetContent>
+            </Sheet>
+
+            <Button
+              variant="ghost"
+              size="icon"
+              className="h-8 w-8 text-muted-foreground hover:text-destructive hover:bg-destructive/10"
+              onClick={() => setIsDeleteOpen(true)}
+              title="Delete Lead"
+            >
+              <Trash2 className="h-4 w-4 text-red-500" />
+              <span className="sr-only">Delete lead</span>
+            </Button>
+          </div>
         </div>
+
+        {/* Delete Confirmation Dialog */}
+        <Dialog open={isDeleteOpen} onOpenChange={setIsDeleteOpen}>
+          <DialogContent className="sm:max-w-[425px]">
+            <DialogHeader>
+              <DialogTitle>Delete Lead</DialogTitle>
+              <DialogDescription>
+                Are you sure you want to delete <span className="font-semibold text-foreground">{lead.name}</span>? This action cannot be undone and will remove all associated activities and notes.
+              </DialogDescription>
+            </DialogHeader>
+            <DialogFooter className="mt-4 flex gap-2 sm:justify-end">
+              <Button
+                variant="outline"
+                onClick={() => setIsDeleteOpen(false)}
+                disabled={isDeleting}
+              >
+                Cancel
+              </Button>
+              <Button
+                variant="destructive"
+                onClick={handleDelete}
+                disabled={isDeleting}
+                className="bg-red-600 hover:bg-red-700 text-white"
+              >
+                {isDeleting ? (
+                  <>
+                    <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                    Deleting...
+                  </>
+                ) : (
+                  "Delete Lead"
+                )}
+              </Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
 
         <div className="flex flex-wrap gap-2 mt-4">
           <Badge 

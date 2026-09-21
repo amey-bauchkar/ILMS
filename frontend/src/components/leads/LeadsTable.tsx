@@ -14,12 +14,14 @@ import {
 import { Button } from "@/components/ui/button";
 import { useLeads, useStatuses, useTeamMembers, priorityColors, type EnrichedLead } from "@/hooks/use-data";
 import { useUser } from "@/components/providers/user-provider";
-import { Download, Loader2, Pencil } from "lucide-react";
+import { Download, Loader2, Pencil, Trash2 } from "lucide-react";
 import { avatarColor } from "@/lib/avatar-colors";
 import LeadsFilterBar, { LeadFilters, emptyFilters } from "./LeadsFilterBar";
 import LeadsMobileCard from "./LeadsMobileCard";
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { LeadForm } from "./LeadForm";
+import { deleteLead } from "@/actions/leads";
+import { toast } from "sonner";
 
 type SavedView = "all" | "myOpen" | "overdue" | "hot" | "newWeek";
 type SortKey = string;
@@ -102,6 +104,27 @@ export default function LeadsTable() {
     const [sortAsc, setSortAsc] = useState(false);
     const [page, setPage] = useState(1);
     const [editingLead, setEditingLead] = useState<EnrichedLead | null>(null);
+    const [deletingLead, setDeletingLead] = useState<EnrichedLead | null>(null);
+    const [isDeleting, setIsDeleting] = useState(false);
+
+    const handleDeleteLead = async () => {
+        if (!deletingLead) return;
+        setIsDeleting(true);
+        try {
+            const res = await deleteLead(deletingLead.id);
+            if (res.error) {
+                toast.error(res.error);
+            } else {
+                toast.success("Lead deleted successfully!");
+                setDeletingLead(null);
+                refresh();
+            }
+        } catch (err: any) {
+            toast.error("Failed to delete lead. Please try again.");
+        } finally {
+            setIsDeleting(false);
+        }
+    };
 
     const viewCounts = useMemo(() => {
         return {
@@ -249,6 +272,7 @@ export default function LeadsTable() {
                             key={lead.id} 
                             lead={lead} 
                             onEdit={setEditingLead} 
+                            onDelete={setDeletingLead}
                         />
                     ))
                 )}
@@ -350,19 +374,36 @@ export default function LeadsTable() {
                                             {format(new Date(lead.createdAt), "MMM d, yyyy")}
                                         </TableCell>
                                         <TableCell className="text-right pr-4">
-                                            <Button
-                                                variant="ghost"
-                                                size="sm"
-                                                className="h-8 px-2.5 text-[#a3a3a3] hover:text-white hover:bg-[#262626] transition-colors gap-1.5"
-                                                onClick={(e) => {
-                                                    e.preventDefault();
-                                                    e.stopPropagation();
-                                                    setEditingLead(lead);
-                                                }}
-                                            >
-                                                <Pencil className="h-3.5 w-3.5 text-primary" />
-                                                <span className="text-xs font-medium">Edit</span>
-                                            </Button>
+                                            <div className="flex items-center justify-end gap-1">
+                                                <Button
+                                                    variant="ghost"
+                                                    size="sm"
+                                                    className="h-8 px-2.5 text-[#a3a3a3] hover:text-white hover:bg-[#262626] transition-colors gap-1.5"
+                                                    onClick={(e) => {
+                                                        e.preventDefault();
+                                                        e.stopPropagation();
+                                                        setEditingLead(lead);
+                                                    }}
+                                                    title="Edit Lead"
+                                                >
+                                                    <Pencil className="h-3.5 w-3.5 text-primary" />
+                                                    <span className="text-xs font-medium">Edit</span>
+                                                </Button>
+                                                <Button
+                                                    variant="ghost"
+                                                    size="sm"
+                                                    className="h-8 px-2 text-[#a3a3a3] hover:text-red-400 hover:bg-red-500/10 transition-colors gap-1.5"
+                                                    onClick={(e) => {
+                                                        e.preventDefault();
+                                                        e.stopPropagation();
+                                                        setDeletingLead(lead);
+                                                    }}
+                                                    title="Delete Lead"
+                                                >
+                                                    <Trash2 className="h-3.5 w-3.5 text-red-500" />
+                                                    <span className="text-xs font-medium sr-only sm:not-sr-only">Delete</span>
+                                                </Button>
+                                            </div>
                                         </TableCell>
                                     </TableRow>
                                 );
@@ -406,6 +447,42 @@ export default function LeadsTable() {
                             }}
                         />
                     )}
+                </DialogContent>
+            </Dialog>
+
+            {/* Delete Lead Confirmation Modal */}
+            <Dialog open={!!deletingLead} onOpenChange={(open) => { if (!open) setDeletingLead(null); }}>
+                <DialogContent className="sm:max-w-[425px]">
+                    <DialogHeader>
+                        <DialogTitle>Delete Lead</DialogTitle>
+                        <DialogDescription>
+                            Are you sure you want to delete <span className="font-semibold text-white">{deletingLead?.name}</span>? This action cannot be undone and will remove all associated activities and notes.
+                        </DialogDescription>
+                    </DialogHeader>
+                    <DialogFooter className="mt-4 flex gap-2 sm:justify-end">
+                        <Button
+                            variant="outline"
+                            onClick={() => setDeletingLead(null)}
+                            disabled={isDeleting}
+                        >
+                            Cancel
+                        </Button>
+                        <Button
+                            variant="destructive"
+                            onClick={handleDeleteLead}
+                            disabled={isDeleting}
+                            className="bg-red-600 hover:bg-red-700 text-white"
+                        >
+                            {isDeleting ? (
+                                <>
+                                    <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                                    Deleting...
+                                </>
+                            ) : (
+                                "Delete Lead"
+                            )}
+                        </Button>
+                    </DialogFooter>
                 </DialogContent>
             </Dialog>
 
