@@ -9,7 +9,7 @@ import {
 } from "@/components/ui/popover";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Badge } from "@/components/ui/badge";
-import { X, Save, Bookmark } from "lucide-react";
+import { X, Save, Bookmark, Search } from "lucide-react";
 import { useStatuses, useTeamMembers, useTags, useSavedViews } from "@/hooks/use-data";
 import { saveView, deleteView } from "@/actions/views";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuGroup, DropdownMenuItem, DropdownMenuTrigger, DropdownMenuLabel, DropdownMenuSeparator } from "@/components/ui/dropdown-menu";
@@ -49,6 +49,7 @@ function MultiSelectDropdown({
     selected: string[];
     onChange: (vals: string[]) => void;
 }) {
+    const [search, setSearch] = useState("");
     const toggle = (val: string) => {
         if (selected.includes(val)) {
             onChange(selected.filter((v) => v !== val));
@@ -57,25 +58,46 @@ function MultiSelectDropdown({
         }
     };
 
+    const filteredOptions = options.filter((opt) =>
+        opt.label.toLowerCase().includes(search.toLowerCase().trim()) ||
+        opt.value.toLowerCase().includes(search.toLowerCase().trim())
+    );
+
     return (
         <Popover>
             <PopoverTrigger render={<Button variant="outline" size="sm" />}>
                 {label} {selected.length > 0 ? `(${selected.length})` : ""}
             </PopoverTrigger>
-            <PopoverContent className="w-56 p-2">
-                <div className="flex flex-col gap-1 max-h-64 overflow-y-auto">
-                    {options.map((opt) => (
-                        <label
-                            key={opt.value}
-                            className="flex items-center gap-2 px-2 py-1.5 rounded hover:bg-[#262626] cursor-pointer text-sm"
-                        >
-                            <Checkbox
-                                checked={selected.includes(opt.value)}
-                                onCheckedChange={() => toggle(opt.value)}
-                            />
-                            {opt.label}
-                        </label>
-                    ))}
+            <PopoverContent className="w-60 p-2 shadow-xl border-border bg-popover rounded-xl">
+                {options.length > 5 && (
+                    <div className="relative mb-2">
+                        <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-muted-foreground pointer-events-none" />
+                        <input
+                            type="text"
+                            value={search}
+                            onChange={(e) => setSearch(e.target.value)}
+                            placeholder={`Search ${label.toLowerCase()}...`}
+                            className="w-full bg-secondary/40 border border-input rounded-md pl-8 pr-2 py-1 text-xs text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-primary"
+                        />
+                    </div>
+                )}
+                <div className="flex flex-col gap-1 max-h-60 overflow-y-auto">
+                    {filteredOptions.length > 0 ? (
+                        filteredOptions.map((opt) => (
+                            <label
+                                key={opt.value}
+                                className="flex items-center gap-2 px-2 py-1.5 rounded-md hover:bg-accent cursor-pointer text-sm transition-colors"
+                            >
+                                <Checkbox
+                                    checked={selected.includes(opt.value)}
+                                    onCheckedChange={() => toggle(opt.value)}
+                                />
+                                <span className="truncate">{opt.label}</span>
+                            </label>
+                        ))
+                    ) : (
+                        <p className="p-2 text-xs text-muted-foreground text-center">No options found</p>
+                    )}
                 </div>
             </PopoverContent>
         </Popover>

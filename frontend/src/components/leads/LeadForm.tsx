@@ -29,6 +29,7 @@ import { useStatuses, useTeamMembers, useTags } from "@/hooks/use-data";
 import { useUser } from "@/components/providers/user-provider";
 import { createLead, updateLead } from "@/actions/leads";
 import { TagManager } from "./TagManager";
+import { SourceCombobox } from "./SourceCombobox";
 import { User, FileText, Tag as TagIcon, Banknote, ListTodo, Loader2, Link2 } from "lucide-react";
 import { toast } from "sonner";
 
@@ -263,60 +264,13 @@ export function LeadForm({ initialData, onSuccess }: LeadFormProps) {
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>Source *</FormLabel>
-                  <Select onValueChange={field.onChange} value={field.value}>
-                    <FormControl>
-                      <SelectTrigger className="bg-background border-input shadow-sm transition-colors hover:border-foreground/20 focus-visible:ring-1">
-                        <SelectValue placeholder="Select a source" />
-                      </SelectTrigger>
-                    </FormControl>
-                    <SelectContent className="max-h-[360px] min-w-[280px]">
-                      <SelectGroup>
-                        <SelectLabel>Social Media & Messaging</SelectLabel>
-                        <SelectItem value="LinkedIn">LinkedIn</SelectItem>
-                        <SelectItem value="Twitter / X">Twitter / X</SelectItem>
-                        <SelectItem value="Instagram">Instagram</SelectItem>
-                        <SelectItem value="Facebook">Facebook</SelectItem>
-                        <SelectItem value="YouTube">YouTube</SelectItem>
-                        <SelectItem value="Reddit">Reddit</SelectItem>
-                        <SelectItem value="WhatsApp">WhatsApp</SelectItem>
-                        <SelectItem value="Telegram">Telegram</SelectItem>
-                        <SelectItem value="Discord">Discord</SelectItem>
-                        <SelectItem value="Threads">Threads</SelectItem>
-                      </SelectGroup>
-                      
-                      <SelectGroup>
-                        <SelectLabel>Job Boards & Freelance</SelectLabel>
-                        <SelectItem value="Upwork">Upwork</SelectItem>
-                        <SelectItem value="Fiverr">Fiverr</SelectItem>
-                        <SelectItem value="Freelancer">Freelancer</SelectItem>
-                        <SelectItem value="Indeed">Indeed</SelectItem>
-                        <SelectItem value="Naukri">Naukri</SelectItem>
-                        <SelectItem value="Wellfound (AngelList)">Wellfound (AngelList)</SelectItem>
-                        <SelectItem value="Glassdoor">Glassdoor</SelectItem>
-                        <SelectItem value="Internshala">Internshala</SelectItem>
-                        <SelectItem value="TopTal">TopTal</SelectItem>
-                        <SelectItem value="Guru">Guru</SelectItem>
-                        <SelectItem value="PeoplePerHour">PeoplePerHour</SelectItem>
-                      </SelectGroup>
-                      
-                      <SelectGroup>
-                        <SelectLabel>Inbound, Directories & Outreach</SelectLabel>
-                        <SelectItem value="Website Inbound">Website Inbound</SelectItem>
-                        <SelectItem value="Google Search / SEO">Google Search / SEO</SelectItem>
-                        <SelectItem value="Google My Business">Google My Business</SelectItem>
-                        <SelectItem value="Google Business Profile">Google Business Profile</SelectItem>
-                        <SelectItem value="Just Dial">Just Dial</SelectItem>
-                        <SelectItem value="Local Business">Local Business</SelectItem>
-                        <SelectItem value="Referral">Referral</SelectItem>
-                        <SelectItem value="Cold Outreach">Cold Outreach</SelectItem>
-                        <SelectItem value="Events / Conferences">Events / Conferences</SelectItem>
-                        <SelectItem value="Clutch">Clutch</SelectItem>
-                        <SelectItem value="Dribbble">Dribbble</SelectItem>
-                        <SelectItem value="Behance">Behance</SelectItem>
-                        <SelectItem value="Other">Other</SelectItem>
-                      </SelectGroup>
-                    </SelectContent>
-                  </Select>
+                  <FormControl>
+                    <SourceCombobox
+                      value={field.value}
+                      onChange={field.onChange}
+                      disabled={saving}
+                    />
+                  </FormControl>
                   <FormMessage />
                 </FormItem>
               )}
