@@ -212,7 +212,7 @@ export async function createLead(rawData: {
     }
   }
 
-  const clientToUse = await createAdminClient();
+  const clientToUse = supabase;
 
   let { data: lead, error } = await clientToUse
     .from('leads')
@@ -341,7 +341,7 @@ export async function updateLead(
 
   if (!dbUser) return { error: 'User not found' };
 
-  const clientToUse = await createAdminClient();
+  const clientToUse = supabase;
 
   // Admins and client managers can edit all leads; sales reps can only edit their own leads
   if (dbUser.role !== 'admin' && dbUser.role !== 'client_manager') {
