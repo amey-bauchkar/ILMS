@@ -386,7 +386,7 @@ export async function updateLead(
   }
 
   // Sync tags if provided (C-02 fix)
-  if (data.tags !== undefined) {
+  if (data.tags !== undefined && data.tags !== null) {
     // Delete all existing tags for this lead
     await clientToUse.from('lead_tags').delete().eq('lead_id', leadId);
 
