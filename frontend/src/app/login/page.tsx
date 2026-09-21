@@ -21,6 +21,16 @@ export default function LoginPage() {
   const [loading, setLoading] = useState(false);
   const [mode, setMode] = useState<"login" | "signup">("login");
 
+  // Read URL query parameters for deactivation or auth error messages
+  useState(() => {
+    if (typeof window !== "undefined") {
+      const params = new URLSearchParams(window.location.search);
+      if (params.get("error") === "account_deactivated") {
+        setError("Your account has been deactivated. Please contact your administrator.");
+      }
+    }
+  });
+
   async function handleSubmit(formData: FormData) {
     setError(null);
     setLoading(true);
@@ -29,18 +39,15 @@ export default function LoginPage() {
       const action = mode === "login" ? login : signup;
       const result = await action(formData);
 
-      // If we get here, the redirect didn't happen → there was an error
       if (result?.error) {
         setError(result.error);
+        setLoading(false);
+      } else if (result?.success) {
+        window.location.href = "/dashboard";
       }
     } catch (err: unknown) {
-      // redirect() throws a NEXT_REDIRECT error — this is expected
-      // if the error is a redirect, just let it happen
-      if (err instanceof Error && err.message.includes("NEXT_REDIRECT")) {
-        return;
-      }
+      console.error(err);
       setError("Something went wrong. Please try again.");
-    } finally {
       setLoading(false);
     }
   }

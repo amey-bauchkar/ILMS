@@ -66,14 +66,23 @@ export async function middleware(request: NextRequest) {
 
   // If authenticated, check if user is active
   if (user) {
-    const { data: dbUser } = await supabase
+    let { data: dbUser } = await supabase
       .from('users')
-      .select('is_active')
+      .select('id, is_active, auth_id')
       .eq('auth_id', user.id)
       .single();
 
-    // Missing or Deactivated user → sign out and redirect
-    if (!dbUser || !dbUser.is_active) {
+    if (!dbUser && user.email) {
+      const { data: userByEmail } = await supabase
+        .from('users')
+        .select('id, is_active, auth_id')
+        .eq('email', user.email)
+        .single();
+      dbUser = userByEmail;
+    }
+
+    // Only deactivated user → sign out and redirect
+    if (dbUser && dbUser.is_active === false) {
       await supabase.auth.signOut();
       const url = request.nextUrl.clone();
       url.pathname = '/login';

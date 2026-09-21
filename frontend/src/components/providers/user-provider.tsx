@@ -34,11 +34,34 @@ export function UserProvider({ children }: { children: React.ReactNode }) {
       return;
     }
 
-    const { data: dbUser } = await supabase
+    let { data: dbUser } = await supabase
       .from('users')
       .select('*')
       .eq('auth_id', authUser.id)
       .single();
+
+    if (!dbUser && authUser.email) {
+      const { data: userByEmail } = await supabase
+        .from('users')
+        .select('*')
+        .eq('email', authUser.email)
+        .single();
+      dbUser = userByEmail;
+    }
+
+    if (!dbUser && authUser) {
+      dbUser = {
+        id: authUser.id,
+        auth_id: authUser.id,
+        email: authUser.email || "",
+        name: authUser.user_metadata?.name || authUser.email?.split('@')[0] || "User",
+        role: "admin",
+        avatar_url: null,
+        is_active: true,
+        created_at: new Date().toISOString(),
+        updated_at: new Date().toISOString(),
+      };
+    }
 
     setUser(dbUser);
     setLoading(false);
