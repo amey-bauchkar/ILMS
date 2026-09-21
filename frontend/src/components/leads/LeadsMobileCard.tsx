@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { formatDistanceToNow, isBefore, startOfDay } from "date-fns";
+import { formatDistanceToNow, format, isBefore, startOfDay } from "date-fns";
 import { priorityColors, type EnrichedLead } from "@/hooks/use-data";
 import { avatarColor } from "@/lib/avatar-colors";
 import { Pencil, Trash2 } from "lucide-react";
@@ -83,6 +83,11 @@ export default function LeadsMobileCard({
                 {lead.nextFollowUpDate && (
                     <p className={`text-xs mt-1 ${isOverdue ? "text-[#ef4444]" : "text-[#737373]"}`}>
                         Follow-up: {lead.nextFollowUpDate}
+                    </p>
+                )}
+                {lead.lastContactedAt && (
+                    <p className="text-xs mt-1 text-[#737373]">
+                        Last Contacted: {lead.lastContactedAt.includes('T') ? format(new Date(lead.lastContactedAt), "MMM d, yyyy") : lead.lastContactedAt}
                     </p>
                 )}
             </div>

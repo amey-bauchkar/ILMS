@@ -87,6 +87,17 @@ function DotBadge({ color, label }: { color: string; label: string }) {
     );
 }
 
+function formatDateSafely(dateStr?: string | null) {
+    if (!dateStr) return null;
+    try {
+        const d = new Date(dateStr);
+        if (isNaN(d.getTime())) return dateStr;
+        return format(d, "MMM d, yyyy");
+    } catch {
+        return dateStr;
+    }
+}
+
 const VIEWS: { key: SavedView; label: string }[] = [
     { key: "all", label: "All Leads" },
     { key: "myOpen", label: "My Open Leads" },
@@ -291,6 +302,7 @@ export default function LeadsTable() {
                             <SortableHead label="Owner" sortField="ownerName" />
                             <SortableHead label="Deal Value" sortField="dealValue" align="right" />
                             <SortableHead label="Next Follow-up" sortField="nextFollowUpDate" />
+                            <SortableHead label="Last Contacted Date" sortField="lastContactedAt" />
                             <TableHead className="hidden lg:table-cell text-xs uppercase tracking-wide text-[#737373] font-medium">
                                 Last Creation Date
                             </TableHead>
@@ -302,7 +314,7 @@ export default function LeadsTable() {
                     <TableBody>
                         {paginated.length === 0 ? (
                             <TableRow>
-                                <TableCell colSpan={10} className="text-center py-16">
+                                <TableCell colSpan={11} className="text-center py-16">
                                     <p className="text-[#a3a3a3] text-sm">No leads found.</p>
                                     <p className="text-[#737373] text-xs mt-1">Try adjusting your filters.</p>
                                 </TableCell>
@@ -364,8 +376,13 @@ export default function LeadsTable() {
                                         >
                                             {lead.nextFollowUpDate ?? <span className="text-[#525252]">—</span>}
                                         </TableCell>
+                                        <TableCell className="tabular-nums text-[#a3a3a3] text-sm">
+                                            {lead.lastContactedAt
+                                                ? (formatDateSafely(lead.lastContactedAt) ?? <span className="text-[#525252]">—</span>)
+                                                : <span className="text-[#525252]">—</span>}
+                                        </TableCell>
                                         <TableCell className="hidden lg:table-cell text-[#737373] text-sm">
-                                            {format(new Date(lead.createdAt), "MMM d, yyyy")}
+                                            {formatDateSafely(lead.createdAt) ?? <span className="text-[#525252]">—</span>}
                                         </TableCell>
                                         <TableCell className="text-right pr-4 whitespace-nowrap">
                                             <div className="flex items-center justify-end gap-1.5">
