@@ -98,6 +98,23 @@ function formatDateSafely(dateStr?: string | null) {
     }
 }
 
+function formatDateTimeSafely(dateStr?: string | null) {
+    if (!dateStr) return null;
+    try {
+        const d = new Date(dateStr);
+        if (isNaN(d.getTime())) return dateStr;
+        if (dateStr.includes("T") && !dateStr.endsWith("T00:00:00.000Z") && !dateStr.endsWith("T00:00:00Z")) {
+            return format(d, "MMM d, yyyy · h:mm a");
+        }
+        if (dateStr.includes(":")) {
+            return format(d, "MMM d, yyyy · h:mm a");
+        }
+        return format(d, "MMM d, yyyy");
+    } catch {
+        return dateStr;
+    }
+}
+
 const VIEWS: { key: SavedView; label: string }[] = [
     { key: "all", label: "All Leads" },
     { key: "myOpen", label: "My Open Leads" },
@@ -372,9 +389,11 @@ export default function LeadsTable() {
                                                 : <span className="text-[#525252]">—</span>}
                                         </TableCell>
                                         <TableCell
-                                            className={`tabular-nums ${isOverdue ? "text-[#ef4444] font-medium" : "text-[#a3a3a3]"}`}
+                                            className={`tabular-nums whitespace-nowrap ${isOverdue ? "text-[#ef4444] font-medium" : "text-[#a3a3a3]"}`}
                                         >
-                                            {lead.nextFollowUpDate ?? <span className="text-[#525252]">—</span>}
+                                            {lead.nextFollowUpDate
+                                                ? (formatDateTimeSafely(lead.nextFollowUpDate) ?? <span className="text-[#525252]">—</span>)
+                                                : <span className="text-[#525252]">—</span>}
                                         </TableCell>
                                         <TableCell className="tabular-nums text-[#a3a3a3] text-sm">
                                             {lead.lastContactedAt

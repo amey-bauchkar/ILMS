@@ -34,6 +34,25 @@ import { User, FileText, Tag as TagIcon, Banknote, ListTodo, Loader2, Link2, Tra
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { toast } from "sonner";
 
+function formatForDateTimeLocal(dateStr?: string | null) {
+  if (!dateStr) return "";
+  try {
+    if (dateStr.length === 10 && !dateStr.includes("T")) {
+      return `${dateStr}T10:00`;
+    }
+    const d = new Date(dateStr);
+    if (isNaN(d.getTime())) return dateStr.slice(0, 16);
+    const year = d.getFullYear();
+    const month = String(d.getMonth() + 1).padStart(2, '0');
+    const day = String(d.getDate()).padStart(2, '0');
+    const hours = String(d.getHours()).padStart(2, '0');
+    const minutes = String(d.getMinutes()).padStart(2, '0');
+    return `${year}-${month}-${day}T${hours}:${minutes}`;
+  } catch {
+    return dateStr.slice(0, 16);
+  }
+}
+
 interface LeadFormProps {
   initialData?: Partial<LeadFormData> & { id?: string; createdAt?: string; location?: string; lastContactedAt?: string };
   onSuccess?: () => void;
@@ -85,7 +104,7 @@ export function LeadForm({ initialData, onSuccess }: LeadFormProps) {
       createdAt: initialData?.createdAt ? (initialData.createdAt.includes('T') ? initialData.createdAt.split('T')[0] : initialData.createdAt) : "",
       lastContactedAt: initialData?.lastContactedAt ? (initialData.lastContactedAt.includes('T') ? initialData.lastContactedAt.split('T')[0] : initialData.lastContactedAt) : "",
       location: initialData?.location || "",
-      nextFollowUpDate: initialData?.nextFollowUpDate || "",
+      nextFollowUpDate: formatForDateTimeLocal(initialData?.nextFollowUpDate),
       notes: initialData?.notes || "",
       tags: initialData?.tags || [],
       lostReason: initialData?.lostReason,
@@ -108,8 +127,9 @@ export function LeadForm({ initialData, onSuccess }: LeadFormProps) {
         ownerId: initialData.ownerId || user?.id || "",
         dealValue: initialData.dealValue || undefined,
         createdAt: initialData.createdAt ? (initialData.createdAt.includes('T') ? initialData.createdAt.split('T')[0] : initialData.createdAt) : "",
+        lastContactedAt: initialData.lastContactedAt ? (initialData.lastContactedAt.includes('T') ? initialData.lastContactedAt.split('T')[0] : initialData.lastContactedAt) : "",
         location: initialData.location || "",
-        nextFollowUpDate: initialData.nextFollowUpDate || "",
+        nextFollowUpDate: formatForDateTimeLocal(initialData.nextFollowUpDate),
         notes: initialData.notes || "",
         tags: initialData.tags || [],
         lostReason: initialData.lostReason,
@@ -531,9 +551,9 @@ export function LeadForm({ initialData, onSuccess }: LeadFormProps) {
               name="nextFollowUpDate"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Next Follow-up</FormLabel>
+                  <FormLabel>Next Follow-up Date & Time</FormLabel>
                   <FormControl>
-                    <Input type="date" className="bg-background border-input shadow-sm transition-colors hover:border-foreground/20 focus-visible:ring-1" {...field} value={field.value || ""} />
+                    <Input type="datetime-local" className="bg-background border-input shadow-sm transition-colors hover:border-foreground/20 focus-visible:ring-1" {...field} value={field.value || ""} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>

@@ -236,9 +236,15 @@ export function LeadInfoCard({ lead }: LeadInfoCardProps) {
               <Calendar className="h-4 w-4" /> Next Follow-up
             </span>
             <span className="font-medium">
-              {lead.nextFollowUpDate ? new Date(lead.nextFollowUpDate).toLocaleDateString("en-IN", {
-                day: "numeric", month: "short", year: "numeric"
-              }) : "—"}
+              {lead.nextFollowUpDate ? (
+                lead.nextFollowUpDate.includes("T") && !lead.nextFollowUpDate.endsWith("T00:00:00.000Z") && !lead.nextFollowUpDate.endsWith("T00:00:00Z")
+                  ? new Date(lead.nextFollowUpDate).toLocaleString("en-IN", {
+                      day: "numeric", month: "short", year: "numeric", hour: "numeric", minute: "2-digit", hour12: true
+                    })
+                  : new Date(lead.nextFollowUpDate).toLocaleDateString("en-IN", {
+                      day: "numeric", month: "short", year: "numeric"
+                    })
+              ) : "—"}
             </span>
           </div>
 

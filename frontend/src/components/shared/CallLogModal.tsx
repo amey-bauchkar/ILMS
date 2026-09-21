@@ -264,10 +264,10 @@ function CallLogForm({
                 name="followUpDate"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Follow-up Date (optional)</FormLabel>
+                    <FormLabel>Follow-up Date & Time (optional)</FormLabel>
                     <FormControl>
                       <Input
-                        type="date"
+                        type="datetime-local"
                         className="bg-background border-input"
                         {...field}
                         value={field.value ?? ""}
