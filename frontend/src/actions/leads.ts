@@ -11,7 +11,7 @@ import { z } from 'zod';
 const createLeadSchema = z.object({
   name: z.string().min(2, 'Name must be at least 2 characters').max(200),
   company_name: z.string().max(200).nullable().optional(),
-  phone: z.string().min(10, 'Enter a valid phone number').max(20),
+  phone: z.string().min(4, 'Enter a valid phone number').max(30),
   email: z.union([z.literal(''), z.string().email()]).nullable().optional(),
   source: z.string().min(1, 'Select a valid source'),
   status_id: z.string().uuid(),
@@ -32,7 +32,7 @@ const createLeadSchema = z.object({
 const updateLeadSchema = z.object({
   name: z.string().min(2).max(200).optional(),
   company_name: z.string().max(200).nullable().optional(),
-  phone: z.string().min(10).max(20).optional(),
+  phone: z.string().min(4).max(30).optional(),
   email: z.union([z.literal(''), z.string().email()]).nullable().optional(),
   source: z.string().min(1, 'Select a valid source').optional(),
   status_id: z.string().uuid().optional(),

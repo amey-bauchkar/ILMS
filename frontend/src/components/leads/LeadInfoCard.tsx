@@ -69,6 +69,7 @@ export function LeadInfoCard({ lead }: LeadInfoCardProps) {
                   <SheetTitle>Edit Lead</SheetTitle>
                 </SheetHeader>
                 <LeadForm 
+                  key={lead.id + (isEditOpen ? "-open" : "-closed")}
                   initialData={{
                     id: lead.id,
                     name: lead.name,
