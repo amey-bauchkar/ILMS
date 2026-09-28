@@ -75,7 +75,14 @@ function parseTimePart(isoOrDateStr?: string | null): string {
 }
 
 interface LeadFormProps {
-  initialData?: Partial<LeadFormData> & { id?: string; createdAt?: string; location?: string; lastContactedAt?: string };
+  initialData?: Partial<LeadFormData> & { 
+    id?: string; 
+    createdAt?: string; 
+    createdAtTime?: string;
+    location?: string; 
+    lastContactedAt?: string;
+    lastContactedAtTime?: string;
+  };
   onSuccess?: () => void;
 }
 
@@ -122,8 +129,10 @@ export function LeadForm({ initialData, onSuccess }: LeadFormProps) {
       priority: initialData?.priority || "Warm",
       ownerId: initialData?.ownerId || user?.id || "",
       dealValue: initialData?.dealValue || undefined,
-      createdAt: initialData?.createdAt ? (initialData.createdAt.includes('T') ? initialData.createdAt.split('T')[0] : initialData.createdAt) : "",
-      lastContactedAt: initialData?.lastContactedAt ? (initialData.lastContactedAt.includes('T') ? initialData.lastContactedAt.split('T')[0] : initialData.lastContactedAt) : "",
+      createdAt: parseDatePart(initialData?.createdAt),
+      createdAtTime: initialData?.createdAtTime || (initialData?.createdAt && initialData.createdAt.includes('T') ? parseTimePart(initialData.createdAt) : ""),
+      lastContactedAt: parseDatePart(initialData?.lastContactedAt),
+      lastContactedAtTime: initialData?.lastContactedAtTime || (initialData?.lastContactedAt && initialData.lastContactedAt.includes('T') ? parseTimePart(initialData.lastContactedAt) : ""),
       location: initialData?.location || "",
       nextFollowUpDate: parseDatePart(initialData?.nextFollowUpDate),
       nextFollowUpTime: initialData?.nextFollowUpTime || (initialData?.nextFollowUpDate ? parseTimePart(initialData.nextFollowUpDate) : "10:00"),
@@ -148,8 +157,10 @@ export function LeadForm({ initialData, onSuccess }: LeadFormProps) {
         priority: initialData.priority || "Warm",
         ownerId: initialData.ownerId || user?.id || "",
         dealValue: initialData.dealValue || undefined,
-        createdAt: initialData.createdAt ? (initialData.createdAt.includes('T') ? initialData.createdAt.split('T')[0] : initialData.createdAt) : "",
-        lastContactedAt: initialData.lastContactedAt ? (initialData.lastContactedAt.includes('T') ? initialData.lastContactedAt.split('T')[0] : initialData.lastContactedAt) : "",
+        createdAt: parseDatePart(initialData.createdAt),
+        createdAtTime: initialData.createdAtTime || (initialData.createdAt && initialData.createdAt.includes('T') ? parseTimePart(initialData.createdAt) : ""),
+        lastContactedAt: parseDatePart(initialData.lastContactedAt),
+        lastContactedAtTime: initialData.lastContactedAtTime || (initialData.lastContactedAt && initialData.lastContactedAt.includes('T') ? parseTimePart(initialData.lastContactedAt) : ""),
         location: initialData.location || "",
         nextFollowUpDate: parseDatePart(initialData.nextFollowUpDate),
         nextFollowUpTime: initialData.nextFollowUpTime || (initialData.nextFollowUpDate ? parseTimePart(initialData.nextFollowUpDate) : "10:00"),
@@ -198,6 +209,26 @@ export function LeadForm({ initialData, onSuccess }: LeadFormProps) {
         }
       }
 
+      let combinedCreatedAt: string | undefined = undefined;
+      if (data.createdAt && data.createdAt.trim() !== "") {
+        const time = data.createdAtTime && data.createdAtTime.trim() !== "" ? data.createdAtTime : "00:00";
+        try {
+          combinedCreatedAt = new Date(`${data.createdAt}T${time}:00`).toISOString();
+        } catch {
+          combinedCreatedAt = `${data.createdAt}T${time}:00`;
+        }
+      }
+
+      let combinedLastContactedAt: string | null = null;
+      if (data.lastContactedAt && data.lastContactedAt.trim() !== "") {
+        const time = data.lastContactedAtTime && data.lastContactedAtTime.trim() !== "" ? data.lastContactedAtTime : "00:00";
+        try {
+          combinedLastContactedAt = new Date(`${data.lastContactedAt}T${time}:00`).toISOString();
+        } catch {
+          combinedLastContactedAt = `${data.lastContactedAt}T${time}:00`;
+        }
+      }
+
       const cleanDealValue = typeof data.dealValue === "number" && !isNaN(data.dealValue) ? data.dealValue : undefined;
 
       if (initialData?.id) {
@@ -212,8 +243,8 @@ export function LeadForm({ initialData, onSuccess }: LeadFormProps) {
           owner_id: data.ownerId,
           priority: data.priority,
           estimated_deal_value: cleanDealValue,
-          created_at: data.createdAt ? new Date(data.createdAt).toISOString() : undefined,
-          last_contacted_at: data.lastContactedAt ? new Date(data.lastContactedAt).toISOString() : null,
+          created_at: combinedCreatedAt,
+          last_contacted_at: combinedLastContactedAt,
           location: data.location || null,
           source_link: data.sourceLink || null,
           notes: data.notes || undefined,
@@ -241,8 +272,8 @@ export function LeadForm({ initialData, onSuccess }: LeadFormProps) {
           owner_id: data.ownerId,
           priority: data.priority,
           estimated_deal_value: cleanDealValue,
-          created_at: data.createdAt ? new Date(data.createdAt).toISOString() : undefined,
-          last_contacted_at: data.lastContactedAt ? new Date(data.lastContactedAt).toISOString() : undefined,
+          created_at: combinedCreatedAt,
+          last_contacted_at: combinedLastContactedAt || undefined,
           location: data.location || undefined,
           next_followup_date: combinedFollowUp || undefined,
           notes: data.notes || undefined,
@@ -469,32 +500,63 @@ export function LeadForm({ initialData, onSuccess }: LeadFormProps) {
           </div>
 
           <div className="grid sm:grid-cols-2 gap-5">
-            <FormField
-              control={form.control}
-              name="createdAt"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Last Creation Date</FormLabel>
-                  <FormControl>
-                    <Input type="date" className="bg-background border-input shadow-sm transition-colors hover:border-foreground/20 focus-visible:ring-1" {...field} value={field.value || ""} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            <FormField
-              control={form.control}
-              name="lastContactedAt"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Last Contacted Date</FormLabel>
-                  <FormControl>
-                    <Input type="date" className="bg-background border-input shadow-sm transition-colors hover:border-foreground/20 focus-visible:ring-1" {...field} value={field.value || ""} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
+            <div className="grid grid-cols-2 gap-3">
+              <FormField
+                control={form.control}
+                name="createdAt"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Last Creation Date</FormLabel>
+                    <FormControl>
+                      <Input type="date" className="bg-background border-input shadow-sm transition-colors hover:border-foreground/20 focus-visible:ring-1" {...field} value={field.value || ""} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
+                name="createdAtTime"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Creation Time</FormLabel>
+                    <FormControl>
+                      <Input type="time" className="bg-background border-input shadow-sm transition-colors hover:border-foreground/20 focus-visible:ring-1" {...field} value={field.value || ""} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            </div>
+
+            <div className="grid grid-cols-2 gap-3">
+              <FormField
+                control={form.control}
+                name="lastContactedAt"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Last Contacted Date</FormLabel>
+                    <FormControl>
+                      <Input type="date" className="bg-background border-input shadow-sm transition-colors hover:border-foreground/20 focus-visible:ring-1" {...field} value={field.value || ""} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
+                name="lastContactedAtTime"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Contacted Time</FormLabel>
+                    <FormControl>
+                      <Input type="time" className="bg-background border-input shadow-sm transition-colors hover:border-foreground/20 focus-visible:ring-1" {...field} value={field.value || ""} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            </div>
           </div>
 
           <div className="grid sm:grid-cols-2 gap-5">

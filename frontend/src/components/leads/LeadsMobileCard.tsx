@@ -100,7 +100,7 @@ export default function LeadsMobileCard({
                 )}
                 {lead.lastContactedAt && (
                     <p className="text-xs mt-1 text-[#737373]">
-                        Last Contacted: {lead.lastContactedAt.includes('T') ? format(new Date(lead.lastContactedAt), "MMM d, yyyy") : lead.lastContactedAt}
+                        Last Contacted: {lead.lastContactedAt.includes('T') ? format(new Date(lead.lastContactedAt), "MMM d, yyyy · h:mm a") : lead.lastContactedAt}
                     </p>
                 )}
             </div>

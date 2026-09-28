@@ -215,9 +215,24 @@ export function LeadInfoCard({ lead }: LeadInfoCardProps) {
               <Calendar className="h-4 w-4" /> Last Creation Date
             </span>
             <span className="font-medium">
-              {new Date(lead.createdAt).toLocaleDateString("en-IN", {
-                day: "numeric", month: "short", year: "numeric"
-              })}
+              {lead.createdAt ? (
+                (() => {
+                  try {
+                    const d = new Date(lead.createdAt);
+                    if (isNaN(d.getTime())) return lead.createdAt;
+                    return d.toLocaleString("en-IN", {
+                      day: "numeric",
+                      month: "short",
+                      year: "numeric",
+                      hour: "numeric",
+                      minute: "2-digit",
+                      hour12: true,
+                    });
+                  } catch {
+                    return lead.createdAt;
+                  }
+                })()
+              ) : "—"}
             </span>
           </div>
 
@@ -226,9 +241,24 @@ export function LeadInfoCard({ lead }: LeadInfoCardProps) {
               <Calendar className="h-4 w-4" /> Last Contacted
             </span>
             <span className="font-medium">
-              {lead.lastContactedAt ? new Date(lead.lastContactedAt).toLocaleDateString("en-IN", {
-                day: "numeric", month: "short", year: "numeric"
-              }) : "Never"}
+              {lead.lastContactedAt ? (
+                (() => {
+                  try {
+                    const d = new Date(lead.lastContactedAt);
+                    if (isNaN(d.getTime())) return lead.lastContactedAt;
+                    return d.toLocaleString("en-IN", {
+                      day: "numeric",
+                      month: "short",
+                      year: "numeric",
+                      hour: "numeric",
+                      minute: "2-digit",
+                      hour12: true,
+                    });
+                  } catch {
+                    return lead.lastContactedAt;
+                  }
+                })()
+              ) : "Never"}
             </span>
           </div>
 

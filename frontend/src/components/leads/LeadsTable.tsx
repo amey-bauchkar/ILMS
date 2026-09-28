@@ -92,6 +92,9 @@ function formatDateSafely(dateStr?: string | null) {
     try {
         const d = new Date(dateStr);
         if (isNaN(d.getTime())) return dateStr;
+        if (dateStr.includes("T") || dateStr.includes(":")) {
+            return format(d, "MMM d, yyyy · h:mm a");
+        }
         return format(d, "MMM d, yyyy");
     } catch {
         return dateStr;
