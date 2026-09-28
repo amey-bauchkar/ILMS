@@ -323,7 +323,7 @@ export default function LeadsTable() {
                             <TableHead className="hidden lg:table-cell text-xs uppercase tracking-wide text-[#737373] font-medium">
                                 Last Creation Date
                             </TableHead>
-                            <TableHead className="text-right text-xs uppercase tracking-wide text-[#737373] font-medium pr-4 min-w-[150px]">
+                            <TableHead className="text-center text-xs uppercase tracking-wide text-[#737373] font-medium px-2 w-[80px]">
                                 Action
                             </TableHead>
                         </TableRow>
@@ -395,8 +395,8 @@ export default function LeadsTable() {
                                         <TableCell className="hidden lg:table-cell text-[#737373] text-sm">
                                             {formatDateSafely(lead.createdAt) ?? <span className="text-[#525252]">—</span>}
                                         </TableCell>
-                                        <TableCell className="text-right pr-4 whitespace-nowrap">
-                                            <div className="flex items-center justify-end gap-1">
+                                        <TableCell className="text-center px-2 whitespace-nowrap w-[80px]">
+                                            <div className="flex items-center justify-center gap-1">
                                                 <Button
                                                     variant="ghost"
                                                     size="icon"
