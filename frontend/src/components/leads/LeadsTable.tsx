@@ -406,34 +406,34 @@ export default function LeadsTable() {
                                             {formatDateSafely(lead.createdAt) ?? <span className="text-[#525252]">—</span>}
                                         </TableCell>
                                         <TableCell className="text-right pr-4 whitespace-nowrap">
-                                            <div className="flex items-center justify-end gap-1.5">
+                                            <div className="flex items-center justify-end gap-1">
                                                 <Button
                                                     variant="ghost"
-                                                    size="sm"
-                                                    className="h-8 px-2.5 text-[#a3a3a3] hover:text-white hover:bg-[#262626] transition-colors gap-1.5"
+                                                    size="icon"
+                                                    className="h-8 w-8 text-[#a3a3a3] hover:text-primary hover:bg-primary/10 transition-colors rounded-lg"
                                                     onClick={(e) => {
                                                         e.preventDefault();
                                                         e.stopPropagation();
                                                         setEditingLead(lead);
                                                     }}
                                                     title="Edit Lead"
+                                                    aria-label="Edit Lead"
                                                 >
-                                                    <Pencil className="h-3.5 w-3.5 text-primary" />
-                                                    <span className="text-xs font-medium">Edit</span>
+                                                    <Pencil className="h-4 w-4 text-primary" />
                                                 </Button>
                                                 <Button
                                                     variant="ghost"
-                                                    size="sm"
-                                                    className="h-8 px-2.5 text-red-500 hover:text-red-400 hover:bg-red-500/10 transition-colors gap-1.5"
+                                                    size="icon"
+                                                    className="h-8 w-8 text-red-500 hover:text-red-400 hover:bg-red-500/10 transition-colors rounded-lg"
                                                     onClick={(e) => {
                                                         e.preventDefault();
                                                         e.stopPropagation();
                                                         setDeletingLead(lead);
                                                     }}
                                                     title="Delete Lead"
+                                                    aria-label="Delete Lead"
                                                 >
-                                                    <Trash2 className="h-3.5 w-3.5 text-red-500" />
-                                                    <span className="text-xs font-medium text-red-400">Delete</span>
+                                                    <Trash2 className="h-4 w-4 text-red-500" />
                                                 </Button>
                                             </div>
                                         </TableCell>
