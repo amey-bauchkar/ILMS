@@ -5,6 +5,42 @@ import { createClient } from '@/lib/supabase/server';
 // Gap #5 Fix: CSV export for Admin + Client Manager.
 // ============================================================
 
+function formatExportDateTime(dateVal?: string | null): string {
+  if (!dateVal) return '';
+  try {
+    let d: Date;
+    if (typeof dateVal === 'string' && dateVal.length === 10 && !dateVal.includes('T')) {
+      d = new Date(`${dateVal}T10:00:00+05:30`);
+    } else {
+      d = new Date(dateVal);
+    }
+    if (isNaN(d.getTime())) return String(dateVal);
+
+    const formatter = new Intl.DateTimeFormat('en-IN', {
+      timeZone: 'Asia/Kolkata',
+      year: 'numeric',
+      month: '2-digit',
+      day: '2-digit',
+      hour: '2-digit',
+      minute: '2-digit',
+      hour12: true,
+    });
+
+    const parts = formatter.formatToParts(d);
+    const getPart = (type: string) => parts.find((p) => p.type === type)?.value || '';
+    const day = getPart('day');
+    const month = getPart('month');
+    const year = getPart('year');
+    const hour = getPart('hour');
+    const minute = getPart('minute');
+    const dayPeriod = (getPart('dayPeriod') || '').toUpperCase();
+
+    return `${year}-${month}-${day} ${hour}:${minute} ${dayPeriod}`.trim();
+  } catch {
+    return String(dateVal || '');
+  }
+}
+
 /**
  * Get leads as flat data for CSV export.
  * Joins status name and owner name for readable output.
@@ -27,6 +63,8 @@ export async function getLeadsForExport(filters: {
       phone,
       email,
       source,
+      custom_fields,
+      location,
       status:statuses!leads_status_id_fkey(name),
       owner:users!leads_owner_id_fkey(name),
       priority,
@@ -55,23 +93,24 @@ export async function getLeadsForExport(filters: {
     'Company': lead.company_name || '',
     'Phone': lead.phone,
     'Email': lead.email || '',
-    'Source': lead.source,
+    'Source': (lead.custom_fields as any)?.source || lead.source || '',
     'Status': lead.status?.name || '',
     'Owner': lead.owner?.name || '',
     'Priority': lead.priority,
-    'Estimated Deal Value': lead.estimated_deal_value,
-    'Next Follow-up': lead.next_followup_date || '',
-    'Last Contacted': lead.last_contacted_at || '',
+    'Estimated Deal Value': lead.estimated_deal_value != null ? lead.estimated_deal_value : '',
+    'Location': (lead.custom_fields as any)?.location || lead.location || '',
+    'Next Follow-up': formatExportDateTime(lead.next_followup_date),
+    'Last Contacted': formatExportDateTime(lead.last_contacted_at),
     'Lost Reason': lead.lost_reason || '',
     'Lost Details': lead.lost_reason_details || '',
     'Tags': lead.lead_tags?.map((lt: any) => lt.tags?.name).filter(Boolean).join(', ') || '',
-    'Created': lead.created_at,
+    'Created': formatExportDateTime(lead.created_at),
   }));
 }
 
 /**
  * Convert array of objects to CSV string.
- * Includes formula injection protection (CWE-1236).
+ * Includes formula injection protection (CWE-1236) and UTF-8 BOM for Excel.
  */
 export function toCsv(data: Record<string, unknown>[]): string {
   if (data.length === 0) return '';
@@ -98,6 +137,7 @@ export function toCsv(data: Record<string, unknown>[]): string {
     ),
   ];
 
-  return csvRows.join('\n');
+  // Prepend UTF-8 BOM so Excel opens CSVs correctly with all character sets and formats
+  return '\uFEFF' + csvRows.join('\n');
 }
 

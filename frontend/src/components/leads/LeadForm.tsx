@@ -55,6 +55,21 @@ function parseDatePart(isoOrDateStr?: string | null): string {
   }
 }
 
+function getCurrentTimeString(): string {
+  const d = new Date();
+  const hours = String(d.getHours()).padStart(2, '0');
+  const minutes = String(d.getMinutes()).padStart(2, '0');
+  return `${hours}:${minutes}`;
+}
+
+function getTodayDateString(): string {
+  const d = new Date();
+  const year = d.getFullYear();
+  const month = String(d.getMonth() + 1).padStart(2, '0');
+  const day = String(d.getDate()).padStart(2, '0');
+  return `${year}-${month}-${day}`;
+}
+
 function parseTimePart(isoOrDateStr?: string | null): string {
   if (!isoOrDateStr) return "10:00";
   try {
@@ -129,8 +144,8 @@ export function LeadForm({ initialData, onSuccess }: LeadFormProps) {
       priority: initialData?.priority || "Warm",
       ownerId: initialData?.ownerId || user?.id || "",
       dealValue: initialData?.dealValue || undefined,
-      createdAt: parseDatePart(initialData?.createdAt),
-      createdAtTime: initialData?.createdAtTime || (initialData?.createdAt && initialData.createdAt.includes('T') ? parseTimePart(initialData.createdAt) : ""),
+      createdAt: parseDatePart(initialData?.createdAt) || getTodayDateString(),
+      createdAtTime: initialData?.createdAtTime || (initialData?.createdAt && initialData.createdAt.includes('T') ? parseTimePart(initialData.createdAt) : getCurrentTimeString()),
       lastContactedAt: parseDatePart(initialData?.lastContactedAt),
       lastContactedAtTime: initialData?.lastContactedAtTime || (initialData?.lastContactedAt && initialData.lastContactedAt.includes('T') ? parseTimePart(initialData.lastContactedAt) : ""),
       location: initialData?.location || "",
@@ -157,8 +172,8 @@ export function LeadForm({ initialData, onSuccess }: LeadFormProps) {
         priority: initialData.priority || "Warm",
         ownerId: initialData.ownerId || user?.id || "",
         dealValue: initialData.dealValue || undefined,
-        createdAt: parseDatePart(initialData.createdAt),
-        createdAtTime: initialData.createdAtTime || (initialData.createdAt && initialData.createdAt.includes('T') ? parseTimePart(initialData.createdAt) : ""),
+        createdAt: parseDatePart(initialData.createdAt) || getTodayDateString(),
+        createdAtTime: initialData.createdAtTime || (initialData.createdAt && initialData.createdAt.includes('T') ? parseTimePart(initialData.createdAt) : getCurrentTimeString()),
         lastContactedAt: parseDatePart(initialData.lastContactedAt),
         lastContactedAtTime: initialData.lastContactedAtTime || (initialData.lastContactedAt && initialData.lastContactedAt.includes('T') ? parseTimePart(initialData.lastContactedAt) : ""),
         location: initialData.location || "",
@@ -211,7 +226,7 @@ export function LeadForm({ initialData, onSuccess }: LeadFormProps) {
 
       let combinedCreatedAt: string | undefined = undefined;
       if (data.createdAt && data.createdAt.trim() !== "") {
-        const time = data.createdAtTime && data.createdAtTime.trim() !== "" ? data.createdAtTime : "00:00";
+        const time = data.createdAtTime && data.createdAtTime.trim() !== "" ? data.createdAtTime : getCurrentTimeString();
         try {
           combinedCreatedAt = new Date(`${data.createdAt}T${time}:00`).toISOString();
         } catch {
@@ -221,7 +236,7 @@ export function LeadForm({ initialData, onSuccess }: LeadFormProps) {
 
       let combinedLastContactedAt: string | null = null;
       if (data.lastContactedAt && data.lastContactedAt.trim() !== "") {
-        const time = data.lastContactedAtTime && data.lastContactedAtTime.trim() !== "" ? data.lastContactedAtTime : "00:00";
+        const time = data.lastContactedAtTime && data.lastContactedAtTime.trim() !== "" ? data.lastContactedAtTime : getCurrentTimeString();
         try {
           combinedLastContactedAt = new Date(`${data.lastContactedAt}T${time}:00`).toISOString();
         } catch {
