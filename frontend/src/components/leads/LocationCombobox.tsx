@@ -426,16 +426,18 @@ export function LocationCombobox({
                     </p>
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-1 px-1">
                       {[
-                        { name: "Andheri, Mumbai, Maharashtra, India", flag: "🇮🇳" },
-                        { name: "Bandra Kurla Complex (BKC), Mumbai, Maharashtra, India", flag: "🇮🇳" },
-                        { name: "Dadar, Mumbai, Maharashtra, India", flag: "🇮🇳" },
-                        { name: "Borivali, Mumbai, Maharashtra, India", flag: "🇮🇳" },
+                        { name: "Andheri East (MIDC / SEEPZ), Mumbai, Maharashtra, India", flag: "🇮🇳" },
+                        { name: "Andheri West (Lokhandwala / Versova), Mumbai, Maharashtra, India", flag: "🇮🇳" },
+                        { name: "Bandra West (Linking Rd / Bandstand), Mumbai, Maharashtra, India", flag: "🇮🇳" },
+                        { name: "Bandra East (BKC / Kalanagar), Mumbai, Maharashtra, India", flag: "🇮🇳" },
+                        { name: "Dadar West (Shivaji Park), Mumbai, Maharashtra, India", flag: "🇮🇳" },
+                        { name: "Borivali West (IC Colony), Mumbai, Maharashtra, India", flag: "🇮🇳" },
+                        { name: "Thane West (Ghodbunder Road), Thane, Maharashtra, India", flag: "🇮🇳" },
                         { name: "Cyber City, Gurugram, Delhi NCR, India", flag: "🇮🇳" },
                         { name: "Whitefield, Bengaluru, Karnataka, India", flag: "🇮🇳" },
                         { name: "Hinjewadi IT Park, Pune, Maharashtra, India", flag: "🇮🇳" },
                         { name: "Dubai Marina, Dubai, United Arab Emirates", flag: "🇦🇪" },
                         { name: "London King's Cross, Greater London, United Kingdom", flag: "🇬🇧" },
-                        { name: "Manhattan, New York, United States", flag: "🇺🇸" },
                       ].map((item) => (
                         <button
                           key={item.name}
