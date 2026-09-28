@@ -31,6 +31,7 @@ import { createLead, updateLead, deleteLead } from "@/actions/leads";
 import { TagManager } from "./TagManager";
 import { SourceCombobox } from "./SourceCombobox";
 import { LocationCombobox } from "./LocationCombobox";
+import { PhoneInputWithCountry } from "./PhoneInputWithCountry";
 import { User, FileText, Tag as TagIcon, Banknote, ListTodo, Loader2, Link2, Trash2 } from "lucide-react";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { toast } from "sonner";
@@ -317,7 +318,12 @@ export function LeadForm({ initialData, onSuccess }: LeadFormProps) {
                 <FormItem>
                   <FormLabel>Phone *</FormLabel>
                   <FormControl>
-                    <Input type="tel" placeholder="+91 9876543210" className="bg-background border-input shadow-sm transition-colors hover:border-foreground/20 focus-visible:ring-1" {...field} />
+                    <PhoneInputWithCountry
+                      value={field.value || ""}
+                      onChange={field.onChange}
+                      location={form.watch("location")}
+                      disabled={saving}
+                    />
                   </FormControl>
                   <FormMessage />
                 </FormItem>

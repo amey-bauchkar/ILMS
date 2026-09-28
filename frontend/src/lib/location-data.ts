@@ -2747,3 +2747,147 @@ export function searchLocations(query: string, maxResults: number = 30): Locatio
 
   return results;
 }
+
+export interface CountryDialInfo {
+  name: string;
+  code: string;
+  dialCode: string;
+  flag: string;
+  placeholder: string;
+}
+
+export const COUNTRY_DIAL_LIST: CountryDialInfo[] = [
+  { name: "India", code: "IN", dialCode: "+91", flag: "🇮🇳", placeholder: "+91 98765 43210" },
+  { name: "United States", code: "US", dialCode: "+1", flag: "🇺🇸", placeholder: "+1 (555) 000-0000" },
+  { name: "United Kingdom", code: "GB", dialCode: "+44", flag: "🇬🇧", placeholder: "+44 7911 123456" },
+  { name: "United Arab Emirates", code: "AE", dialCode: "+971", flag: "🇦🇪", placeholder: "+971 50 123 4567" },
+  { name: "Canada", code: "CA", dialCode: "+1", flag: "🇨🇦", placeholder: "+1 (555) 000-0000" },
+  { name: "Australia", code: "AU", dialCode: "+61", flag: "🇦🇺", placeholder: "+61 412 345 678" },
+  { name: "Singapore", code: "SG", dialCode: "+65", flag: "🇸🇬", placeholder: "+65 8123 4567" },
+  { name: "Saudi Arabia", code: "SA", dialCode: "+966", flag: "🇸🇦", placeholder: "+966 50 123 4567" },
+  { name: "Qatar", code: "QA", dialCode: "+974", flag: "🇶🇦", placeholder: "+974 3312 3456" },
+  { name: "Kuwait", code: "KW", dialCode: "+965", flag: "🇰🇼", placeholder: "+965 9123 4567" },
+  { name: "Oman", code: "OM", dialCode: "+968", flag: "🇴🇲", placeholder: "+968 9123 4567" },
+  { name: "Bahrain", code: "BH", dialCode: "+973", flag: "🇧🇭", placeholder: "+973 3912 3456" },
+  { name: "Germany", code: "DE", dialCode: "+49", flag: "🇩🇪", placeholder: "+49 151 23456789" },
+  { name: "France", code: "FR", dialCode: "+33", flag: "🇫🇷", placeholder: "+33 6 12 34 56 78" },
+  { name: "Japan", code: "JP", dialCode: "+81", flag: "🇯🇵", placeholder: "+81 90 1234 5678" },
+  { name: "Malaysia", code: "MY", dialCode: "+60", flag: "🇲🇾", placeholder: "+60 12-345 6789" },
+  { name: "Indonesia", code: "ID", dialCode: "+62", flag: "🇮🇩", placeholder: "+62 812-3456-7890" },
+  { name: "Thailand", code: "TH", dialCode: "+66", flag: "🇹🇭", placeholder: "+66 81 234 5678" },
+  { name: "Philippines", code: "PH", dialCode: "+63", flag: "🇵🇭", placeholder: "+63 917 123 4567" },
+  { name: "Pakistan", code: "PK", dialCode: "+92", flag: "🇵🇰", placeholder: "+92 300 1234567" },
+  { name: "Bangladesh", code: "BD", dialCode: "+880", flag: "🇧🇩", placeholder: "+880 1712-345678" },
+  { name: "Nepal", code: "NP", dialCode: "+977", flag: "🇳🇵", placeholder: "+977 984-1234567" },
+  { name: "Sri Lanka", code: "LK", dialCode: "+94", flag: "🇱🇰", placeholder: "+94 71 234 5678" },
+  { name: "South Africa", code: "ZA", dialCode: "+27", flag: "🇿🇦", placeholder: "+27 82 123 4567" },
+  { name: "New Zealand", code: "NZ", dialCode: "+64", flag: "🇳🇿", placeholder: "+64 21 123 4567" },
+  { name: "Switzerland", code: "CH", dialCode: "+41", flag: "🇨🇭", placeholder: "+41 79 123 45 67" },
+  { name: "Netherlands", code: "NL", dialCode: "+31", flag: "🇳🇱", placeholder: "+31 6 12345678" },
+  { name: "Italy", code: "IT", dialCode: "+39", flag: "🇮🇹", placeholder: "+39 320 123 4567" },
+  { name: "Spain", code: "ES", dialCode: "+34", flag: "🇪🇸", placeholder: "+34 612 34 56 78" },
+  { name: "Ireland", code: "IE", dialCode: "+353", flag: "🇮🇪", placeholder: "+353 87 123 4567" },
+  { name: "Sweden", code: "SE", dialCode: "+46", flag: "🇸🇪", placeholder: "+46 70 123 45 67" },
+  { name: "Turkey", code: "TR", dialCode: "+90", flag: "🇹🇷", placeholder: "+90 532 123 45 67" },
+  { name: "Egypt", code: "EG", dialCode: "+20", flag: "🇪🇬", placeholder: "+20 100 123 4567" },
+  { name: "Brazil", code: "BR", dialCode: "+55", flag: "🇧🇷", placeholder: "+55 (11) 98765-4321" },
+  { name: "Mexico", code: "MX", dialCode: "+52", flag: "🇲🇽", placeholder: "+52 55 1234 5678" },
+  { name: "South Korea", code: "KR", dialCode: "+82", flag: "🇰🇷", placeholder: "+82 10-1234-5678" },
+  { name: "China", code: "CN", dialCode: "+86", flag: "🇨🇳", placeholder: "+86 138 0013 8000" },
+  { name: "Russia", code: "RU", dialCode: "+7", flag: "🇷🇺", placeholder: "+7 (999) 123-45-67" },
+  { name: "Vietnam", code: "VN", dialCode: "+84", flag: "🇻🇳", placeholder: "+84 91 234 56 78" },
+  { name: "Austria", code: "AT", dialCode: "+43", flag: "🇦🇹", placeholder: "+43 664 1234567" },
+  { name: "Belgium", code: "BE", dialCode: "+32", flag: "🇧🇪", placeholder: "+32 470 12 34 56" },
+  { name: "Chile", code: "CL", dialCode: "+56", flag: "🇨🇱", placeholder: "+56 9 1234 5678" },
+  { name: "Colombia", code: "CO", dialCode: "+57", flag: "🇨🇴", placeholder: "+57 300 1234567" },
+  { name: "Czech Republic", code: "CZ", dialCode: "+420", flag: "🇨🇿", placeholder: "+420 601 123 456" },
+  { name: "Denmark", code: "DK", dialCode: "+45", flag: "🇩🇰", placeholder: "+45 20 12 34 56" },
+  { name: "Finland", code: "FI", dialCode: "+358", flag: "🇫🇮", placeholder: "+358 40 1234567" },
+  { name: "Greece", code: "GR", dialCode: "+30", flag: "🇬🇷", placeholder: "+30 691 234 5678" },
+  { name: "Hungary", code: "HU", dialCode: "+36", flag: "🇭🇺", placeholder: "+36 20 123 4567" },
+  { name: "Israel", code: "IL", dialCode: "+972", flag: "🇮🇱", placeholder: "+972 50-123-4567" },
+  { name: "Jordan", code: "JO", dialCode: "+962", flag: "🇯🇴", placeholder: "+962 7 9012 3456" },
+  { name: "Kenya", code: "KE", dialCode: "+254", flag: "🇰🇪", placeholder: "+254 712 345678" },
+  { name: "Lebanon", code: "LB", dialCode: "+961", flag: "🇱🇧", placeholder: "+961 3 123 456" },
+  { name: "Luxembourg", code: "LU", dialCode: "+352", flag: "🇱🇺", placeholder: "+352 621 123 456" },
+  { name: "Maldives", code: "MV", dialCode: "+960", flag: "🇲🇻", placeholder: "+960 771-2345" },
+  { name: "Mauritius", code: "MU", dialCode: "+230", flag: "🇲🇺", placeholder: "+230 5251 2345" },
+  { name: "Morocco", code: "MA", dialCode: "+212", flag: "🇲🇦", placeholder: "+212 661-123456" },
+  { name: "Nigeria", code: "NG", dialCode: "+234", flag: "🇳🇬", placeholder: "+234 802 123 4567" },
+  { name: "Norway", code: "NO", dialCode: "+47", flag: "🇳🇴", placeholder: "+47 912 34 567" },
+  { name: "Peru", code: "PE", dialCode: "+51", flag: "🇵🇪", placeholder: "+51 912 345 678" },
+  { name: "Poland", code: "PL", dialCode: "+48", flag: "🇵🇱", placeholder: "+48 512 345 678" },
+  { name: "Portugal", code: "PT", dialCode: "+351", flag: "🇵🇹", placeholder: "+351 912 345 678" },
+  { name: "Romania", code: "RO", dialCode: "+40", flag: "🇷🇴", placeholder: "+40 712 345 678" },
+  { name: "Ukraine", code: "UA", dialCode: "+380", flag: "🇺🇦", placeholder: "+380 50 123 4567" },
+  { name: "Afghanistan", code: "AF", dialCode: "+93", flag: "🇦🇫", placeholder: "+93 70 123 4567" },
+  { name: "Albania", code: "AL", dialCode: "+355", flag: "🇦🇱", placeholder: "+355 68 123 4567" },
+  { name: "Algeria", code: "DZ", dialCode: "+213", flag: "🇩🇿", placeholder: "+213 551 23 45 67" },
+  { name: "Argentina", code: "AR", dialCode: "+54", flag: "🇦🇷", placeholder: "+54 9 11 1234-5678" },
+];
+
+export const DEFAULT_COUNTRY_DIAL: CountryDialInfo = COUNTRY_DIAL_LIST[0]; // India (+91)
+
+export function getCountryDialInfo(countryNameOrCode?: string | null): CountryDialInfo {
+  if (!countryNameOrCode || !countryNameOrCode.trim()) return DEFAULT_COUNTRY_DIAL;
+  const q = countryNameOrCode.trim().toLowerCase();
+
+  const found = COUNTRY_DIAL_LIST.find(
+    (c) =>
+      c.name.toLowerCase() === q ||
+      c.code.toLowerCase() === q ||
+      c.dialCode.toLowerCase() === q
+  );
+
+  if (found) return found;
+
+  // Partial search
+  const partial = COUNTRY_DIAL_LIST.find(
+    (c) => q.includes(c.name.toLowerCase()) || c.name.toLowerCase().includes(q)
+  );
+
+  return partial || DEFAULT_COUNTRY_DIAL;
+}
+
+export function extractCountryFromLocation(location?: string | null): CountryDialInfo {
+  if (!location || !location.trim()) return DEFAULT_COUNTRY_DIAL;
+
+  const loc = location.trim();
+  const parts = loc.split(",").map((p) => p.trim());
+  const lastPart = parts[parts.length - 1];
+
+  // Try last segment first (e.g. "Andheri, Mumbai, Maharashtra, India" -> "India")
+  if (lastPart) {
+    const directMatch = COUNTRY_DIAL_LIST.find(
+      (c) => c.name.toLowerCase() === lastPart.toLowerCase()
+    );
+    if (directMatch) return directMatch;
+  }
+
+  // Search across full location string
+  const lowerLoc = loc.toLowerCase();
+  for (const c of COUNTRY_DIAL_LIST) {
+    if (lowerLoc.includes(c.name.toLowerCase())) {
+      return c;
+    }
+  }
+
+  return DEFAULT_COUNTRY_DIAL;
+}
+
+export function detectCountryFromPhone(phoneNumber?: string | null): CountryDialInfo | null {
+  if (!phoneNumber || !phoneNumber.trim()) return null;
+  const cleanPhone = phoneNumber.trim();
+
+  // Sort dial codes by length descending (e.g. +971 before +97, +353 before +35)
+  const sorted = [...COUNTRY_DIAL_LIST].sort((a, b) => b.dialCode.length - a.dialCode.length);
+
+  for (const c of sorted) {
+    if (cleanPhone.startsWith(c.dialCode)) {
+      return c;
+    }
+  }
+
+  return null;
+}
+
