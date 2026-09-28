@@ -30,6 +30,7 @@ import { useUser } from "@/components/providers/user-provider";
 import { createLead, updateLead, deleteLead } from "@/actions/leads";
 import { TagManager } from "./TagManager";
 import { SourceCombobox } from "./SourceCombobox";
+import { LocationCombobox } from "./LocationCombobox";
 import { User, FileText, Tag as TagIcon, Banknote, ListTodo, Loader2, Link2, Trash2 } from "lucide-react";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { toast } from "sonner";
@@ -495,10 +496,14 @@ export function LeadForm({ initialData, onSuccess }: LeadFormProps) {
               control={form.control}
               name="location"
               render={({ field }) => (
-                <FormItem>
+                <FormItem className="sm:col-span-2">
                   <FormLabel>Location / Place</FormLabel>
                   <FormControl>
-                    <Input placeholder="e.g. Mumbai, India" className="bg-background border-input shadow-sm transition-colors hover:border-foreground/20 focus-visible:ring-1" {...field} value={field.value || ""} />
+                    <LocationCombobox
+                      value={field.value || ""}
+                      onChange={field.onChange}
+                      placeholder="Select or search station, city, state, country..."
+                    />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
