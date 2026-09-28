@@ -314,7 +314,6 @@ export default function LeadsTable() {
                     <TableHeader>
                         <TableRow className="border-b border-[#2e2e2e] hover:bg-transparent">
                             <SortableHead label="Lead Name" sortField="name" />
-                            <SortableHead label="Company" sortField="company" />
                             <SortableHead label="Status" sortField="status" />
                             <SortableHead label="Priority" sortField="priority" />
                             <SortableHead label="Source" sortField="source" />
@@ -333,7 +332,7 @@ export default function LeadsTable() {
                     <TableBody>
                         {paginated.length === 0 ? (
                             <TableRow>
-                                <TableCell colSpan={11} className="text-center py-16">
+                                <TableCell colSpan={10} className="text-center py-16">
                                     <p className="text-[#a3a3a3] text-sm">No leads found.</p>
                                     <p className="text-[#737373] text-xs mt-1">Try adjusting your filters.</p>
                                 </TableCell>
@@ -363,9 +362,6 @@ export default function LeadsTable() {
                                             >
                                                 {lead.name}
                                             </Link>
-                                        </TableCell>
-                                        <TableCell className="text-[#a3a3a3]">
-                                            {lead.company ?? <span className="text-[#525252]">—</span>}
                                         </TableCell>
                                         <TableCell>
                                             <DotBadge color={lead.statusColor} label={lead.status} />
