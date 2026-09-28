@@ -317,12 +317,6 @@ function NotificationCard({
             {item.priority}
           </span>
 
-          {item.dealValue && (
-            <span className="text-[#e5e5e5] font-semibold tabular-nums text-[11px]">
-              ₹{item.dealValue.toLocaleString("en-IN")}
-            </span>
-          )}
-
           <div className="flex items-center gap-1 ml-auto text-[11px] text-[#737373]">
             <div
               className="w-4 h-4 rounded-full flex items-center justify-center text-[8px] font-bold text-white shrink-0"
