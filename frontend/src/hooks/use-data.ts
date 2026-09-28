@@ -19,7 +19,7 @@ export interface EnrichedLead {
   statusColor: string;   // hex color from statuses table
   statusId: string;
   owner: { id: string; name: string; email: string; role: string };
-  priority: "Hot" | "Warm" | "Cold";
+  priority: "Hot" | "Warm" | "Cold" | "Dead";
   tags: string[];
   dealValue: number | null;
   createdAt: string;
@@ -193,6 +193,7 @@ export const priorityColors: Record<string, string> = {
   Hot: "#ef4444",
   Warm: "#e87811",
   Cold: "#3b82f6",
+  Dead: "#71717a",
 };
 
 // ============================================================

@@ -20,7 +20,7 @@ export interface FollowUpNotificationItem {
   email: string | null;
   ownerName: string;
   ownerId: string;
-  priority: "Hot" | "Warm" | "Cold";
+  priority: "Hot" | "Warm" | "Cold" | "Dead";
   dealValue: number | null;
   status: string;
   statusColor: string;

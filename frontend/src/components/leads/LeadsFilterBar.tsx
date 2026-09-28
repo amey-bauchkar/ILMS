@@ -26,7 +26,7 @@ export interface LeadFilters {
     sources: string[];
     ownerIds: string[];
     tags: string[];
-    priority: "Hot" | "Warm" | "Cold" | "All";
+    priority: "Hot" | "Warm" | "Cold" | "Dead" | "All";
 }
 
 export const emptyFilters: LeadFilters = {
@@ -185,7 +185,7 @@ export default function LeadsFilterBar({
                 />
 
                 <div className="flex gap-1">
-                    {(["All", "Hot", "Warm", "Cold"] as const).map((p) => (
+                    {(["All", "Hot", "Warm", "Cold", "Dead"] as const).map((p) => (
                         <Button
                             key={p}
                             size="sm"

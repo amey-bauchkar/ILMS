@@ -45,7 +45,7 @@ export default async function LeadDetailPage({ params }: LeadPageProps) {
     statusColor: row.status?.color || "#737373",
     statusId: row.status_id,
     owner: row.owner || { id: "", name: "Unassigned", email: "", role: "" },
-    priority: row.priority as "Hot" | "Warm" | "Cold",
+    priority: row.priority as "Hot" | "Warm" | "Cold" | "Dead",
     tags: (row.lead_tags || []).map((lt: any) => lt.tags?.name).filter(Boolean),
     dealValue: row.estimated_deal_value,
     createdAt: row.created_at,

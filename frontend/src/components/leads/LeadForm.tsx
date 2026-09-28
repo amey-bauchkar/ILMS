@@ -462,6 +462,7 @@ export function LeadForm({ initialData, onSuccess }: LeadFormProps) {
                       <SelectItem value="Hot">Hot</SelectItem>
                       <SelectItem value="Warm">Warm</SelectItem>
                       <SelectItem value="Cold">Cold</SelectItem>
+                      <SelectItem value="Dead">Dead</SelectItem>
                     </SelectContent>
                   </Select>
                   <FormMessage />

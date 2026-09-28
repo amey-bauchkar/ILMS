@@ -51,7 +51,7 @@ export const leadFormSchema = z.object({
   email: z.union([z.literal(""), z.string().email("Enter a valid email")]).nullable().optional(),
   source: z.string().min(1, "Select a source"),
   status: z.string().min(1, "Select a status"),
-  priority: z.enum(["Hot", "Warm", "Cold"]),
+  priority: z.enum(["Hot", "Warm", "Cold", "Dead"]),
   ownerId: z.string().min(1, "Select an owner"),
   dealValue: z.union([z.number().min(0), z.nan()]).nullable().optional(),
   createdAt: z.string().nullable().optional(),

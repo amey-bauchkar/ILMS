@@ -128,12 +128,16 @@ export function TodaysFollowUps({ leads }: { leads: EnrichedLead[] }) {
                             ? "#ef444420"
                             : lead.priority === "Warm"
                             ? "#e8781120"
+                            : lead.priority === "Dead"
+                            ? "#71717a20"
                             : "#3b82f620",
                         color:
                           lead.priority === "Hot"
                             ? "#ef4444"
                             : lead.priority === "Warm"
                             ? "#e87811"
+                            : lead.priority === "Dead"
+                            ? "#71717a"
                             : "#3b82f6",
                       }}
                     >

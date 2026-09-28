@@ -24,7 +24,7 @@ export type LeadSource =
   | 'Events'
   | 'Other';
 
-export type LeadPriority = 'Hot' | 'Warm' | 'Cold';
+export type LeadPriority = 'Hot' | 'Warm' | 'Cold' | 'Dead';
 
 export type UserRole = 'admin' | 'client_manager' | 'sales';
 
