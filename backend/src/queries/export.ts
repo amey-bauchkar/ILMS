@@ -96,7 +96,7 @@ export async function getLeadsForExport(filters: {
     'Status': lead.status?.name || '',
     'Owner': lead.owner?.name || '',
     'Priority': lead.priority,
-    'Estimated Deal Value': lead.estimated_deal_value != null ? lead.estimated_deal_value : '',
+    'Deal Value': lead.estimated_deal_value != null ? lead.estimated_deal_value : '',
     'Location': (lead.custom_fields as any)?.location || '',
     'Next Follow-up': formatExportDateTime(lead.next_followup_date),
     'Last Contacted': formatExportDateTime(lead.last_contacted_at),

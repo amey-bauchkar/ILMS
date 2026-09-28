@@ -318,7 +318,6 @@ export default function LeadsTable() {
                             <SortableHead label="Priority" sortField="priority" />
                             <SortableHead label="Source" sortField="source" />
                             <SortableHead label="Owner" sortField="ownerName" />
-                            <SortableHead label="Deal Value" sortField="dealValue" align="right" />
                             <SortableHead label="Next Follow-up" sortField="nextFollowUpDate" />
                             <SortableHead label="Last Contacted Date" sortField="lastContactedAt" />
                             <TableHead className="hidden lg:table-cell text-xs uppercase tracking-wide text-[#737373] font-medium">
@@ -332,7 +331,7 @@ export default function LeadsTable() {
                     <TableBody>
                         {paginated.length === 0 ? (
                             <TableRow>
-                                <TableCell colSpan={10} className="text-center py-16">
+                                <TableCell colSpan={9} className="text-center py-16">
                                     <p className="text-[#a3a3a3] text-sm">No leads found.</p>
                                     <p className="text-[#737373] text-xs mt-1">Try adjusting your filters.</p>
                                 </TableCell>
@@ -380,11 +379,6 @@ export default function LeadsTable() {
                                                 </div>
                                                 <span className="text-[#e5e5e5]">{lead.owner.name}</span>
                                             </div>
-                                        </TableCell>
-                                        <TableCell className="text-right tabular-nums text-[#e5e5e5]">
-                                            {lead.dealValue
-                                                ? `₹${lead.dealValue.toLocaleString("en-IN")}`
-                                                : <span className="text-[#525252]">—</span>}
                                         </TableCell>
                                         <TableCell
                                             className={`tabular-nums whitespace-nowrap ${isOverdue ? "text-[#ef4444] font-medium" : "text-[#a3a3a3]"}`}
