@@ -39,7 +39,7 @@ export function UserManagement({ users: initialUsers }: { users: User[] }) {
   const [isInviteOpen, setIsInviteOpen] = useState(false);
   const [email, setEmail] = useState("");
   const [name, setName] = useState("");
-  const [role, setRole] = useState<UserRole>("sales");
+  const [role, setRole] = useState<UserRole>("client_manager");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -52,7 +52,7 @@ export function UserManagement({ users: initialUsers }: { users: User[] }) {
       setIsInviteOpen(false);
       setEmail("");
       setName("");
-      setRole("sales");
+      setRole("client_manager");
       router.refresh();
     } catch (err: any) {
       setError(err.message);
@@ -146,7 +146,6 @@ export function UserManagement({ users: initialUsers }: { users: User[] }) {
                     <SelectContent>
                       <SelectItem value="admin">Admin</SelectItem>
                       <SelectItem value="client_manager">Client Manager</SelectItem>
-                      <SelectItem value="sales">Sales</SelectItem>
                     </SelectContent>
                   </Select>
                 </div>
@@ -184,13 +183,12 @@ export function UserManagement({ users: initialUsers }: { users: User[] }) {
                   >
                     <SelectTrigger className="w-[140px] h-8 text-xs">
                       <SelectValue>
-                        {user.role === "client_manager" ? "Client Manager" : user.role === "admin" ? "Admin" : "Sales"}
+                        {user.role === "client_manager" ? "Client Manager" : user.role === "admin" ? "Admin" : user.role}
                       </SelectValue>
                     </SelectTrigger>
                     <SelectContent>
                       <SelectItem value="admin">Admin</SelectItem>
                       <SelectItem value="client_manager">Client Manager</SelectItem>
-                      <SelectItem value="sales">Sales</SelectItem>
                     </SelectContent>
                   </Select>
                 </TableCell>
