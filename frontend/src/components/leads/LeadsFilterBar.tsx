@@ -20,13 +20,21 @@ import { LEAD_SOURCES } from "@/lib/validations";
 
 const ALL_SOURCES = LEAD_SOURCES;
 
+export const PRIORITY_OPTIONS = [
+    { value: "Hot", label: "Hot", color: "#ef4444" },
+    { value: "Warm", label: "Warm", color: "#e87811" },
+    { value: "Cold", label: "Cold", color: "#3b82f6" },
+    { value: "Dead", label: "Dead", color: "#71717a" },
+];
+
 export interface LeadFilters {
     search: string;
     statuses: string[];
     sources: string[];
     ownerIds: string[];
     tags: string[];
-    priority: "Hot" | "Warm" | "Cold" | "Dead" | "All";
+    priorities: string[];
+    priority?: "Hot" | "Warm" | "Cold" | "Dead" | "All";
 }
 
 export const emptyFilters: LeadFilters = {
@@ -35,6 +43,7 @@ export const emptyFilters: LeadFilters = {
     sources: [],
     ownerIds: [],
     tags: [],
+    priorities: [],
     priority: "All",
 };
 
@@ -45,7 +54,7 @@ function MultiSelectDropdown({
     onChange,
 }: {
     label: string;
-    options: { value: string; label: string }[];
+    options: { value: string; label: string; color?: string }[];
     selected: string[];
     onChange: (vals: string[]) => void;
 }) {
@@ -92,6 +101,12 @@ function MultiSelectDropdown({
                                     checked={selected.includes(opt.value)}
                                     onCheckedChange={() => toggle(opt.value)}
                                 />
+                                {opt.color && (
+                                    <span
+                                        className="w-2.5 h-2.5 rounded-full flex-shrink-0"
+                                        style={{ backgroundColor: opt.color }}
+                                    />
+                                )}
                                 <span className="truncate">{opt.label}</span>
                             </label>
                         ))
@@ -144,7 +159,8 @@ export default function LeadsFilterBar({
         filters.sources.length > 0 ||
         filters.ownerIds.length > 0 ||
         filters.tags.length > 0 ||
-        filters.priority !== "All";
+        (filters.priorities && filters.priorities.length > 0) ||
+        (filters.priority !== undefined && filters.priority !== "All");
 
     return (
         <div className="flex flex-col gap-3 mb-4">
@@ -158,7 +174,7 @@ export default function LeadsFilterBar({
 
                 <MultiSelectDropdown
                     label="Status"
-                    options={statuses.map((s) => ({ value: s.name, label: s.name }))}
+                    options={statuses.map((s) => ({ value: s.name, label: s.name, color: s.color }))}
                     selected={filters.statuses}
                     onChange={(vals) => onChange({ ...filters, statuses: vals })}
                 />
@@ -184,18 +200,12 @@ export default function LeadsFilterBar({
                     onChange={(vals) => onChange({ ...filters, tags: vals })}
                 />
 
-                <div className="flex gap-1">
-                    {(["All", "Hot", "Warm", "Cold", "Dead"] as const).map((p) => (
-                        <Button
-                            key={p}
-                            size="sm"
-                            variant={filters.priority === p ? "default" : "outline"}
-                            onClick={() => onChange({ ...filters, priority: p })}
-                        >
-                            {p}
-                        </Button>
-                    ))}
-                </div>
+                <MultiSelectDropdown
+                    label="Priority"
+                    options={PRIORITY_OPTIONS}
+                    selected={filters.priorities || []}
+                    onChange={(vals) => onChange({ ...filters, priorities: vals })}
+                />
 
                 {hasActiveFilters && (
                     <Button size="sm" variant="ghost" onClick={() => onChange(emptyFilters)}>
@@ -358,7 +368,40 @@ export default function LeadsFilterBar({
                             </Badge>
                         );
                     })}
-                    {filters.priority !== "All" && (
+                    {filters.priorities?.map((p) => {
+                        const priorityColor =
+                            p === "Hot"
+                                ? "#ef4444"
+                                : p === "Warm"
+                                ? "#e87811"
+                                : p === "Cold"
+                                ? "#3b82f6"
+                                : "#71717a";
+                        return (
+                            <Badge
+                                key={p}
+                                style={{ backgroundColor: priorityColor, color: "#fff" }}
+                                className="gap-1"
+                            >
+                                Priority: {p}
+                                <button
+                                    type="button"
+                                    className="ml-0.5 rounded-full hover:bg-black/20 p-0.5"
+                                    onClick={(e) => {
+                                        e.preventDefault();
+                                        e.stopPropagation();
+                                        onChange({
+                                            ...filters,
+                                            priorities: filters.priorities.filter((x) => x !== p),
+                                        });
+                                    }}
+                                >
+                                    <X className="w-3 h-3" />
+                                </button>
+                            </Badge>
+                        );
+                    })}
+                    {filters.priority && filters.priority !== "All" && (!filters.priorities || filters.priorities.length === 0) && (
                         <Badge variant="secondary" className="gap-1">
                             Priority: {filters.priority}
                             <button

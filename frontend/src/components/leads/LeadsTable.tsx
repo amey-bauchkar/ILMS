@@ -67,7 +67,8 @@ function applyFilters(leads: EnrichedLead[], f: LeadFilters): EnrichedLead[] {
         if (f.sources.length > 0 && !f.sources.includes(l.source)) return false;
         if (f.ownerIds.length > 0 && !f.ownerIds.includes(l.owner.id)) return false;
         if (f.tags.length > 0 && !f.tags.some((t) => l.tags.includes(t))) return false;
-        if (f.priority !== "All" && l.priority !== f.priority) return false;
+        if (f.priorities && f.priorities.length > 0 && !f.priorities.includes(l.priority)) return false;
+        if (f.priority && f.priority !== "All" && (!f.priorities || f.priorities.length === 0) && l.priority !== f.priority) return false;
         return true;
     });
 }
