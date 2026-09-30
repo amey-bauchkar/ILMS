@@ -183,3 +183,102 @@ export async function getCurrentUser() {
 
   return dbUser;
 }
+
+/**
+ * Admin Update Password — Allows an admin to update password for any user or admin.
+ */
+export async function adminUpdatePassword(formData: FormData) {
+  const adminEmail = (formData.get('adminEmail') as string)?.trim().toLowerCase();
+  const adminPassword = formData.get('adminPassword') as string;
+  const targetEmail = (formData.get('targetEmail') as string)?.trim().toLowerCase();
+  const newPassword = formData.get('newPassword') as string;
+  const confirmPassword = formData.get('confirmPassword') as string;
+
+  if (!adminEmail || !adminPassword) {
+    return { error: 'Admin email and admin password are required for authorization.' };
+  }
+
+  if (!targetEmail || !newPassword) {
+    return { error: 'Target user email and new password are required.' };
+  }
+
+  if (newPassword.length < 8) {
+    return { error: 'New password must be at least 8 characters.' };
+  }
+
+  if (confirmPassword && newPassword !== confirmPassword) {
+    return { error: 'New password and confirmation do not match.' };
+  }
+
+  // 1. Verify admin credentials
+  const supabase = await createClient();
+  const { data: authData, error: authError } = await supabase.auth.signInWithPassword({
+    email: adminEmail,
+    password: adminPassword,
+  });
+
+  if (authError || !authData.user) {
+    return { error: 'Invalid admin credentials. Please verify your admin email and password.' };
+  }
+
+  // 2. Verify admin role in public.users
+  const adminSupabase = await createAdminClient();
+  const { data: adminProfile } = await adminSupabase
+    .from('users')
+    .select('id, role, is_active')
+    .or(`auth_id.eq.${authData.user.id},email.eq.${adminEmail}`)
+    .single();
+
+  if (!adminProfile || adminProfile.role !== 'admin' || adminProfile.is_active === false) {
+    await supabase.auth.signOut();
+    return { error: 'Unauthorized: Only active administrators can update passwords.' };
+  }
+
+  // 3. Find the target user in Supabase Auth
+  const { data: targetProfile } = await adminSupabase
+    .from('users')
+    .select('id, auth_id, email, name')
+    .eq('email', targetEmail)
+    .single();
+
+  let targetAuthId = targetProfile?.auth_id;
+
+  if (!targetAuthId) {
+    const { data: authUsersList, error: listError } = await adminSupabase.auth.admin.listUsers();
+    if (listError) {
+      return { error: 'Failed to look up user in authentication directory.' };
+    }
+    const foundAuthUser = authUsersList.users.find(
+      (u) => u.email?.toLowerCase() === targetEmail
+    );
+    if (foundAuthUser) {
+      targetAuthId = foundAuthUser.id;
+    }
+  }
+
+  if (!targetAuthId) {
+    return { error: `No account found for "${targetEmail}".` };
+  }
+
+  // 4. Update the target user's password
+  const { error: updateError } = await adminSupabase.auth.admin.updateUserById(
+    targetAuthId,
+    {
+      password: newPassword,
+      email_confirm: true,
+    }
+  );
+
+  if (updateError) {
+    console.error('Admin password update error:', updateError);
+    return { error: `Failed to update password: ${updateError.message}` };
+  }
+
+  // Sign out the verification session so user is back on clean login state
+  await supabase.auth.signOut();
+
+  return {
+    success: true,
+    message: `Password updated successfully for ${targetEmail}. You can now sign in with your new password.`,
+  };
+}
