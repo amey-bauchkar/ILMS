@@ -1,6 +1,6 @@
 'use server';
 
-import { createClient } from '@/lib/supabase/server';
+import { createClient, createAdminClient } from '@/lib/supabase/server';
 import { revalidatePath } from 'next/cache';
 import type { UserRole } from '@/types/database';
 import { z } from 'zod';
@@ -38,6 +38,25 @@ async function checkAdmin() {
   }
   
   return { error: null, supabase };
+}
+
+async function checkAdminOrManager() {
+  const supabase = await createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) return { error: 'Not authenticated', supabase: null, adminClient: null };
+  
+  const { data: profile } = await supabase
+    .from('users')
+    .select('role')
+    .eq('auth_id', user.id)
+    .single();
+    
+  if (profile?.role !== 'admin' && profile?.role !== 'client_manager') {
+    return { error: 'Unauthorized: Admin or Client Manager access required', supabase: null, adminClient: null };
+  }
+  
+  const adminClient = await createAdminClient();
+  return { error: null, supabase, adminClient };
 }
 
 // =======================
@@ -228,11 +247,11 @@ export async function createTag(name: string) {
   const parsed = tagSchema.safeParse(name);
   if (!parsed.success) return { error: 'Invalid tag name' };
 
-  const result = await checkAdmin();
+  const result = await checkAdminOrManager();
   if (result.error) return { error: result.error };
-  const supabase = result.supabase!;
+  const client = result.adminClient!;
   
-  const { error } = await supabase
+  const { error } = await client
     .from('tags')
     .insert([{ name, is_active: true, category: null }]);
     
@@ -250,11 +269,11 @@ export async function updateTag(id: string, updates: { name?: string }) {
     if (!parsed.success) return { error: 'Invalid tag name' };
   }
 
-  const result = await checkAdmin();
+  const result = await checkAdminOrManager();
   if (result.error) return { error: result.error };
-  const supabase = result.supabase!;
+  const client = result.adminClient!;
   
-  const { error } = await supabase
+  const { error } = await client
     .from('tags')
     .update(updates)
     .eq('id', id);
@@ -268,11 +287,11 @@ export async function updateTag(id: string, updates: { name?: string }) {
 }
 
 export async function deleteTag(id: string) {
-  const result = await checkAdmin();
+  const result = await checkAdminOrManager();
   if (result.error) return { error: result.error };
-  const supabase = result.supabase!;
+  const client = result.adminClient!;
   
-  const { error } = await supabase
+  const { error } = await client
     .from('tags')
     .delete()
     .eq('id', id);

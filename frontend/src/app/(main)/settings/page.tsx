@@ -39,6 +39,7 @@ export default async function SettingsPage() {
   }
 
   const isAdmin = profile.role === "admin";
+  const canManageTags = isAdmin || profile.role === "client_manager";
 
   let users: User[] = [];
   let statuses: Status[] = [];
@@ -53,6 +54,9 @@ export default async function SettingsPage() {
     
     users = usersRes.data || [];
     statuses = statusesRes.data || [];
+    tags = tagsRes.data || [];
+  } else if (canManageTags) {
+    const tagsRes = await supabase.from("tags").select("*").order("name");
     tags = tagsRes.data || [];
   }
 
@@ -82,10 +86,13 @@ export default async function SettingsPage() {
               <TabsTrigger value="statuses" className="rounded-md px-6 py-2 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground transition-all">
                 Statuses
               </TabsTrigger>
-              <TabsTrigger value="tags" className="rounded-md px-6 py-2 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground transition-all">
-                Tags
-              </TabsTrigger>
             </>
+          )}
+
+          {canManageTags && (
+            <TabsTrigger value="tags" className="rounded-md px-6 py-2 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground transition-all">
+              Tags
+            </TabsTrigger>
           )}
         </TabsList>
         
@@ -159,21 +166,23 @@ export default async function SettingsPage() {
                 </CardContent>
               </Card>
             </TabsContent>
-
-            <TabsContent value="tags" className="focus-visible:outline-none focus-visible:ring-0">
-              <Card className="border-border bg-card/40 backdrop-blur-sm shadow-xl">
-                <CardHeader className="border-b border-border/50 pb-4 mb-4">
-                  <CardTitle className="text-xl">Tag Management</CardTitle>
-                  <CardDescription>
-                    Create and organize tags that can be applied to categorize leads.
-                  </CardDescription>
-                </CardHeader>
-                <CardContent className="px-6 pb-6">
-                  <TagManagement tags={tags} />
-                </CardContent>
-              </Card>
-            </TabsContent>
           </>
+        )}
+
+        {canManageTags && (
+          <TabsContent value="tags" className="focus-visible:outline-none focus-visible:ring-0">
+            <Card className="border-border bg-card/40 backdrop-blur-sm shadow-xl">
+              <CardHeader className="border-b border-border/50 pb-4 mb-4">
+                <CardTitle className="text-xl">Tag Management</CardTitle>
+                <CardDescription>
+                  Create and organize tags that can be applied to categorize leads.
+                </CardDescription>
+              </CardHeader>
+              <CardContent className="px-6 pb-6">
+                <TagManagement tags={tags} />
+              </CardContent>
+            </Card>
+          </TabsContent>
         )}
       </Tabs>
     </div>
