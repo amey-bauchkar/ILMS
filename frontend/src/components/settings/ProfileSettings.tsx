@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useRef } from "react";
 import { useRouter } from "next/navigation";
 import { User } from "@/types/database";
 import { Button } from "@/components/ui/button";
@@ -13,16 +13,19 @@ import { Loader2 } from "lucide-react";
 
 export function ProfileSettings({ profile }: { profile: User }) {
   const router = useRouter();
+  const fileInputRef = useRef<HTMLInputElement>(null);
   const [name, setName] = useState(profile.name);
+  const [avatarUrl, setAvatarUrl] = useState<string | null>(profile.avatar_url || null);
   const [saving, setSaving] = useState(false);
-  const hasChanges = name.trim() !== profile.name;
+  const [uploadingAvatar, setUploadingAvatar] = useState(false);
 
-  const initials = (name || profile.name)
-    .split(' ')
-    .map(n => n[0])
-    .join('')
-    .substring(0, 2)
-    .toUpperCase();
+  const hasChanges = name.trim() !== profile.name || avatarUrl !== (profile.avatar_url || null);
+
+  const cleanName = (name || profile.name || "").replace(/[^a-zA-Z0-9\s]/g, "").trim();
+  const words = cleanName.split(/\s+/).filter(Boolean);
+  const initials = words.length > 1
+    ? (words[0][0] + words[1][0]).toUpperCase()
+    : cleanName.substring(0, 2).toUpperCase() || "U";
 
   const getRoleDisplay = (role: string) => {
     switch (role) {
@@ -33,6 +36,57 @@ export function ProfileSettings({ profile }: { profile: User }) {
     }
   };
 
+  const handleAvatarFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    if (!file.type.startsWith("image/")) {
+      toast.error("Please upload a valid image file");
+      return;
+    }
+
+    if (file.size > 2 * 1024 * 1024) {
+      toast.error("Image file size must be less than 2MB");
+      return;
+    }
+
+    setUploadingAvatar(true);
+    const reader = new FileReader();
+    reader.onload = async () => {
+      const base64Data = reader.result as string;
+      setAvatarUrl(base64Data);
+      try {
+        await updateProfile({ avatar_url: base64Data });
+        toast.success("Profile photo updated!");
+        router.refresh();
+      } catch (err: any) {
+        toast.error("Failed to save avatar: " + err.message);
+      } finally {
+        setUploadingAvatar(false);
+      }
+    };
+    reader.onerror = () => {
+      toast.error("Failed to read image file");
+      setUploadingAvatar(false);
+    };
+    reader.readAsDataURL(file);
+  };
+
+  const handleRemoveAvatar = async () => {
+    setUploadingAvatar(true);
+    try {
+      setAvatarUrl(null);
+      await updateProfile({ avatar_url: null });
+      if (fileInputRef.current) fileInputRef.current.value = "";
+      toast.success("Profile photo removed!");
+      router.refresh();
+    } catch (err: any) {
+      toast.error("Failed to remove avatar: " + err.message);
+    } finally {
+      setUploadingAvatar(false);
+    }
+  };
+
   const handleSave = async () => {
     if (!name.trim() || name.trim().length < 2) {
       toast.error("Name must be at least 2 characters");
@@ -40,7 +94,7 @@ export function ProfileSettings({ profile }: { profile: User }) {
     }
     setSaving(true);
     try {
-      await updateProfile({ name: name.trim() });
+      await updateProfile({ name: name.trim(), avatar_url: avatarUrl });
       toast.success("Profile updated successfully!");
       router.refresh();
     } catch (err: any) {
@@ -52,10 +106,19 @@ export function ProfileSettings({ profile }: { profile: User }) {
 
   return (
     <div className="flex flex-col md:flex-row gap-10">
+      {/* Hidden File Input for Avatar */}
+      <input
+        type="file"
+        ref={fileInputRef}
+        accept="image/*"
+        className="hidden"
+        onChange={handleAvatarFileChange}
+      />
+
       {/* Avatar Section */}
       <div className="flex flex-col items-center gap-4 w-40 shrink-0">
         <Avatar className="w-28 h-28 border-4 border-background shadow-lg">
-          <AvatarImage src={profile.avatar_url || ""} />
+          <AvatarImage src={avatarUrl || ""} />
           <AvatarFallback className="text-4xl font-bold bg-primary text-primary-foreground">
             {initials}
           </AvatarFallback>
@@ -65,17 +128,17 @@ export function ProfileSettings({ profile }: { profile: User }) {
             variant="default" 
             size="sm" 
             className="w-full shadow-md font-medium" 
-            disabled
-            title="Coming soon"
+            disabled={uploadingAvatar}
+            onClick={() => fileInputRef.current?.click()}
           >
-            Upload
+            {uploadingAvatar ? <Loader2 className="w-4 h-4 animate-spin mr-1" /> : "Upload"}
           </Button>
           <Button 
             variant="outline" 
             size="sm" 
-            className="w-full text-destructive" 
-            disabled
-            title="Coming soon"
+            className="w-full text-destructive hover:bg-destructive/10" 
+            disabled={!avatarUrl || uploadingAvatar}
+            onClick={handleRemoveAvatar}
           >
             Remove
           </Button>
