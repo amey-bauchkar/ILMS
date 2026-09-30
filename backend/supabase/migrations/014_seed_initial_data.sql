@@ -13,8 +13,10 @@
 -- The auth trigger will link auth_id after first signup.
 
 INSERT INTO public.users (email, name, role) VALUES
-  ('amey@foremark.in',    'Amey',    'admin'),
-  ('manish@foremark.in',  'Manish',  'admin');
+  ('admin@foremark.in',   'Admin (Master)', 'admin'),
+  ('aish@foremark.in',    'Aish',           'admin'),
+  ('amey@foremark.in',    'Amey',           'admin'),
+  ('manish@foremark.in',  'Manish',         'admin');
 
 -- -------------------------------------------------------
 -- 2. Pipeline Statuses (BRD §2.6 — with colors from mock-data.ts)
