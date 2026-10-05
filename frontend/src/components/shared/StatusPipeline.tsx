@@ -18,7 +18,13 @@ import {
 } from "@/components/ui/select";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
-import { CheckCircle2, Trophy, ChevronRight } from "lucide-react";
+import { 
+  Check, 
+  Trophy, 
+  XCircle, 
+  PauseCircle, 
+  Ban
+} from "lucide-react";
 
 // ---------------------------------------------------------
 // Constants
@@ -37,6 +43,12 @@ type LostReason = (typeof LOST_REASONS)[number];
 
 const TERMINAL_STATUS_NAMES = ["Won", "Lost", "On Hold", "Junk"];
 const SPECIAL_STATUS_NAMES = ["Lost", "On Hold", "Junk"];
+
+const SPECIAL_ICONS: Record<string, React.ElementType> = {
+  Lost: XCircle,
+  "On Hold": PauseCircle,
+  Junk: Ban,
+};
 
 function getStepState(
   statusName: string,
@@ -85,49 +97,48 @@ function ConfirmDialog({
 
   return (
     <Dialog open={open} onOpenChange={(v) => !v && onCancel()}>
-      <DialogContent className="sm:max-w-[400px] w-[92vw]">
+      <DialogContent className="sm:max-w-[420px] w-[92vw] bg-[#121319] border border-white/20 text-white shadow-2xl rounded-2xl">
         <DialogHeader>
-          <DialogTitle>
+          <DialogTitle className="text-lg font-bold text-white flex items-center gap-2">
             {isWon
-              ? "🎉 Mark as Won?"
+              ? "🎉 Mark Lead as Won"
               : isLost
-              ? "Mark as Lost"
-              : `Move to "${targetStatusName}"?`}
+              ? "Mark Lead as Lost"
+              : `Change Status to "${targetStatusName}"?`}
           </DialogTitle>
         </DialogHeader>
 
-        <div className="space-y-3 py-1">
+        <div className="space-y-3 py-2">
           {isWon && (
-            <div className="flex items-center gap-3 p-3 rounded-lg bg-green-500/10 border border-green-500/20">
-              <Trophy className="h-5 w-5 text-green-500 shrink-0" />
-              <p className="text-sm text-foreground">
-                Congratulations! Moving{" "}
-                <span className="font-medium">this lead</span> to{" "}
-                <span className="font-medium text-green-500">Won</span>.
+            <div className="flex items-center gap-3 p-3.5 rounded-xl bg-emerald-500/15 border border-emerald-500/30">
+              <Trophy className="h-6 w-6 text-emerald-400 shrink-0" />
+              <p className="text-sm text-zinc-200">
+                Congratulations! Moving this lead to{" "}
+                <strong className="font-semibold text-emerald-400">Won</strong> will record a closed-won victory.
               </p>
             </div>
           )}
 
           {isLost && (
             <div className="space-y-3">
-              <p className="text-sm text-muted-foreground">
+              <p className="text-xs text-zinc-400">
                 Current status:{" "}
-                <span className="font-medium text-foreground">{currentStatusName}</span>
+                <span className="font-semibold text-white">{currentStatusName}</span>
               </p>
               <div className="space-y-1.5">
-                <label className="text-sm font-medium">
-                  Reason for Loss <span className="text-destructive">*</span>
+                <label className="text-xs font-semibold text-zinc-200">
+                  Reason for Loss <span className="text-red-400">*</span>
                 </label>
                 <Select
                   value={lostReason}
                   onValueChange={(v) => setLostReason(v as LostReason)}
                 >
-                  <SelectTrigger className="w-full bg-background border-input">
+                  <SelectTrigger className="w-full bg-white/[0.05] border-white/20 text-white rounded-xl h-10">
                     <SelectValue placeholder="Select a reason..." />
                   </SelectTrigger>
-                  <SelectContent>
+                  <SelectContent className="bg-[#121319] border border-white/20 text-white rounded-xl z-[150]">
                     {LOST_REASONS.map((r) => (
-                      <SelectItem key={r} value={r}>
+                      <SelectItem key={r} value={r} className="text-zinc-300 hover:text-white hover:bg-white/10">
                         {r}
                       </SelectItem>
                     ))}
@@ -138,25 +149,31 @@ function ConfirmDialog({
           )}
 
           {!isWon && !isLost && (
-            <p className="text-sm text-muted-foreground">
-              Move status from{" "}
-              <span className="font-medium text-foreground">{currentStatusName}</span>{" "}
-              to{" "}
-              <span className="font-medium text-foreground">{targetStatusName}</span>?
+            <p className="text-sm text-zinc-300 leading-relaxed">
+              Are you sure you want to move this lead from{" "}
+              <strong className="text-white font-semibold">{currentStatusName}</strong> to{" "}
+              <strong className="text-white font-semibold">{targetStatusName}</strong>?
             </p>
           )}
         </div>
 
-        <DialogFooter>
-          <Button variant="outline" onClick={onCancel}>
+        <DialogFooter className="gap-2 sm:gap-0 mt-2">
+          <Button variant="outline" onClick={onCancel} className="rounded-xl border-white/20 bg-white/[0.05] text-white hover:bg-white/10">
             Cancel
           </Button>
           <Button
             onClick={handleConfirm}
             disabled={isLost && !lostReason}
-            className={cn(isWon && "bg-green-500 hover:bg-green-500/80 text-white")}
+            className={cn(
+              "rounded-xl font-semibold",
+              isWon
+                ? "bg-emerald-500 hover:bg-emerald-600 text-white shadow-lg shadow-emerald-500/25"
+                : isLost
+                ? "bg-red-600 hover:bg-red-700 text-white shadow-lg shadow-red-600/25"
+                : "bg-primary hover:bg-primary/90 text-white"
+            )}
           >
-            {isWon ? "🎉 Confirm Won" : isLost ? "Mark as Lost" : "Confirm"}
+            {isWon ? "Confirm Won 🎉" : isLost ? "Confirm Lost" : "Update Status"}
           </Button>
         </DialogFooter>
       </DialogContent>
@@ -210,117 +227,55 @@ export function StatusPipeline({ currentStatus, onStatusChange }: StatusPipeline
     setPendingStatusName(null);
   }
 
-  const isTerminal = TERMINAL_STATUS_NAMES.includes(localStatusName);
-  
-  // Find current status color from DB, fallback to gray
+  // Find current status color from DB, fallback to blue
   const currentStatusObj = statuses.find(s => s.name === localStatusName);
-  const currentStatusColor = currentStatusObj?.color || "#737373";
+  const currentStatusColor = currentStatusObj?.color || "#3b82f6";
+  const currentStepIdx = linearPipelineNames.indexOf(localStatusName);
 
-  if (statuses.length === 0) return <div className="h-20 animate-pulse bg-secondary rounded-lg" />;
+  if (statuses.length === 0) return <div className="h-24 animate-pulse bg-secondary/40 rounded-xl" />;
 
   return (
     <div className="space-y-4">
-      {/* Linear pipeline stepper */}
-      <div
-        className="overflow-x-auto pb-2"
-        style={{ WebkitOverflowScrolling: "touch" }}
-        aria-label="Lead status pipeline"
-        role="navigation"
-      >
-        <div className="flex items-center min-w-max gap-0">
-          {linearPipeline.map((statusObj, idx) => {
-            const status = statusObj.name;
-            const state = getStepState(status, localStatusName, linearPipelineNames);
-            const color = statusObj.color;
-            const isLast = idx === linearPipeline.length - 1;
+      {/* Top Status Header */}
+      <div className="flex flex-wrap items-center justify-between gap-3 pb-3 border-b border-border/60">
+        <div className="flex items-center gap-2.5">
+          <span
+            className="w-3 h-3 rounded-full shrink-0 shadow-sm animate-pulse"
+            style={{ backgroundColor: currentStatusColor }}
+          />
+          <div className="flex items-baseline gap-2">
+            <span className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+              Current Status:
+            </span>
+            <span
+              className="text-sm font-bold tracking-tight px-2.5 py-0.5 rounded-full border shadow-2xs"
+              style={{
+                backgroundColor: `${currentStatusColor}20`,
+                borderColor: `${currentStatusColor}50`,
+                color: currentStatusColor,
+              }}
+            >
+              {localStatusName}
+            </span>
+          </div>
 
-            return (
-              <div key={status} className="flex items-center">
-                {/* Step */}
-                <button
-                  type="button"
-                  onClick={() => handleStepClick(status)}
-                  disabled={state === "current"}
-                  aria-current={state === "current" ? "step" : undefined}
-                  className={cn(
-                    "flex flex-col items-center gap-1.5 px-3 py-2 rounded-lg transition-all group focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring",
-                    state === "current" && "cursor-default",
-                    state === "future" && "opacity-50 hover:opacity-80 cursor-pointer",
-                    state === "completed" && "cursor-pointer hover:opacity-80"
-                  )}
-                >
-                  {/* Circle */}
-                  <div
-                    className={cn(
-                      "w-8 h-8 rounded-full flex items-center justify-center transition-all border-2",
-                      state === "completed" && "border-transparent",
-                      state === "current" && "ring-4",
-                      state === "future" && "border-dashed border-border bg-transparent"
-                    )}
-                    style={{
-                      backgroundColor:
-                        state === "completed"
-                          ? color
-                          : state === "current"
-                          ? `${color}20`
-                          : "transparent",
-                      borderColor: state !== "future" ? color : undefined,
-                      // @ts-expect-error CSS custom property
-                      "--tw-ring-color": `${color}30`,
-                    }}
-                  >
-                    {state === "completed" ? (
-                      <CheckCircle2 className="h-4 w-4 text-white" />
-                    ) : state === "current" ? (
-                      <div
-                        className="w-3 h-3 rounded-full"
-                        style={{ backgroundColor: color }}
-                      />
-                    ) : (
-                      <div className="w-2.5 h-2.5 rounded-full bg-border" />
-                    )}
-                  </div>
+          {currentStepIdx >= 0 && (
+            <span className="text-[11px] font-medium text-muted-foreground hidden sm:inline-block">
+              (Stage {currentStepIdx + 1} of {linearPipeline.length})
+            </span>
+          )}
+        </div>
 
-                  {/* Label */}
-                  <span
-                    className={cn(
-                      "text-[10px] font-medium leading-tight text-center max-w-[70px] whitespace-normal",
-                      state === "current" && "font-semibold",
-                      state === "future" && "text-muted-foreground"
-                    )}
-                    style={{ color: state !== "future" ? color : undefined }}
-                  >
-                    {status}
-                  </span>
-                </button>
-
-                {/* Connector */}
-                {!isLast && (
-                  <div
-                    className={cn("h-px w-4 shrink-0 mx-0.5")}
-                    style={{
-                      backgroundColor:
-                        getStepState(linearPipeline[idx + 1].name, localStatusName, linearPipelineNames) !== "future"
-                          ? color
-                          : "var(--border)",
-                      opacity:
-                        getStepState(linearPipeline[idx + 1].name, localStatusName, linearPipelineNames) === "future" ? 0.3 : 1,
-                    }}
-                    aria-hidden="true"
-                  />
-                )}
-              </div>
-            );
-          })}
-
-          {/* Separator for special statuses */}
-          <ChevronRight className="h-4 w-4 text-border mx-2 shrink-0" aria-hidden="true" />
-
-          {/* Special terminal statuses */}
+        {/* Quick Outcome Badges for Special Dispositions */}
+        <div className="flex items-center gap-1.5">
+          <span className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground mr-1 hidden md:inline">
+            Quick Dispositions:
+          </span>
           {specialPipeline.map((statusObj) => {
             const status = statusObj.name;
             const isActive = localStatusName === status;
-            const color = statusObj.color;
+            const color = statusObj.color || "#ef4444";
+            const IconComponent = SPECIAL_ICONS[status] || XCircle;
 
             return (
               <button
@@ -329,58 +284,133 @@ export function StatusPipeline({ currentStatus, onStatusChange }: StatusPipeline
                 onClick={() => handleStepClick(status)}
                 disabled={isActive}
                 className={cn(
-                  "flex flex-col items-center gap-1.5 px-3 py-2 rounded-lg transition-all",
-                  isActive ? "cursor-default" : "opacity-50 hover:opacity-80 cursor-pointer"
+                  "px-2.5 py-1 rounded-lg text-xs font-semibold flex items-center gap-1.5 transition-all border shadow-2xs",
+                  isActive
+                    ? "ring-2 scale-105 cursor-default font-bold"
+                    : "hover:scale-102 hover:shadow-xs cursor-pointer opacity-85 hover:opacity-100"
                 )}
+                style={{
+                  backgroundColor: isActive ? color : `${color}15`,
+                  color: isActive ? "#ffffff" : color,
+                  borderColor: isActive ? color : `${color}40`,
+                }}
               >
-                <div
-                  className="w-8 h-8 rounded-full flex items-center justify-center border-2"
-                  style={{
-                    backgroundColor: isActive ? `${color}20` : "transparent",
-                    borderColor: isActive ? color : "var(--border)",
-                    borderStyle: isActive ? "solid" : "dashed",
-                  }}
-                >
-                  <div
-                    className="w-3 h-3 rounded-full"
-                    style={{ backgroundColor: isActive ? color : "var(--muted-foreground)" }}
-                  />
-                </div>
-                <span
-                  className={cn(
-                    "text-[10px] font-medium text-center max-w-[70px]",
-                    !isActive && "text-muted-foreground"
-                  )}
-                  style={{ color: isActive ? color : undefined }}
-                >
-                  {status}
-                </span>
+                <IconComponent className="w-3.5 h-3.5 shrink-0" />
+                <span>{status}</span>
               </button>
             );
           })}
         </div>
       </div>
 
-      {/* Current status badge */}
-      <div className="flex items-center gap-2">
-        <div
-          className="w-2 h-2 rounded-full"
-          style={{ backgroundColor: currentStatusColor }}
-        />
-        <span className="text-sm text-muted-foreground">
-          Current status:{" "}
-          <span className="font-medium" style={{ color: currentStatusColor }}>
-            {localStatusName}
-          </span>
-        </span>
-        {isTerminal && (
-          <span className="text-xs bg-secondary px-2 py-0.5 rounded-full text-muted-foreground">
-            Terminal
-          </span>
-        )}
+      {/* Main Linear Stepper Pipeline */}
+      <div
+        className="overflow-x-auto py-2 -my-2"
+        style={{ WebkitOverflowScrolling: "touch" }}
+        aria-label="Lead status pipeline"
+        role="navigation"
+      >
+        <div className="flex items-center min-w-max gap-0 px-1">
+          {linearPipeline.map((statusObj, idx) => {
+            const status = statusObj.name;
+            const state = getStepState(status, localStatusName, linearPipelineNames);
+            const color = statusObj.color || "#3b82f6";
+            const isLast = idx === linearPipeline.length - 1;
+
+            return (
+              <div key={status} className="flex items-center">
+                {/* Step Button */}
+                <button
+                  type="button"
+                  onClick={() => handleStepClick(status)}
+                  disabled={state === "current"}
+                  aria-current={state === "current" ? "step" : undefined}
+                  className={cn(
+                    "flex flex-col items-center gap-2 px-3 py-2 rounded-xl transition-all group focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary",
+                    state === "current" && "cursor-default scale-105",
+                    state === "completed" && "cursor-pointer hover:scale-102",
+                    state === "future" && "cursor-pointer hover:scale-102"
+                  )}
+                >
+                  {/* Step Circle Node */}
+                  <div
+                    className={cn(
+                      "w-9 h-9 rounded-full flex items-center justify-center transition-all border-2 shadow-xs",
+                      state === "completed" && "border-transparent text-white font-bold",
+                      state === "current" && "ring-4 ring-offset-2 ring-offset-background",
+                      state === "future" && "border-border/80 bg-secondary/50 dark:bg-zinc-800/90 hover:border-foreground/50 hover:bg-secondary"
+                    )}
+                    style={{
+                      backgroundColor:
+                        state === "completed"
+                          ? color
+                          : state === "current"
+                          ? `${color}25`
+                          : undefined,
+                      borderColor: state !== "future" ? color : undefined,
+                      // @ts-expect-error custom ring variable
+                      "--tw-ring-color": `${color}50`,
+                      boxShadow:
+                        state === "current"
+                          ? `0 0 16px ${color}60`
+                          : undefined,
+                    }}
+                  >
+                    {state === "completed" ? (
+                      <Check className="h-4 w-4 text-white stroke-[3]" />
+                    ) : state === "current" ? (
+                      <div
+                        className="w-3.5 h-3.5 rounded-full shadow-sm"
+                        style={{ backgroundColor: color }}
+                      />
+                    ) : (
+                      <span className="text-xs font-bold text-foreground/70 dark:text-zinc-300">
+                        {idx + 1}
+                      </span>
+                    )}
+                  </div>
+
+                  {/* Step Label with High Contrast */}
+                  <span
+                    className={cn(
+                      "text-xs font-semibold leading-tight text-center max-w-[85px] whitespace-normal transition-colors",
+                      state === "current" && "font-bold text-sm tracking-tight",
+                      state === "completed" && "text-foreground font-semibold",
+                      state === "future" && "text-foreground/80 dark:text-zinc-200 group-hover:text-foreground group-hover:font-semibold"
+                    )}
+                    style={{
+                      color: state === "current" ? color : undefined,
+                    }}
+                  >
+                    {status}
+                  </span>
+                </button>
+
+                {/* Connector Line between Linear Steps */}
+                {!isLast && (
+                  <div
+                    className={cn(
+                      "h-1 w-6 sm:w-10 shrink-0 mx-1 rounded-full transition-all",
+                      getStepState(linearPipeline[idx + 1].name, localStatusName, linearPipelineNames) === "future"
+                        ? "bg-border/80 dark:bg-zinc-700"
+                        : ""
+                    )}
+                    style={{
+                      backgroundColor:
+                        getStepState(linearPipeline[idx + 1].name, localStatusName, linearPipelineNames) !== "future"
+                          ? color
+                          : undefined,
+                    }}
+                    aria-hidden="true"
+                  />
+                )}
+              </div>
+            );
+          })}
+        </div>
       </div>
 
-      {/* Confirmation dialog */}
+      {/* Confirmation Dialog */}
       <ConfirmDialog
         open={dialogOpen}
         targetStatusName={pendingStatusName}
