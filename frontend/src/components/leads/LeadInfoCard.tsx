@@ -64,10 +64,10 @@ export function LeadInfoCard({ lead }: LeadInfoCardProps) {
                 <Pencil className="h-4 w-4" />
                 <span className="sr-only">Edit lead</span>
               </SheetTrigger>
-              <SheetContent className="sm:max-w-[650px] w-[95vw] overflow-y-auto bg-[#101117]/95 border-l border-white/15 backdrop-blur-2xl p-6 text-white">
-                <SheetHeader className="mb-6 pb-4 border-b border-white/10">
-                  <SheetTitle className="text-xl font-bold tracking-tight text-white flex items-center gap-3">
-                    <div className="h-9 w-9 rounded-xl bg-primary/20 border border-primary/30 flex items-center justify-center text-primary shadow-xs">
+              <SheetContent className="sm:max-w-[650px] w-[95vw] overflow-y-auto bg-white border-l border-zinc-200/90 p-6 text-zinc-900 shadow-2xl">
+                <SheetHeader className="mb-6 pb-4 border-b border-zinc-200/80">
+                  <SheetTitle className="text-xl font-bold tracking-tight text-zinc-900 flex items-center gap-3">
+                    <div className="h-9 w-9 rounded-xl bg-primary/10 border border-primary/20 flex items-center justify-center text-primary shadow-xs">
                       <Pencil className="h-4 w-4" />
                     </div>
                     <span>Edit Lead</span>

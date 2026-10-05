@@ -64,14 +64,14 @@ export function TagManager({ tags, onChange, readOnly = false }: TagManagerProps
           <Badge
             key={tag}
             variant="secondary"
-            className="bg-white/[0.08] hover:bg-white/[0.12] border border-white/15 text-white font-medium gap-1.5 px-2.5 py-1 rounded-lg text-xs transition-all shadow-xs"
+            className="bg-zinc-100 hover:bg-zinc-200 border border-zinc-200 text-zinc-800 font-medium gap-1.5 px-2.5 py-1 rounded-lg text-xs transition-all shadow-xs"
           >
             {tag}
             {!readOnly && (
               <button
                 type="button"
                 onClick={() => removeTag(tag)}
-                className="ml-1 rounded-full hover:bg-destructive/30 hover:text-red-300 p-0.5 transition-colors"
+                className="ml-1 rounded-full hover:bg-red-100 hover:text-red-600 text-zinc-400 p-0.5 transition-colors"
                 aria-label={`Remove tag: ${tag}`}
               >
                 <X className="h-3 w-3" />
@@ -103,13 +103,13 @@ export function TagManager({ tags, onChange, readOnly = false }: TagManagerProps
                 setTimeout(() => setShowSuggestions(false), 200);
               }}
               onKeyDown={handleKeyDown}
-              className="h-9.5 flex-1 rounded-xl border border-white/20 bg-white/[0.05] px-3 py-2 text-xs sm:text-sm text-white placeholder:text-zinc-500 shadow-inner backdrop-blur-md transition-all hover:border-white/35 focus:border-primary focus:bg-white/[0.08] focus:outline-none focus:ring-2 focus:ring-primary/25"
+              className="h-9.5 flex-1 rounded-xl border border-zinc-200/90 bg-white px-3 py-2 text-xs sm:text-sm text-zinc-900 placeholder:text-zinc-400 shadow-xs transition-all hover:border-zinc-300 focus:border-primary focus:bg-white focus:outline-none focus:ring-2 focus:ring-primary/20"
             />
             <Button
               type="button"
               size="sm"
               variant="outline"
-              className="h-9.5 px-3 shrink-0 rounded-xl border-white/20 bg-white/[0.06] hover:bg-white/[0.1] hover:border-white/30 text-white"
+              className="h-9.5 px-3 shrink-0 rounded-xl border-zinc-200 bg-zinc-100 hover:bg-zinc-200/80 text-zinc-800 font-medium"
               disabled={!inputValue.trim()}
               onClick={() => addTag(inputValue)}
             >
@@ -120,9 +120,9 @@ export function TagManager({ tags, onChange, readOnly = false }: TagManagerProps
 
           {/* Inline suggestions */}
           {showSuggestions && (filteredSuggestions.length > 0 || showCreateOption) && (
-            <div className="absolute top-[calc(100%+4px)] left-0 w-full z-50 bg-[#121319]/95 backdrop-blur-2xl border border-white/15 rounded-xl shadow-2xl max-h-40 overflow-y-auto p-1 text-white">
+            <div className="absolute top-[calc(100%+4px)] left-0 w-full z-50 bg-white border border-zinc-200 rounded-xl shadow-2xl max-h-40 overflow-y-auto p-1 text-zinc-900">
               {loading && (
-                <div className="flex items-center gap-2 px-3 py-2 text-xs text-zinc-400">
+                <div className="flex items-center gap-2 px-3 py-2 text-xs text-zinc-500">
                   <Loader2 className="h-3.5 w-3.5 animate-spin" />
                   Loading tags...
                 </div>
@@ -131,7 +131,7 @@ export function TagManager({ tags, onChange, readOnly = false }: TagManagerProps
                 <button
                   key={suggestion}
                   type="button"
-                  className="w-full text-left px-3 py-1.5 text-xs sm:text-sm rounded-lg hover:bg-white/[0.08] transition-colors text-zinc-200 hover:text-white"
+                  className="w-full text-left px-3 py-1.5 text-xs sm:text-sm rounded-lg hover:bg-zinc-100 transition-colors text-zinc-700 hover:text-zinc-900"
                   onMouseDown={(e) => {
                     e.preventDefault();
                     addTag(suggestion);
@@ -144,7 +144,7 @@ export function TagManager({ tags, onChange, readOnly = false }: TagManagerProps
               {showCreateOption && (
                 <button
                   type="button"
-                  className="w-full text-left px-3 py-1.5 text-xs sm:text-sm rounded-lg hover:bg-white/[0.08] transition-colors text-primary font-medium italic"
+                  className="w-full text-left px-3 py-1.5 text-xs sm:text-sm rounded-lg hover:bg-primary/5 transition-colors text-primary font-medium italic"
                   onMouseDown={(e) => {
                     e.preventDefault();
                     addTag(inputValue);
