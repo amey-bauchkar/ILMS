@@ -8,7 +8,6 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Mail, Phone, Building2, Calendar, IndianRupee, Pencil, PhoneCall, User, UserCheck, MapPin, Trash2, Loader2 } from "lucide-react";
-import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { LeadForm } from "./LeadForm";
 import { TagManager } from "./TagManager";
@@ -59,55 +58,15 @@ export function LeadInfoCard({ lead }: LeadInfoCardProps) {
           </div>
           
           <div className="flex items-center gap-1.5 shrink-0">
-            <Sheet open={isEditOpen} onOpenChange={setIsEditOpen}>
-              <SheetTrigger render={
-                <Button 
-                  variant="outline" 
-                  size="sm" 
-                  className="h-8 px-2.5 gap-1.5 text-xs font-semibold border-primary/40 bg-primary/10 text-primary hover:bg-primary hover:text-white transition-all rounded-lg shadow-xs"
-                >
-                  <Pencil className="h-3.5 w-3.5" />
-                  <span>Edit Lead</span>
-                </Button>
-              } />
-              <SheetContent className="sm:max-w-[650px] w-[95vw] overflow-y-auto bg-[#101117] border-l border-white/15 backdrop-blur-2xl p-6 text-white">
-                <SheetHeader className="mb-6 pb-4 border-b border-white/10">
-                  <SheetTitle className="text-xl font-bold tracking-tight text-white flex items-center gap-3">
-                    <div className="h-9 w-9 rounded-xl bg-primary/20 border border-primary/30 flex items-center justify-center text-primary shadow-xs">
-                      <Pencil className="h-4 w-4" />
-                    </div>
-                    <span>Edit Lead</span>
-                  </SheetTitle>
-                </SheetHeader>
-                <LeadForm 
-                  key={lead.id + (isEditOpen ? "-open" : "-closed")}
-                  initialData={{
-                    id: lead.id,
-                    name: lead.name,
-                    company: lead.company || undefined,
-                    phone: lead.phone,
-                    email: lead.email || undefined,
-                    source: lead.source as any,
-                    status: lead.statusId as any,
-                    priority: lead.priority,
-                    ownerId: lead.owner.id,
-                    dealValue: lead.dealValue || undefined,
-                    createdAt: lead.createdAt || undefined,
-                    lastContactedAt: lead.lastContactedAt || undefined,
-                    location: lead.location || undefined,
-                    sourceLink: lead.sourceLink || undefined,
-                    nextFollowUpDate: lead.nextFollowUpDate || undefined,
-                    lostReason: lead.lostReason as any,
-                    lostReasonDetails: (lead as any).lostReasonDetails || undefined,
-                    tags: lead.tags,
-                  }} 
-                  onSuccess={() => {
-                    setIsEditOpen(false);
-                    window.location.reload();
-                  }}
-                />
-              </SheetContent>
-            </Sheet>
+            <Button 
+              variant="outline" 
+              size="sm" 
+              onClick={() => setIsEditOpen(true)}
+              className="h-8 px-2.5 gap-1.5 text-xs font-semibold border-primary/40 bg-primary/10 text-primary hover:bg-primary hover:text-white transition-all rounded-lg shadow-xs"
+            >
+              <Pencil className="h-3.5 w-3.5" />
+              <span>Edit Lead</span>
+            </Button>
 
             <Button
               variant="ghost"
@@ -121,6 +80,47 @@ export function LeadInfoCard({ lead }: LeadInfoCardProps) {
             </Button>
           </div>
         </div>
+
+        {/* Centered Edit Lead Dialog Modal */}
+        <Dialog open={isEditOpen} onOpenChange={setIsEditOpen}>
+          <DialogContent className="sm:max-w-[840px] w-[95vw] max-h-[92vh] overflow-y-auto bg-[#101117] border border-white/15 backdrop-blur-2xl p-6 sm:p-7 text-white shadow-[0_25px_70px_rgba(0,0,0,0.8),inset_0_1px_0_0_rgba(255,255,255,0.1)] rounded-3xl [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
+            <DialogHeader className="mb-6 pb-4 border-b border-white/10">
+              <DialogTitle className="text-xl font-bold tracking-tight text-white flex items-center gap-3">
+                <div className="h-9 w-9 rounded-xl bg-primary/20 border border-primary/30 flex items-center justify-center text-primary shadow-xs">
+                  <Pencil className="h-4 w-4" />
+                </div>
+                <span>Edit Lead &mdash; {lead.name}</span>
+              </DialogTitle>
+            </DialogHeader>
+            <LeadForm 
+              key={lead.id + (isEditOpen ? "-open" : "-closed")}
+              initialData={{
+                id: lead.id,
+                name: lead.name,
+                company: lead.company || undefined,
+                phone: lead.phone,
+                email: lead.email || undefined,
+                source: lead.source as any,
+                status: lead.statusId as any,
+                priority: lead.priority,
+                ownerId: lead.owner.id,
+                dealValue: lead.dealValue || undefined,
+                createdAt: lead.createdAt || undefined,
+                lastContactedAt: lead.lastContactedAt || undefined,
+                location: lead.location || undefined,
+                sourceLink: lead.sourceLink || undefined,
+                nextFollowUpDate: lead.nextFollowUpDate || undefined,
+                lostReason: lead.lostReason as any,
+                lostReasonDetails: (lead as any).lostReasonDetails || undefined,
+                tags: lead.tags,
+              }} 
+              onSuccess={() => {
+                setIsEditOpen(false);
+                window.location.reload();
+              }}
+            />
+          </DialogContent>
+        </Dialog>
 
         {/* Delete Confirmation Dialog */}
         <Dialog open={isDeleteOpen} onOpenChange={setIsDeleteOpen}>
