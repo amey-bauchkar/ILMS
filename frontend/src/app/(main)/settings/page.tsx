@@ -16,6 +16,7 @@ import { ProfileSettings } from "@/components/settings/ProfileSettings";
 import { UserManagement } from "@/components/settings/UserManagement";
 import { StatusManagement } from "@/components/settings/StatusManagement";
 import { TagManagement } from "@/components/settings/TagManagement";
+import { ThemeSettings } from "@/components/settings/ThemeSettings";
 
 export default async function SettingsPage() {
   const supabase = await createClient();
@@ -115,24 +116,11 @@ export default async function SettingsPage() {
             <CardHeader className="border-b border-border/50 pb-4 mb-4">
               <CardTitle className="text-xl">Application Preferences</CardTitle>
               <CardDescription>
-                Customize your Foremark CRM experience.
+                Customize your Foremark CRM display, color themes, and workspace preferences.
               </CardDescription>
             </CardHeader>
             <CardContent className="px-6 pb-6">
-              <div className="space-y-3">
-                <Label className="text-base font-medium">Theme Settings</Label>
-                <div className="p-4 rounded-lg border border-border bg-background max-w-xl flex items-center justify-between">
-                  <div>
-                    <p className="font-medium">Deep Dark Theme</p>
-                    <p className="text-sm text-muted-foreground mt-1">
-                      The application is currently locked to Deep Dark mode with Foremark Orange accents.
-                    </p>
-                  </div>
-                  <div className="flex h-6 w-12 items-center rounded-full bg-primary p-1">
-                    <div className="h-4 w-4 rounded-full bg-white ml-auto" />
-                  </div>
-                </div>
-              </div>
+              <ThemeSettings />
             </CardContent>
           </Card>
         </TabsContent>

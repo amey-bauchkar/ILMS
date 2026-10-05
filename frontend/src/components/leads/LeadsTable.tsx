@@ -436,10 +436,10 @@ export default function LeadsTable() {
 
             {/* Edit Lead Modal */}
             <Dialog open={!!editingLead} onOpenChange={(open) => { if (!open) setEditingLead(null); }}>
-                <DialogContent className="sm:max-w-[840px] w-[95vw] max-h-[92vh] overflow-y-auto bg-white border border-zinc-200/90 p-6 sm:p-7 text-zinc-900 shadow-2xl rounded-3xl [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
-                    <DialogHeader className="mb-6 pb-4 border-b border-zinc-200/80">
-                        <DialogTitle className="text-xl font-bold tracking-tight text-zinc-900 flex items-center gap-3">
-                            <div className="h-9 w-9 rounded-xl bg-primary/10 border border-primary/20 flex items-center justify-center text-primary shadow-xs">
+                <DialogContent className="sm:max-w-[840px] w-[95vw] max-h-[92vh] overflow-y-auto bg-[#101117]/95 border border-white/15 backdrop-blur-2xl p-6 sm:p-7 text-white shadow-[0_25px_70px_rgba(0,0,0,0.8),inset_0_1px_0_0_rgba(255,255,255,0.1)] rounded-3xl [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
+                    <DialogHeader className="mb-6 pb-4 border-b border-white/10">
+                        <DialogTitle className="text-xl font-bold tracking-tight text-white flex items-center gap-3">
+                            <div className="h-9 w-9 rounded-xl bg-primary/20 border border-primary/30 flex items-center justify-center text-primary shadow-xs">
                                 <User className="h-5 w-5" />
                             </div>
                             <span>Edit Lead &mdash; {editingLead?.name}</span>

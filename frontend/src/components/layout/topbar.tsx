@@ -1,16 +1,18 @@
 "use client";
 
-import { Search, Menu, LogOut } from "lucide-react";
+import { Search, Menu, LogOut, Sun, Moon } from "lucide-react";
 import { useState } from "react";
 import { Sheet, SheetContent, SheetTrigger, SheetTitle } from "@/components/ui/sheet";
 import { SidebarContent } from "./sidebar";
 import { useUser } from "@/components/providers/user-provider";
+import { useTheme } from "@/components/providers/theme-provider";
 import { logout } from "@/actions/auth";
 import { NotificationPanel } from "@/components/notifications/NotificationPanel";
 
 export function Topbar() {
   const [isOpen, setIsOpen] = useState(false);
   const { user, loading } = useUser();
+  const { resolvedTheme, toggleTheme } = useTheme();
 
   // Get display name: first name or email
   const displayName = user
@@ -54,7 +56,21 @@ export function Topbar() {
       </div>
 
       {/* Right side controls */}
-      <div className="flex items-center gap-4">
+      <div className="flex items-center gap-3">
+        {/* Quick Theme Toggle */}
+        <button
+          type="button"
+          onClick={toggleTheme}
+          className="p-2 text-muted-foreground hover:text-foreground hover:bg-secondary transition-colors rounded-full"
+          title={resolvedTheme === "dark" ? "Switch to Light Mode" : "Switch to Deep Dark Theme"}
+        >
+          {resolvedTheme === "dark" ? (
+            <Sun className="w-4 h-4 text-amber-400 hover:rotate-45 transition-transform" />
+          ) : (
+            <Moon className="w-4 h-4 text-primary hover:-rotate-12 transition-transform" />
+          )}
+        </button>
+
         {/* Notification Panel on the right side */}
         <NotificationPanel />
         
