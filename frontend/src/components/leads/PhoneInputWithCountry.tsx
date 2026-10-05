@@ -162,7 +162,7 @@ export function PhoneInputWithCountry({
   };
 
   return (
-    <div ref={dropdownRef} className={cn("relative flex w-full", className)}>
+    <div ref={dropdownRef} className={cn("relative flex w-full", open ? "z-[100]" : "z-auto", className)}>
       {/* Country Code Picker Dropdown Button */}
       <button
         type="button"

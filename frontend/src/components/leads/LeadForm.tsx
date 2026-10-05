@@ -383,7 +383,7 @@ export function LeadForm({ initialData, onSuccess }: LeadFormProps) {
       <form onSubmit={form.handleSubmit(onSubmit, onInvalid)} className="space-y-5">
         
         {/* Section 1: Contact Details */}
-        <div className="rounded-2xl border border-white/10 bg-gradient-to-b from-[#181a24]/90 to-[#12141c]/80 backdrop-blur-xl p-5 space-y-4 shadow-sm hover:border-white/20 transition-all duration-300">
+        <div className="relative z-20 rounded-2xl border border-white/10 bg-gradient-to-b from-[#181a24]/90 to-[#12141c]/80 backdrop-blur-xl p-5 space-y-4 shadow-sm hover:border-white/20 transition-all duration-300">
           <div className="flex items-center justify-between pb-3 border-b border-white/[0.08]">
             <div className="flex items-center gap-2.5">
               <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-primary/15 text-primary border border-primary/25 text-xs font-bold shadow-xs">
@@ -494,7 +494,7 @@ export function LeadForm({ initialData, onSuccess }: LeadFormProps) {
         </div>
 
         {/* Section 2: Pipeline & Ownership */}
-        <div className="rounded-2xl border border-white/10 bg-gradient-to-b from-[#181a24]/90 to-[#12141c]/80 backdrop-blur-xl p-5 space-y-4 shadow-sm hover:border-white/20 transition-all duration-300">
+        <div className="relative z-15 rounded-2xl border border-white/10 bg-gradient-to-b from-[#181a24]/90 to-[#12141c]/80 backdrop-blur-xl p-5 space-y-4 shadow-sm hover:border-white/20 transition-all duration-300">
           <div className="flex items-center justify-between pb-3 border-b border-white/[0.08]">
             <div className="flex items-center gap-2.5">
               <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-blue-500/15 text-blue-400 border border-blue-500/25 text-xs font-bold shadow-xs">
@@ -510,7 +510,7 @@ export function LeadForm({ initialData, onSuccess }: LeadFormProps) {
             </span>
           </div>
 
-          <div className="grid sm:grid-cols-2 gap-4">
+          <div className="relative z-20 grid sm:grid-cols-2 gap-4">
             <FormField
               control={form.control}
               name="source"
@@ -574,7 +574,7 @@ export function LeadForm({ initialData, onSuccess }: LeadFormProps) {
             />
           </div>
 
-          <div className="grid sm:grid-cols-2 gap-4">
+          <div className="relative z-15 grid sm:grid-cols-2 gap-4">
             <FormField
               control={form.control}
               name="priority"
@@ -659,23 +659,25 @@ export function LeadForm({ initialData, onSuccess }: LeadFormProps) {
             />
           </div>
 
-          <FormField
-            control={form.control}
-            name="location"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel className="text-xs font-medium text-zinc-300">Geography / Location</FormLabel>
-                <FormControl>
-                  <LocationCombobox
-                    value={field.value || ""}
-                    onChange={field.onChange}
-                    placeholder="Search railway station, city, district, or global country..."
-                  />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
+          <div className="relative z-10">
+            <FormField
+              control={form.control}
+              name="location"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel className="text-xs font-medium text-zinc-300">Geography / Location</FormLabel>
+                  <FormControl>
+                    <LocationCombobox
+                      value={field.value || ""}
+                      onChange={field.onChange}
+                      placeholder="Search railway station, city, district, or global country..."
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+          </div>
 
           {/* Conditional Lost Reason */}
           {isLostStatus && (
@@ -734,7 +736,7 @@ export function LeadForm({ initialData, onSuccess }: LeadFormProps) {
         </div>
 
         {/* Section 3: Activity Timelines & Schedule */}
-        <div className="rounded-2xl border border-white/10 bg-gradient-to-b from-[#181a24]/90 to-[#12141c]/80 backdrop-blur-xl p-5 space-y-4 shadow-sm hover:border-white/20 transition-all duration-300">
+        <div className="relative z-[5] rounded-2xl border border-white/10 bg-gradient-to-b from-[#181a24]/90 to-[#12141c]/80 backdrop-blur-xl p-5 space-y-4 shadow-sm hover:border-white/20 transition-all duration-300">
           <div className="flex items-center justify-between pb-3 border-b border-white/[0.08]">
             <div className="flex items-center gap-2.5">
               <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-emerald-500/15 text-emerald-400 border border-emerald-500/25 text-xs font-bold shadow-xs">
@@ -895,7 +897,7 @@ export function LeadForm({ initialData, onSuccess }: LeadFormProps) {
         </div>
 
         {/* Section 4: Deal Value & Reference Links */}
-        <div className="rounded-2xl border border-white/10 bg-gradient-to-b from-[#181a24]/90 to-[#12141c]/80 backdrop-blur-xl p-5 space-y-4 shadow-sm hover:border-white/20 transition-all duration-300">
+        <div className="relative z-[3] rounded-2xl border border-white/10 bg-gradient-to-b from-[#181a24]/90 to-[#12141c]/80 backdrop-blur-xl p-5 space-y-4 shadow-sm hover:border-white/20 transition-all duration-300">
           <div className="flex items-center justify-between pb-3 border-b border-white/[0.08]">
             <div className="flex items-center gap-2.5">
               <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-amber-500/15 text-amber-400 border border-amber-500/25 text-xs font-bold shadow-xs">
@@ -965,7 +967,7 @@ export function LeadForm({ initialData, onSuccess }: LeadFormProps) {
         </div>
 
         {/* Section 5: Categorization & Notes */}
-        <div className="rounded-2xl border border-white/10 bg-gradient-to-b from-[#181a24]/90 to-[#12141c]/80 backdrop-blur-xl p-5 space-y-4 shadow-sm hover:border-white/20 transition-all duration-300">
+        <div className="relative z-[1] rounded-2xl border border-white/10 bg-gradient-to-b from-[#181a24]/90 to-[#12141c]/80 backdrop-blur-xl p-5 space-y-4 shadow-sm hover:border-white/20 transition-all duration-300">
           <div className="flex items-center justify-between pb-3 border-b border-white/[0.08]">
             <div className="flex items-center gap-2.5">
               <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-purple-500/15 text-purple-400 border border-purple-500/25 text-xs font-bold shadow-xs">

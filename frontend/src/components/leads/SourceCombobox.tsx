@@ -200,7 +200,7 @@ export function SourceCombobox({
   const displayValue = value || "Select a source";
 
   return (
-    <div ref={containerRef} className="relative w-full">
+    <div ref={containerRef} className={cn("relative w-full", open ? "z-[100]" : "z-auto")}>
       {/* Trigger Button */}
       <button
         type="button"
