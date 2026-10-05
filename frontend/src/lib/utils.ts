@@ -50,3 +50,32 @@ export function isWithinFilter(
   // If custom but no range selected, return everything
   return true;
 }
+
+export const DEFAULT_STATUS_COLORS: Record<string, string> = {
+  "New": "#64748b",
+  "Attempted Contact": "#FF5A1F",
+  "Contacted": "#f97316",
+  "Qualified": "#ea580c",
+  "Proposal Sent": "#f59e0b",
+  "Negotiation": "#d97706",
+  "Won": "#10b981",
+  "Lost": "#ef4444",
+  "On Hold": "#eab308",
+  "Junk": "#71717a",
+};
+
+export function resolveStatusColor(statusName?: string | null, rawColor?: string | null): string {
+  if (!statusName) return rawColor || "#FF5A1F";
+  
+  // Attempted Contact should always be Foremark signature orange
+  if (statusName === "Attempted Contact") {
+    return "#FF5A1F";
+  }
+
+  if (rawColor && rawColor !== "#3b82f6" && rawColor !== "#737373" && rawColor !== "#000000") {
+    return rawColor;
+  }
+
+  return DEFAULT_STATUS_COLORS[statusName] || rawColor || "#FF5A1F";
+}
+

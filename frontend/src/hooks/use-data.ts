@@ -3,6 +3,7 @@
 import { useState, useEffect, useCallback } from "react";
 import { createClient } from "@/lib/supabase/client";
 import type { Lead, User, Status, Tag } from "@/types/database";
+import { resolveStatusColor } from "@/lib/utils";
 
 // ============================================================
 // Enriched types used by the frontend (join owner + status info)
@@ -70,7 +71,7 @@ export function useLeads() {
       source: (row.custom_fields as any)?.source || row.source,
       sourceLink: (row.custom_fields as any)?.source_link || null,
       status: row.status?.name || "Unknown",
-      statusColor: row.status?.color || "#737373",
+      statusColor: resolveStatusColor(row.status?.name, row.status?.color),
       statusId: row.status_id,
       owner: row.owner || { id: "", name: "Unassigned", email: "", role: "" },
       priority: (row.custom_fields as any)?.priority || row.priority,
@@ -111,7 +112,12 @@ export function useStatuses() {
         .eq("is_active", true)
         .order("display_order", { ascending: true });
 
-      setStatuses(data || []);
+      const resolved = (data || []).map((s: Status) => ({
+        ...s,
+        color: resolveStatusColor(s.name, s.color),
+      }));
+
+      setStatuses(resolved);
       setLoading(false);
     }
     fetch();
@@ -279,7 +285,7 @@ export function useDashboardData() {
         email: row.email,
         source: row.source,
         status: row.status?.name || "Unknown",
-        statusColor: row.status?.color || "#737373",
+        statusColor: resolveStatusColor(row.status?.name, row.status?.color),
         statusId: row.status_id,
         owner: row.owner || { id: "", name: "Unassigned", email: "", role: "" },
         priority: (row.custom_fields as any)?.priority || row.priority,

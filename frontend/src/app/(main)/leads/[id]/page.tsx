@@ -13,6 +13,7 @@ interface LeadPageProps {
 
 import Link from "next/link";
 import { ArrowLeft } from "lucide-react";
+import { resolveStatusColor } from "@/lib/utils";
 
 export default async function LeadDetailPage({ params }: LeadPageProps) {
   const { id } = await params;
@@ -45,7 +46,7 @@ export default async function LeadDetailPage({ params }: LeadPageProps) {
     source: (row.custom_fields as any)?.source || row.source,
     sourceLink: (row.custom_fields as any)?.source_link || null,
     status: row.status?.name || "Unknown",
-    statusColor: row.status?.color || "#737373",
+    statusColor: resolveStatusColor(row.status?.name, row.status?.color),
     statusId: row.status_id,
     owner: row.owner || { id: "", name: "Unassigned", email: "", role: "" },
     priority: ((row.custom_fields as any)?.priority || row.priority) as "Hot" | "Warm" | "Cold" | "Dead",

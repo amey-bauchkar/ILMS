@@ -11,7 +11,10 @@ interface LeadStatusSectionProps {
 
 export function LeadStatusSection({ lead }: LeadStatusSectionProps) {
   return (
-    <div className="bg-card border border-border/80 rounded-2xl p-5 shadow-xs">
+    <div className="bg-card border border-border rounded-xl px-4 py-4 shadow-sm">
+      <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground mb-3">
+        Pipeline Status
+      </p>
       <StatusPipeline
         currentStatus={lead.status}
         onStatusChange={async (newStatusId, lostReason) => {
