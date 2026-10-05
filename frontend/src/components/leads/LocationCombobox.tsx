@@ -314,7 +314,7 @@ export function LocationCombobox({
                     <button
                       type="button"
                       onClick={() => handleSelectLocation(searchQuery.trim())}
-                      className="w-full flex items-center justify-between p-2.5 rounded-lg border border-dashed border-primary/40 bg-primary/5 hover:bg-primary/10 transition-colors text-left group"
+                      className="w-full flex items-center justify-between p-2.5 rounded-xl border border-dashed border-primary/40 bg-primary/10 hover:bg-primary/20 transition-colors text-left group"
                     >
                       <div className="flex items-center gap-2">
                         <Plus className="h-4 w-4 text-primary group-hover:scale-110 transition-transform" />
@@ -322,7 +322,7 @@ export function LocationCombobox({
                           <p className="text-xs font-semibold text-primary">
                             Use custom location: &quot;{searchQuery.trim()}&quot;
                           </p>
-                          <p className="text-[11px] text-muted-foreground">
+                          <p className="text-[11px] text-zinc-400">
                             Click to save this exact text as the lead location
                           </p>
                         </div>
@@ -334,9 +334,9 @@ export function LocationCombobox({
                   {/* Search Results List */}
                   {searchResults.length > 0 ? (
                     <div className="space-y-1">
-                      <div className="px-2.5 py-1 text-[11px] font-semibold uppercase tracking-wider text-muted-foreground flex items-center justify-between">
+                      <div className="px-2.5 py-1 text-[11px] font-semibold uppercase tracking-wider text-zinc-400 flex items-center justify-between">
                         <span>Matching Stations & Cities ({searchResults.length})</span>
-                        <span className="text-[10px] lowercase text-muted-foreground/80 font-normal">
+                        <span className="text-[10px] lowercase text-zinc-500 font-normal">
                           press Enter to pick top
                         </span>
                       </div>
@@ -346,26 +346,26 @@ export function LocationCombobox({
                           const isSelected = value === item.formatted;
                           return (
                             <button
-                              key={`${item.formatted}-${idx}`}
+                              key={`sr-${item.formatted}-${idx}`}
                               type="button"
                               onClick={() => handleSelectLocation(item.formatted)}
                               className={cn(
-                                "w-full flex items-start justify-between px-3 py-2 rounded-lg text-sm text-left transition-colors group",
+                                "w-full flex items-start justify-between px-3 py-2 rounded-xl text-sm text-left transition-colors group",
                                 isSelected
-                                  ? "bg-primary/15 text-primary font-medium"
-                                  : "text-foreground hover:bg-accent hover:text-accent-foreground"
+                                  ? "bg-primary/20 text-primary font-medium border border-primary/30"
+                                  : "text-zinc-300 hover:bg-white/[0.08] hover:text-white"
                               )}
                             >
                               <div className="flex items-start gap-2.5">
                                 <span className="text-base shrink-0 mt-0.5">{item.flag}</span>
                                 <div>
-                                  <div className="flex items-center gap-1.5 font-medium text-foreground group-hover:text-primary">
-                                    <Train className="h-3.5 w-3.5 text-muted-foreground shrink-0" />
+                                  <div className="flex items-center gap-1.5 font-medium text-white group-hover:text-primary">
+                                    <Train className="h-3.5 w-3.5 text-zinc-400 shrink-0" />
                                     <span>{item.station}</span>
                                   </div>
-                                  <div className="text-xs text-muted-foreground flex items-center gap-1 mt-0.5">
+                                  <div className="text-xs text-zinc-400 flex items-center gap-1 mt-0.5">
                                     {item.state && <span>{item.state}, </span>}
-                                    <span className="font-semibold text-foreground/80">{item.country}</span>
+                                    <span className="font-semibold text-zinc-300">{item.country}</span>
                                   </div>
                                 </div>
                               </div>
@@ -373,7 +373,7 @@ export function LocationCombobox({
                               {isSelected ? (
                                 <Check className="h-4 w-4 text-primary shrink-0 ml-2 mt-1" />
                               ) : (
-                                <ChevronRight className="h-3.5 w-3.5 text-muted-foreground/40 group-hover:text-foreground shrink-0 ml-2 mt-1 opacity-0 group-hover:opacity-100 transition-opacity" />
+                                <ChevronRight className="h-3.5 w-3.5 text-zinc-500 group-hover:text-white shrink-0 ml-2 mt-1 opacity-0 group-hover:opacity-100 transition-opacity" />
                               )}
                             </button>
                           );
@@ -382,13 +382,13 @@ export function LocationCombobox({
                     </div>
                   ) : (
                     <div className="p-6 text-center space-y-3">
-                      <div className="w-10 h-10 rounded-full bg-muted flex items-center justify-center mx-auto text-muted-foreground">
+                      <div className="w-10 h-10 rounded-full bg-white/[0.05] flex items-center justify-center mx-auto text-zinc-400">
                         <Search className="h-5 w-5" />
                       </div>
-                      <p className="text-sm font-medium text-foreground">
+                      <p className="text-sm font-medium text-white">
                         No standard station matching &quot;{searchQuery}&quot;
                       </p>
-                      <p className="text-xs text-muted-foreground max-w-sm mx-auto">
+                      <p className="text-xs text-zinc-400 max-w-sm mx-auto">
                         You can still click the &quot;Use custom location&quot; button above, or browse step-by-step using the Country ➔ State ➔ Station tab.
                       </p>
                     </div>
@@ -399,18 +399,18 @@ export function LocationCombobox({
                 <div className="space-y-4 p-1">
                   {/* Popular Country Quick Picks */}
                   <div className="space-y-2">
-                    <p className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground px-2">
+                    <p className="text-[11px] font-semibold uppercase tracking-wider text-zinc-400 px-2">
                       Popular Countries & Transit Hubs
                     </p>
                     <div className="flex flex-wrap gap-1.5 px-2">
-                      {POPULAR_COUNTRIES.map((cName) => {
+                      {POPULAR_COUNTRIES.map((cName, idx) => {
                         const country = COUNTRIES_DATA.find((c) => c.name === cName);
                         return (
                           <button
-                            key={cName}
+                            key={`pop-${cName}-${idx}`}
                             type="button"
                             onClick={() => handleSelectPopularCountry(cName)}
-                            className="px-2.5 py-1 text-xs rounded-full border border-border/80 bg-background hover:border-primary hover:bg-primary/5 hover:text-primary transition-colors flex items-center gap-1.5 shadow-sm"
+                            className="px-2.5 py-1 text-xs rounded-lg border border-white/10 bg-white/[0.04] hover:border-primary/60 hover:bg-primary/10 text-zinc-300 hover:text-white transition-all flex items-center gap-1.5 shadow-xs"
                           >
                             <span>{country?.flag}</span>
                             <span>{cName}</span>
@@ -422,7 +422,7 @@ export function LocationCombobox({
 
                   {/* Frequently Selected Key Stations */}
                   <div className="space-y-1">
-                    <p className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground px-2">
+                    <p className="text-[11px] font-semibold uppercase tracking-wider text-zinc-400 px-2">
                       Featured Business Hubs & Stations
                     </p>
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-1 px-1">
@@ -439,18 +439,18 @@ export function LocationCombobox({
                         { name: "Hinjewadi IT Park, Pune, Maharashtra, India", flag: "🇮🇳" },
                         { name: "Dubai Marina, Dubai, United Arab Emirates", flag: "🇦🇪" },
                         { name: "London King's Cross, Greater London, United Kingdom", flag: "🇬🇧" },
-                      ].map((item) => (
+                      ].map((item, idx) => (
                         <button
-                          key={item.name}
+                          key={`feat-${item.name}-${idx}`}
                           type="button"
                           onClick={() => handleSelectLocation(item.name)}
-                          className="flex items-center justify-between p-2 rounded-lg text-xs text-left hover:bg-accent hover:text-accent-foreground transition-colors border border-border/40"
+                          className="flex items-center justify-between p-2 rounded-xl text-xs text-left hover:bg-white/[0.08] hover:text-white transition-colors border border-white/10 bg-white/[0.03] text-zinc-300"
                         >
                           <div className="flex items-center gap-2 truncate">
                             <span>{item.flag}</span>
                             <span className="truncate">{item.name}</span>
                           </div>
-                          <ChevronRight className="h-3 w-3 text-muted-foreground shrink-0" />
+                          <ChevronRight className="h-3 w-3 text-zinc-500 shrink-0" />
                         </button>
                       ))}
                     </div>
@@ -467,7 +467,7 @@ export function LocationCombobox({
               {!selectedCountry && (
                 <div className="space-y-2">
                   <div className="flex items-center justify-between px-2 pt-1">
-                    <div className="flex items-center gap-1.5 text-xs font-semibold text-foreground">
+                    <div className="flex items-center gap-1.5 text-xs font-semibold text-white">
                       <Globe2 className="h-4 w-4 text-primary" />
                       <span>Step 1: Select Country (Total: {COUNTRIES_DATA.length})</span>
                     </div>
@@ -479,28 +479,28 @@ export function LocationCombobox({
                       value={countryFilter}
                       onChange={(e) => setCountryFilter(e.target.value)}
                       placeholder="Filter countries..."
-                      className="w-full bg-background border border-input rounded-md px-3 py-1.5 text-xs text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-primary"
+                      className="w-full bg-white/[0.05] border border-white/15 rounded-xl px-3 py-1.5 text-xs text-white placeholder:text-zinc-500 focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary/40 shadow-inner"
                     />
                   </div>
 
                   <div className="max-h-[260px] overflow-y-auto space-y-0.5 p-1">
-                    {filteredCountries.map((c) => (
+                    {filteredCountries.map((c, idx) => (
                       <button
-                        key={c.name}
+                        key={`country-${c.code}-${c.name}-${idx}`}
                         type="button"
                         onClick={() => {
                           setSelectedCountry(c);
                           setSelectedState(null);
                           setCountryFilter("");
                         }}
-                        className="w-full flex items-center justify-between px-3 py-2 rounded-md text-xs text-left hover:bg-accent hover:text-accent-foreground transition-colors"
+                        className="w-full flex items-center justify-between px-3 py-2 rounded-xl text-xs text-left hover:bg-white/[0.08] text-zinc-300 hover:text-white transition-colors"
                       >
                         <div className="flex items-center gap-2.5 font-medium">
                           <span className="text-base">{c.flag}</span>
                           <span>{c.name}</span>
-                          <span className="text-[10px] text-muted-foreground">({c.states.length} states/regions)</span>
+                          <span className="text-[10px] text-zinc-500">({c.states.length} states/regions)</span>
                         </div>
-                        <ChevronRight className="h-3.5 w-3.5 text-muted-foreground" />
+                        <ChevronRight className="h-3.5 w-3.5 text-zinc-500" />
                       </button>
                     ))}
                   </div>
@@ -511,7 +511,7 @@ export function LocationCombobox({
               {selectedCountry && !selectedState && (
                 <div className="space-y-2">
                   {/* Breadcrumb Header */}
-                  <div className="flex items-center justify-between p-2 rounded-lg bg-secondary/30 border border-border/50">
+                  <div className="flex items-center justify-between p-2 rounded-xl bg-white/[0.04] border border-white/10">
                     <button
                       type="button"
                       onClick={() => {
@@ -523,7 +523,7 @@ export function LocationCombobox({
                       <ArrowLeft className="h-3.5 w-3.5" />
                       <span>Back to Countries</span>
                     </button>
-                    <div className="flex items-center gap-1.5 text-xs font-semibold text-foreground">
+                    <div className="flex items-center gap-1.5 text-xs font-semibold text-white">
                       <span className="text-base">{selectedCountry.flag}</span>
                       <span>{selectedCountry.name}</span>
                     </div>
@@ -535,14 +535,14 @@ export function LocationCombobox({
                       value={stateFilter}
                       onChange={(e) => setStateFilter(e.target.value)}
                       placeholder={`Filter states in ${selectedCountry.name}...`}
-                      className="w-full bg-background border border-input rounded-md px-3 py-1.5 text-xs text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-primary"
+                      className="w-full bg-white/[0.05] border border-white/15 rounded-xl px-3 py-1.5 text-xs text-white placeholder:text-zinc-500 focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary/40 shadow-inner"
                     />
                     <Button
                       type="button"
                       variant="outline"
                       size="sm"
                       onClick={() => handleSelectLocation(selectedCountry.name)}
-                      className="text-xs h-7.5 shrink-0"
+                      className="text-xs h-7.5 shrink-0 rounded-lg border-white/15 hover:bg-white/10 text-zinc-200 hover:text-white"
                       title={`Select entire ${selectedCountry.name}`}
                     >
                       Use &quot;{selectedCountry.name}&quot;
@@ -550,22 +550,22 @@ export function LocationCombobox({
                   </div>
 
                   <div className="max-h-[240px] overflow-y-auto space-y-0.5 p-1">
-                    {filteredStates.map((st) => (
+                    {filteredStates.map((st, idx) => (
                       <button
-                        key={st.name}
+                        key={`state-${st.name}-${idx}`}
                         type="button"
                         onClick={() => {
                           setSelectedState(st);
                           setStateFilter("");
                         }}
-                        className="w-full flex items-center justify-between px-3 py-2 rounded-md text-xs text-left hover:bg-accent hover:text-accent-foreground transition-colors"
+                        className="w-full flex items-center justify-between px-3 py-2 rounded-xl text-xs text-left hover:bg-white/[0.08] text-zinc-300 hover:text-white transition-colors"
                       >
                         <div className="flex items-center gap-2">
-                          <Building2 className="h-3.5 w-3.5 text-muted-foreground" />
-                          <span className="font-medium text-foreground">{st.name}</span>
-                          <span className="text-[10px] text-muted-foreground">({st.stations.length} stations/areas)</span>
+                          <Building2 className="h-3.5 w-3.5 text-zinc-400" />
+                          <span className="font-medium text-white">{st.name}</span>
+                          <span className="text-[10px] text-zinc-500">({st.stations.length} stations/areas)</span>
                         </div>
-                        <ChevronRight className="h-3.5 w-3.5 text-muted-foreground" />
+                        <ChevronRight className="h-3.5 w-3.5 text-zinc-500" />
                       </button>
                     ))}
                   </div>
@@ -576,7 +576,7 @@ export function LocationCombobox({
               {selectedCountry && selectedState && (
                 <div className="space-y-2">
                   {/* Breadcrumb Header */}
-                  <div className="flex items-center justify-between p-2 rounded-lg bg-secondary/30 border border-border/50">
+                  <div className="flex items-center justify-between p-2 rounded-xl bg-white/[0.04] border border-white/10">
                     <button
                       type="button"
                       onClick={() => setSelectedState(null)}
@@ -585,11 +585,11 @@ export function LocationCombobox({
                       <ArrowLeft className="h-3.5 w-3.5" />
                       <span>Back to States</span>
                     </button>
-                    <div className="flex items-center gap-1 text-xs font-medium text-foreground truncate max-w-[240px]">
+                    <div className="flex items-center gap-1 text-xs font-medium text-white truncate max-w-[240px]">
                       <span>{selectedCountry.flag}</span>
-                      <span className="text-muted-foreground">{selectedCountry.name}</span>
-                      <span>›</span>
-                      <span className="font-semibold text-foreground">{selectedState.name}</span>
+                      <span className="text-zinc-400">{selectedCountry.name}</span>
+                      <span className="text-zinc-500">›</span>
+                      <span className="font-semibold text-white">{selectedState.name}</span>
                     </div>
                   </div>
 
@@ -599,14 +599,14 @@ export function LocationCombobox({
                       value={stationFilter}
                       onChange={(e) => setStationFilter(e.target.value)}
                       placeholder={`Filter stations in ${selectedState.name}...`}
-                      className="w-full bg-background border border-input rounded-md px-3 py-1.5 text-xs text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-primary"
+                      className="w-full bg-white/[0.05] border border-white/15 rounded-xl px-3 py-1.5 text-xs text-white placeholder:text-zinc-500 focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary/40 shadow-inner"
                     />
                     <Button
                       type="button"
                       variant="outline"
                       size="sm"
                       onClick={() => handleSelectLocation(`${selectedState.name}, ${selectedCountry.name}`)}
-                      className="text-xs h-7.5 shrink-0"
+                      className="text-xs h-7.5 shrink-0 rounded-lg border-white/15 hover:bg-white/10 text-zinc-200 hover:text-white"
                       title={`Select entire state ${selectedState.name}`}
                     >
                       Entire State
@@ -615,13 +615,13 @@ export function LocationCombobox({
 
                   {/* Add Custom Station/Place in this state */}
                   <div className="px-1">
-                    <div className="flex items-center gap-1.5 p-1.5 rounded-md bg-muted/40 border border-border/40">
+                    <div className="flex items-center gap-1.5 p-1.5 rounded-xl bg-white/[0.03] border border-white/10">
                       <input
                         type="text"
                         value={customStationInput}
                         onChange={(e) => setCustomStationInput(e.target.value)}
                         placeholder="Type custom locality/station..."
-                        className="flex-1 bg-background border border-input rounded px-2.5 py-1 text-xs text-foreground"
+                        className="flex-1 bg-white/[0.05] border border-white/15 rounded-lg px-2.5 py-1 text-xs text-white placeholder:text-zinc-500 focus:outline-none focus:border-primary"
                       />
                       <Button
                         type="button"
@@ -634,7 +634,7 @@ export function LocationCombobox({
                             );
                           }
                         }}
-                        className="h-7 text-xs px-2.5 font-medium"
+                        className="h-7 text-xs px-2.5 font-medium rounded-lg"
                       >
                         Add
                       </Button>
@@ -644,23 +644,23 @@ export function LocationCombobox({
                   {/* Stations List */}
                   <div className="max-h-[220px] overflow-y-auto space-y-0.5 p-1">
                     {filteredStations.length > 0 ? (
-                      filteredStations.map((station) => {
+                      filteredStations.map((station, idx) => {
                         const formatted = `${station}, ${selectedState.name}, ${selectedCountry.name}`;
                         const isSelected = value === formatted;
                         return (
                           <button
-                            key={station}
+                            key={`station-${station}-${idx}`}
                             type="button"
                             onClick={() => handleSelectLocation(formatted)}
                             className={cn(
-                              "w-full flex items-center justify-between px-3 py-2 rounded-md text-xs text-left transition-colors",
+                              "w-full flex items-center justify-between px-3 py-2 rounded-xl text-xs text-left transition-colors",
                               isSelected
-                                ? "bg-primary/15 text-primary font-medium"
-                                : "hover:bg-accent hover:text-accent-foreground text-foreground"
+                                ? "bg-primary/20 text-primary font-medium border border-primary/30"
+                                : "hover:bg-white/[0.08] text-zinc-300 hover:text-white"
                             )}
                           >
                             <div className="flex items-center gap-2 truncate">
-                              <Train className="h-3.5 w-3.5 text-muted-foreground shrink-0" />
+                              <Train className="h-3.5 w-3.5 text-zinc-400 shrink-0" />
                               <span className="truncate">{station}</span>
                             </div>
                             {isSelected && <Check className="h-4 w-4 text-primary shrink-0 ml-2" />}
@@ -668,7 +668,7 @@ export function LocationCombobox({
                         );
                       })
                     ) : (
-                      <div className="p-4 text-center text-xs text-muted-foreground">
+                      <div className="p-4 text-center text-xs text-zinc-400">
                         No standard station matching &quot;{stationFilter}&quot;. Use the custom locality box above!
                       </div>
                     )}
@@ -679,12 +679,12 @@ export function LocationCombobox({
           )}
 
           {/* Footer Info & Quick Shortcuts */}
-          <div className="p-2.5 border-t border-border/60 bg-muted/20 flex flex-wrap items-center justify-between gap-2 text-[11px] text-muted-foreground">
+          <div className="p-2.5 border-t border-white/10 bg-white/[0.02] flex flex-wrap items-center justify-between gap-2 text-[11px] text-zinc-400">
             <div className="flex items-center gap-1.5">
               <Navigation className="h-3 w-3 text-primary" />
               <span>
                 {value ? (
-                  <>Selected: <strong className="text-foreground">{value}</strong></>
+                  <>Selected: <strong className="text-white">{value}</strong></>
                 ) : (
                   "Tip: Search station directly or browse country ➔ state"
                 )}
@@ -696,7 +696,7 @@ export function LocationCombobox({
               variant="ghost"
               size="sm"
               onClick={() => setOpen(false)}
-              className="h-6 text-xs px-2 text-muted-foreground hover:text-foreground"
+              className="h-6 text-xs px-2 text-zinc-400 hover:text-white hover:bg-white/10 rounded-lg"
             >
               Close
             </Button>

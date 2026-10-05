@@ -2808,12 +2808,6 @@ export const COUNTRIES_DATA: CountryData[] = [
     states: [{ name: "Bucharest & Counties", stations: ["București Nord (Bucharest North)", "Piața Victoriei / Pipera, Bucharest", "Cluj-Napoca Gara", "Timișoara Nord", "Iași", "Brașov", "Constanța"] }],
   },
   {
-    name: "Sri Lanka",
-    code: "LK",
-    flag: "🇱🇰",
-    states: [{ name: "Colombo & Provinces", stations: ["Colombo Fort Railway Station", "Maradana Railway Station", "Kandy Railway Station", "Galle Railway Station", "Jaffna Railway Station"] }],
-  },
-  {
     name: "Ukraine",
     code: "UA",
     flag: "🇺🇦",
