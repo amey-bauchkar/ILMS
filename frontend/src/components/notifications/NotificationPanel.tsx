@@ -72,7 +72,7 @@ export function NotificationPanel() {
         <button
           type="button"
           aria-label="Open notifications"
-          className="relative p-2.5 text-[#a3a3a3] hover:text-white hover:bg-[#262626] transition-all rounded-full outline-none focus-visible:ring-2 focus-visible:ring-primary"
+          className="relative p-2.5 text-muted-foreground hover:text-foreground hover:bg-secondary transition-all rounded-full outline-none focus-visible:ring-2 focus-visible:ring-primary"
         />
       }>
         <Bell className="w-5 h-5" />
@@ -87,20 +87,20 @@ export function NotificationPanel() {
 
       <SheetContent
         side="right"
-        className="w-full sm:max-w-[460px] p-0 flex flex-col bg-[#0f0f0f] border-l border-[#262626] shadow-2xl z-50 text-foreground"
+        className="w-full sm:max-w-[460px] p-0 flex flex-col bg-card border-l border-border shadow-2xl z-50 text-foreground"
       >
         {/* Header */}
-        <div className="p-5 border-b border-[#262626] bg-[#141414]/90 backdrop-blur sticky top-0 z-10">
+        <div className="p-5 border-b border-border bg-card/90 backdrop-blur sticky top-0 z-10">
           <div className="flex items-center justify-between mb-3">
             <div className="flex items-center gap-2.5">
               <div className="p-2 bg-primary/10 rounded-lg text-primary">
                 <Bell className="w-5 h-5" />
               </div>
               <div>
-                <SheetTitle className="text-lg font-bold text-white tracking-tight">
+                <SheetTitle className="text-lg font-bold text-foreground tracking-tight">
                   Follow-up Notifications
                 </SheetTitle>
-                <p className="text-xs text-[#737373] mt-0.5">
+                <p className="text-xs text-muted-foreground mt-0.5">
                   Automated 30-min advance & exact-time alerts
                 </p>
               </div>
@@ -109,7 +109,7 @@ export function NotificationPanel() {
             <Button
               variant="ghost"
               size="icon"
-              className="h-8 w-8 text-[#737373] hover:text-white hover:bg-[#262626]"
+              className="h-8 w-8 text-muted-foreground hover:text-foreground hover:bg-secondary"
               onClick={() => {
                 refresh();
                 toast.info("Notifications refreshed");
@@ -123,14 +123,14 @@ export function NotificationPanel() {
           {/* Desktop Notification Banner if not granted */}
           {!hasBrowserNotifs && (
             <div className="mb-3 p-2.5 rounded-lg bg-primary/10 border border-primary/20 flex items-center justify-between gap-2">
-              <div className="flex items-center gap-2 text-xs text-white">
+              <div className="flex items-center gap-2 text-xs text-foreground">
                 <Volume2 className="w-4 h-4 text-primary shrink-0" />
                 <span>Enable desktop sound & push alerts</span>
               </div>
               <Button
                 size="sm"
                 variant="default"
-                className="h-7 text-xs px-2.5 bg-primary text-black hover:bg-primary/90 font-medium"
+                className="h-7 text-xs px-2.5 bg-primary text-white hover:bg-primary/90 font-medium"
                 onClick={handleEnableBrowserNotifs}
               >
                 Enable
@@ -139,13 +139,13 @@ export function NotificationPanel() {
           )}
 
           {/* Filter Tabs */}
-          <div className="flex gap-1.5 p-1 bg-[#1c1c1c] rounded-lg">
+          <div className="flex gap-1.5 p-1 bg-secondary rounded-lg">
             <button
               onClick={() => setActiveTab("all")}
               className={`flex-1 py-1.5 px-3 rounded-md text-xs font-medium transition-colors ${
                 activeTab === "all"
-                  ? "bg-[#2b2b2b] text-white shadow-sm"
-                  : "text-[#a3a3a3] hover:text-white"
+                  ? "bg-card text-foreground shadow-xs font-semibold"
+                  : "text-muted-foreground hover:text-foreground"
               }`}
             >
               All ({counts.total})
@@ -154,8 +154,8 @@ export function NotificationPanel() {
               onClick={() => setActiveTab("urgent")}
               className={`flex-1 py-1.5 px-3 rounded-md text-xs font-medium transition-colors ${
                 activeTab === "urgent"
-                  ? "bg-[#2b2b2b] text-amber-400 shadow-sm"
-                  : "text-[#a3a3a3] hover:text-white"
+                  ? "bg-card text-amber-500 shadow-xs font-semibold"
+                  : "text-muted-foreground hover:text-foreground"
               }`}
             >
               Due & Soon ({counts.dueNow + counts.upcoming30})
@@ -164,8 +164,8 @@ export function NotificationPanel() {
               onClick={() => setActiveTab("overdue")}
               className={`flex-1 py-1.5 px-3 rounded-md text-xs font-medium transition-colors ${
                 activeTab === "overdue"
-                  ? "bg-[#2b2b2b] text-red-400 shadow-sm"
-                  : "text-[#a3a3a3] hover:text-white"
+                  ? "bg-card text-destructive shadow-xs font-semibold"
+                  : "text-muted-foreground hover:text-foreground"
               }`}
             >
               Overdue ({counts.overdue})
@@ -239,12 +239,12 @@ function NotificationCard({
     <div
       className={`rounded-xl border p-4 transition-all relative overflow-hidden group ${
         item.urgency === "due_now"
-          ? "bg-rose-950/20 border-rose-500/40 hover:border-rose-500/70"
+          ? "bg-rose-500/10 border-rose-500/40 hover:border-rose-500/70"
           : isOverdue
-          ? "bg-red-950/20 border-red-500/30 hover:border-red-500/60"
+          ? "bg-red-500/10 border-red-500/30 hover:border-red-500/60"
           : item.urgency === "upcoming_30"
-          ? "bg-amber-950/20 border-amber-500/40 hover:border-amber-500/70"
-          : "bg-[#161616] border-[#262626] hover:border-[#383838]"
+          ? "bg-amber-500/10 border-amber-500/40 hover:border-amber-500/70"
+          : "bg-card border-border hover:border-border/80 shadow-xs"
       }`}
     >
       {/* Urgency colored left border bar */}
@@ -260,12 +260,12 @@ function NotificationCard({
             <span
               className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[11px] font-semibold tracking-wide uppercase ${
                 item.urgency === "due_now"
-                  ? "bg-rose-500/20 text-rose-300 animate-pulse border border-rose-500/40"
+                  ? "bg-rose-500/20 text-rose-500 animate-pulse border border-rose-500/40"
                   : item.urgency === "upcoming_30"
-                  ? "bg-amber-500/20 text-amber-300 border border-amber-500/40"
+                  ? "bg-amber-500/20 text-amber-500 border border-amber-500/40"
                   : isOverdue
-                  ? "bg-red-500/20 text-red-300 border border-red-500/40"
-                  : "bg-[#262626] text-[#a3a3a3]"
+                  ? "bg-red-500/20 text-red-500 border border-red-500/40"
+                  : "bg-secondary text-muted-foreground"
               }`}
             >
               {item.urgency === "due_now" && <Sparkles className="w-3 h-3 text-rose-400" />}
@@ -275,7 +275,7 @@ function NotificationCard({
             </span>
           </div>
 
-          <span className="text-[11px] font-medium text-[#a3a3a3] tabular-nums">
+          <span className="text-[11px] font-medium text-muted-foreground tabular-nums">
             {item.formattedDateTime}
           </span>
         </div>
@@ -285,13 +285,13 @@ function NotificationCard({
           <Link
             href={`/leads/${item.leadId}`}
             onClick={onClosePanel}
-            className="text-base font-semibold text-white hover:text-primary transition-colors flex items-center gap-1.5 group-hover:text-primary"
+            className="text-base font-semibold text-foreground hover:text-primary transition-colors flex items-center gap-1.5 group-hover:text-primary"
           >
             {item.leadName}
             <ExternalLink className="w-3.5 h-3.5 opacity-0 group-hover:opacity-100 transition-opacity" />
           </Link>
           {item.companyName && (
-            <p className="text-xs text-[#a3a3a3] truncate mt-0.5">{item.companyName}</p>
+            <p className="text-xs text-muted-foreground truncate mt-0.5">{item.companyName}</p>
           )}
         </div>
 
@@ -317,7 +317,7 @@ function NotificationCard({
             {item.priority}
           </span>
 
-          <div className="flex items-center gap-1 ml-auto text-[11px] text-[#737373]">
+          <div className="flex items-center gap-1 ml-auto text-[11px] text-muted-foreground">
             <div
               className="w-4 h-4 rounded-full flex items-center justify-center text-[8px] font-bold text-white shrink-0"
               style={{ backgroundColor: ownerColor }}
@@ -329,10 +329,10 @@ function NotificationCard({
         </div>
 
         {/* Quick Actions */}
-        <div className="flex items-center justify-between gap-2 pt-2 border-t border-[#262626]/80">
+        <div className="flex items-center justify-between gap-2 pt-2 border-t border-border">
           <a
             href={`tel:${item.phone}`}
-            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 hover:bg-emerald-500/20 transition-colors text-xs font-medium"
+            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-emerald-500/10 border border-emerald-500/20 text-emerald-500 hover:bg-emerald-500/20 transition-colors text-xs font-medium"
             title="Call Lead"
           >
             <Phone className="w-3.5 h-3.5" />
@@ -343,7 +343,7 @@ function NotificationCard({
             <Link
               href={`/leads/${item.leadId}`}
               onClick={onClosePanel}
-              className="px-2.5 py-1.5 rounded-lg bg-[#262626] text-[#e5e5e5] hover:bg-[#333333] hover:text-white transition-colors text-xs font-medium"
+              className="px-2.5 py-1.5 rounded-lg bg-secondary text-foreground hover:bg-secondary/80 transition-colors text-xs font-medium"
             >
               Details
             </Link>
@@ -352,7 +352,7 @@ function NotificationCard({
               size="sm"
               variant="outline"
               onClick={onDone}
-              className="h-7 px-2.5 text-xs text-green-400 hover:text-green-300 hover:bg-green-500/10 border-green-500/20 gap-1"
+              className="h-7 px-2.5 text-xs text-emerald-500 hover:text-emerald-600 hover:bg-emerald-500/10 border-emerald-500/20 gap-1"
               title="Mark Follow-up as Completed"
             >
               <Check className="w-3.5 h-3.5" />

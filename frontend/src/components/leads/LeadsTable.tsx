@@ -218,12 +218,12 @@ export default function LeadsTable() {
         align?: "right";
     }) => (
         <TableHead
-            className={`cursor-pointer select-none text-xs uppercase tracking-wide text-[#737373] font-medium hover:text-white transition-colors ${align === "right" ? "text-right" : ""
+            className={`cursor-pointer select-none text-xs uppercase tracking-wide text-muted-foreground font-semibold hover:text-foreground transition-colors ${align === "right" ? "text-right" : ""
                 }`}
             onClick={() => toggleSort(sortField)}
         >
             {label}
-            <span className="inline-block w-3 text-[#e87811]">
+            <span className="inline-block w-3 text-primary">
                 {sortKey === sortField ? (sortAsc ? " ↑" : " ↓") : ""}
             </span>
         </TableHead>
@@ -250,7 +250,7 @@ export default function LeadsTable() {
     return (
         <div>
             {/* Underline tabs and Export Button */}
-            <div className="flex items-center justify-between border-b border-[#2e2e2e] mb-5">
+            <div className="flex items-center justify-between border-b border-border mb-5">
                 <div className="flex gap-6 overflow-x-auto overflow-y-hidden [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
                     {VIEWS.map((v) => (
                     <button
@@ -260,16 +260,16 @@ export default function LeadsTable() {
                             setPage(1);
                         }}
                         className={`relative pb-3 text-sm whitespace-nowrap transition-colors ${view === v.key
-                            ? "text-white font-medium"
-                            : "text-[#a3a3a3] hover:text-white"
+                            ? "text-foreground font-semibold"
+                            : "text-muted-foreground hover:text-foreground"
                             }`}
                     >
                         {v.label}
-                        <span className="ml-1.5 text-xs text-[#737373]">
+                        <span className="ml-1.5 text-xs text-muted-foreground">
                             ({viewCounts[v.key]})
                         </span>
                         {view === v.key && (
-                            <span className="absolute left-0 right-0 -bottom-px h-[2px] bg-[#e87811] rounded-full" />
+                            <span className="absolute left-0 right-0 -bottom-px h-[2px] bg-primary rounded-full" />
                         )}
                     </button>
                 ))}
@@ -294,8 +294,8 @@ export default function LeadsTable() {
             <div className="md:hidden">
                 {paginated.length === 0 ? (
                     <div className="text-center py-16">
-                        <p className="text-[#a3a3a3] text-sm">No leads found.</p>
-                        <p className="text-[#737373] text-xs mt-1">Try adjusting your filters.</p>
+                        <p className="text-muted-foreground text-sm font-medium">No leads found.</p>
+                        <p className="text-muted-foreground/70 text-xs mt-1">Try adjusting your filters.</p>
                     </div>
                 ) : (
                     paginated.map((lead) => (
@@ -310,20 +310,20 @@ export default function LeadsTable() {
             </div>
 
             {/* Desktop / tablet view */}
-            <div className="hidden md:block overflow-x-auto rounded-xl border border-[#2e2e2e] bg-[#0d0d0d]">
+            <div className="hidden md:block overflow-x-auto rounded-xl border border-border bg-card shadow-xs">
                 <Table>
                     <TableHeader>
-                        <TableRow className="border-b border-[#2e2e2e] hover:bg-transparent">
+                        <TableRow className="border-b border-border hover:bg-transparent">
                             <SortableHead label="Lead Name" sortField="name" />
                             <SortableHead label="Status" sortField="status" />
                             <SortableHead label="Priority" sortField="priority" />
                             <SortableHead label="Owner" sortField="ownerName" />
                             <SortableHead label="Next Follow-up" sortField="nextFollowUpDate" />
                             <SortableHead label="Last Contacted Date" sortField="lastContactedAt" />
-                            <TableHead className="hidden lg:table-cell text-xs uppercase tracking-wide text-[#737373] font-medium">
+                            <TableHead className="hidden lg:table-cell text-xs uppercase tracking-wide text-muted-foreground font-semibold">
                                 Last Creation Date
                             </TableHead>
-                            <TableHead className="text-center text-xs uppercase tracking-wide text-[#737373] font-medium px-2 w-[80px]">
+                            <TableHead className="text-center text-xs uppercase tracking-wide text-muted-foreground font-semibold px-2 w-[80px]">
                                 Action
                             </TableHead>
                         </TableRow>
@@ -332,8 +332,8 @@ export default function LeadsTable() {
                         {paginated.length === 0 ? (
                             <TableRow>
                                 <TableCell colSpan={8} className="text-center py-16">
-                                    <p className="text-[#a3a3a3] text-sm">No leads found.</p>
-                                    <p className="text-[#737373] text-xs mt-1">Try adjusting your filters.</p>
+                                    <p className="text-muted-foreground text-sm font-medium">No leads found.</p>
+                                    <p className="text-muted-foreground/70 text-xs mt-1">Try adjusting your filters.</p>
                                 </TableCell>
                             </TableRow>
                         ) : (
@@ -352,12 +352,12 @@ export default function LeadsTable() {
                                 return (
                                     <TableRow
                                         key={lead.id}
-                                        className="border-b border-[#1f1f1f] hover:bg-[#161616] transition-colors"
+                                        className="border-b border-border/70 hover:bg-muted/40 transition-colors"
                                     >
                                         <TableCell className="font-semibold py-3.5">
                                             <Link
                                                 href={`/leads/${lead.id}`}
-                                                className="hover:text-[#ff8c1a] transition-colors"
+                                                className="text-foreground font-semibold hover:text-primary transition-colors inline-block"
                                             >
                                                 {lead.name}
                                             </Link>
@@ -376,30 +376,30 @@ export default function LeadsTable() {
                                                 >
                                                     {initials}
                                                 </div>
-                                                <span className="text-[#e5e5e5]">{lead.owner.name}</span>
+                                                <span className="text-foreground font-medium text-sm">{lead.owner.name}</span>
                                             </div>
                                         </TableCell>
                                         <TableCell
-                                            className={`tabular-nums whitespace-nowrap ${isOverdue ? "text-[#ef4444] font-medium" : "text-[#a3a3a3]"}`}
+                                            className={`tabular-nums whitespace-nowrap ${isOverdue ? "text-destructive font-semibold" : "text-muted-foreground"}`}
                                         >
                                             {lead.nextFollowUpDate
-                                                ? (formatFollowUpDateTime(lead.nextFollowUpDate) ?? <span className="text-[#525252]">—</span>)
-                                                : <span className="text-[#525252]">—</span>}
+                                                ? (formatFollowUpDateTime(lead.nextFollowUpDate) ?? <span className="text-muted-foreground/60">—</span>)
+                                                : <span className="text-muted-foreground/60">—</span>}
                                         </TableCell>
-                                        <TableCell className="tabular-nums text-[#a3a3a3] text-sm">
+                                        <TableCell className="tabular-nums text-muted-foreground text-sm">
                                             {lead.lastContactedAt
-                                                ? (formatDateSafely(lead.lastContactedAt) ?? <span className="text-[#525252]">—</span>)
-                                                : <span className="text-[#525252]">—</span>}
+                                                ? (formatDateSafely(lead.lastContactedAt) ?? <span className="text-muted-foreground/60">—</span>)
+                                                : <span className="text-muted-foreground/60">—</span>}
                                         </TableCell>
-                                        <TableCell className="hidden lg:table-cell text-[#737373] text-sm">
-                                            {formatDateSafely(lead.createdAt) ?? <span className="text-[#525252]">—</span>}
+                                        <TableCell className="hidden lg:table-cell text-muted-foreground text-sm">
+                                            {formatDateSafely(lead.createdAt) ?? <span className="text-muted-foreground/60">—</span>}
                                         </TableCell>
                                         <TableCell className="text-center px-2 whitespace-nowrap w-[80px]">
                                             <div className="flex items-center justify-center gap-1">
                                                 <Button
                                                     variant="ghost"
                                                     size="icon"
-                                                    className="h-8 w-8 text-[#a3a3a3] hover:text-primary hover:bg-primary/10 transition-colors rounded-lg"
+                                                    className="h-8 w-8 text-muted-foreground hover:text-primary hover:bg-primary/10 transition-colors rounded-lg"
                                                     onClick={(e) => {
                                                         e.preventDefault();
                                                         e.stopPropagation();
@@ -413,7 +413,7 @@ export default function LeadsTable() {
                                                 <Button
                                                     variant="ghost"
                                                     size="icon"
-                                                    className="h-8 w-8 text-red-500 hover:text-red-400 hover:bg-red-500/10 transition-colors rounded-lg"
+                                                    className="h-8 w-8 text-muted-foreground hover:text-destructive hover:bg-destructive/10 transition-colors rounded-lg"
                                                     onClick={(e) => {
                                                         e.preventDefault();
                                                         e.stopPropagation();
@@ -422,7 +422,7 @@ export default function LeadsTable() {
                                                     title="Delete Lead"
                                                     aria-label="Delete Lead"
                                                 >
-                                                    <Trash2 className="h-4 w-4 text-red-500" />
+                                                    <Trash2 className="h-4 w-4 text-destructive" />
                                                 </Button>
                                             </div>
                                         </TableCell>

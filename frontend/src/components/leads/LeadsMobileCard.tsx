@@ -31,10 +31,10 @@ export default function LeadsMobileCard({
 
     return (
         <div className="block mb-3">
-            <div className="rounded-xl border border-[#2e2e2e] bg-[#0d0d0d] p-4 hover:bg-[#161616] transition-colors relative">
+            <div className="rounded-xl border border-border bg-card p-4 hover:border-primary/40 hover:shadow-sm transition-all relative">
                 <div className="flex justify-between items-start mb-2">
                     <Link href={`/leads/${lead.id}`} className="hover:text-primary transition-colors">
-                        <h3 className="font-semibold text-white hover:text-primary">{lead.name}</h3>
+                        <h3 className="font-semibold text-foreground hover:text-primary text-base transition-colors">{lead.name}</h3>
                     </Link>
                     <div className="flex items-center gap-1.5">
                         <DotBadge color={lead.statusColor} label={lead.status} />
@@ -46,7 +46,7 @@ export default function LeadsMobileCard({
                                     e.stopPropagation();
                                     onEdit(lead);
                                 }}
-                                className="p-1.5 rounded-md bg-[#262626] text-[#a3a3a3] hover:text-white hover:bg-[#333333] transition-colors"
+                                className="p-1.5 rounded-lg bg-secondary text-muted-foreground hover:text-foreground hover:bg-secondary/80 transition-colors"
                                 title="Edit Lead"
                             >
                                 <Pencil className="w-3.5 h-3.5" />
@@ -60,7 +60,7 @@ export default function LeadsMobileCard({
                                     e.stopPropagation();
                                     onDelete(lead);
                                 }}
-                                className="p-1.5 rounded-md bg-[#262626] text-red-400 hover:text-red-300 hover:bg-red-500/20 transition-colors"
+                                className="p-1.5 rounded-lg bg-secondary text-destructive/80 hover:text-destructive hover:bg-destructive/10 transition-colors"
                                 title="Delete Lead"
                             >
                                 <Trash2 className="w-3.5 h-3.5" />
@@ -68,20 +68,20 @@ export default function LeadsMobileCard({
                         )}
                     </div>
                 </div>
-                {lead.company && <p className="text-sm text-[#a3a3a3] mb-2">{lead.company}</p>}
-                <div className="flex flex-wrap items-center gap-2 text-xs text-[#737373]">
+                {lead.company && <p className="text-sm text-muted-foreground mb-2">{lead.company}</p>}
+                <div className="flex flex-wrap items-center gap-2 text-xs text-muted-foreground">
                     <DotBadge color={priorityColors[lead.priority]} label={lead.priority} />
                     <span>{lead.source}</span>
-                    <div className="flex items-center gap-1">
-                        <div className="w-4 h-4 rounded-full flex items-center justify-center text-[8px] font-bold text-white" style={{ backgroundColor: ownerColor }}>{initials}</div>
-                        <span>{lead.owner.name}</span>
+                    <div className="flex items-center gap-1.5">
+                        <div className="w-4 h-4 rounded-full flex items-center justify-center text-[8px] font-bold text-white shrink-0" style={{ backgroundColor: ownerColor }}>{initials}</div>
+                        <span className="text-foreground font-medium">{lead.owner.name}</span>
                     </div>
                 </div>
                 {lead.dealValue && (
-                    <p className="text-sm text-[#e5e5e5] mt-2 tabular-nums">₹{lead.dealValue.toLocaleString("en-IN")}</p>
+                    <p className="text-sm text-foreground font-semibold mt-2 tabular-nums">₹{lead.dealValue.toLocaleString("en-IN")}</p>
                 )}
                 {lead.nextFollowUpDate && (
-                    <p className={`text-xs mt-1 ${isOverdue ? "text-[#ef4444]" : "text-[#737373]"}`}>
+                    <p className={`text-xs mt-1.5 ${isOverdue ? "text-destructive font-medium" : "text-muted-foreground"}`}>
                         Follow-up: {(() => {
                             try {
                                 let d: Date;
@@ -99,7 +99,7 @@ export default function LeadsMobileCard({
                     </p>
                 )}
                 {lead.lastContactedAt && (
-                    <p className="text-xs mt-1 text-[#737373]">
+                    <p className="text-xs mt-1 text-muted-foreground">
                         Last Contacted: {lead.lastContactedAt.includes('T') ? format(new Date(lead.lastContactedAt), "MMM d, yyyy · h:mm a") : lead.lastContactedAt}
                     </p>
                 )}
