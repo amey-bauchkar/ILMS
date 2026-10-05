@@ -207,16 +207,17 @@ export function SourceCombobox({
         disabled={disabled}
         onClick={() => setOpen((prev) => !prev)}
         className={cn(
-          "flex h-9 w-full items-center justify-between gap-2 rounded-lg border border-input bg-background px-3 py-2 text-sm shadow-sm transition-colors hover:border-foreground/20 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50 text-foreground text-left",
-          !value && "text-muted-foreground",
+          "flex h-10 w-full items-center justify-between gap-2 rounded-xl border border-white/20 bg-white/[0.05] px-3.5 py-2 text-sm shadow-inner transition-all hover:border-white/35 hover:bg-white/[0.08] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/40 disabled:cursor-not-allowed disabled:opacity-50 text-white text-left backdrop-blur-md",
+          !value && "text-zinc-400",
+          open && "border-primary/60 bg-white/[0.09]",
           className
         )}
       >
         <span className="truncate">{displayValue}</span>
         <ChevronDown
           className={cn(
-            "h-4 w-4 shrink-0 text-muted-foreground transition-transform duration-200",
-            open && "rotate-180"
+            "h-4 w-4 shrink-0 text-zinc-400 transition-transform duration-200",
+            open && "rotate-180 text-white"
           )}
         />
       </button>
@@ -224,12 +225,12 @@ export function SourceCombobox({
       {/* Downward Dropdown Menu */}
       {open && (
         <div
-          className="absolute top-[calc(100%+6px)] left-0 w-full min-w-[300px] z-[100] rounded-xl border border-border bg-popover/98 backdrop-blur-md shadow-2xl overflow-hidden animate-in fade-in-0 zoom-in-95 duration-100"
+          className="absolute top-[calc(100%+6px)] left-0 w-full min-w-[300px] z-[100] rounded-2xl border border-white/15 bg-[#121319]/95 backdrop-blur-2xl shadow-[0_20px_50px_rgba(0,0,0,0.8)] overflow-hidden animate-in fade-in-0 zoom-in-95 duration-100 text-white"
           style={{ transformOrigin: "top center" }}
         >
           {/* Search Input Box */}
-          <div className="relative border-b border-border p-2.5 bg-secondary/30">
-            <Search className="absolute left-4.5 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground pointer-events-none" />
+          <div className="relative border-b border-white/10 p-2.5 bg-white/[0.02]">
+            <Search className="absolute left-4.5 top-1/2 -translate-y-1/2 h-4 w-4 text-zinc-400 pointer-events-none" />
             <input
               ref={inputRef}
               type="text"
@@ -237,13 +238,13 @@ export function SourceCombobox({
               onChange={(e) => setSearch(e.target.value)}
               onKeyDown={handleKeyDown}
               placeholder="Type to search (e.g. Just dial, GMB)..."
-              className="w-full bg-background border border-input rounded-lg pl-8.5 pr-8 py-1.5 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-primary shadow-inner"
+              className="w-full bg-white/[0.05] border border-white/15 rounded-xl pl-8.5 pr-8 py-2 text-sm text-white placeholder:text-zinc-500 focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary/40 shadow-inner"
             />
             {search && (
               <button
                 type="button"
                 onClick={() => setSearch("")}
-                className="absolute right-4.5 top-1/2 -translate-y-1/2 p-0.5 rounded-full text-muted-foreground hover:text-foreground hover:bg-muted"
+                className="absolute right-4.5 top-1/2 -translate-y-1/2 p-1 rounded-full text-zinc-400 hover:text-white"
               >
                 <X className="h-3.5 w-3.5" />
               </button>
@@ -251,11 +252,11 @@ export function SourceCombobox({
           </div>
 
           {/* Sources List */}
-          <div className="max-h-[260px] overflow-y-auto p-1.5 space-y-3">
+          <div className="max-h-[260px] overflow-y-auto p-2 space-y-3">
             {filteredCategories.length > 0 ? (
               filteredCategories.map((group) => (
                 <div key={group.category} className="space-y-1">
-                  <div className="px-2.5 py-1 text-xs font-semibold uppercase tracking-wider text-muted-foreground/80">
+                  <div className="px-2.5 py-1 text-[11px] font-semibold uppercase tracking-wider text-zinc-400">
                     {group.category}
                   </div>
                   <div className="space-y-0.5">
@@ -267,10 +268,10 @@ export function SourceCombobox({
                           type="button"
                           onClick={() => handleSelect(source)}
                           className={cn(
-                            "w-full flex items-center justify-between px-2.5 py-1.5 rounded-md text-sm text-left transition-colors",
+                            "w-full flex items-center justify-between px-3 py-2 rounded-xl text-xs sm:text-sm text-left transition-colors",
                             isSelected
-                              ? "bg-primary/15 text-primary font-medium"
-                              : "text-foreground hover:bg-accent hover:text-accent-foreground"
+                              ? "bg-primary/20 text-primary font-medium border border-primary/30"
+                              : "text-zinc-300 hover:bg-white/[0.08] hover:text-white"
                           )}
                         >
                           <span className="truncate">{source}</span>
@@ -285,8 +286,8 @@ export function SourceCombobox({
               ))
             ) : (
               <div className="p-4 text-center space-y-2">
-                <p className="text-sm text-muted-foreground">
-                  No standard source matching <span className="font-medium text-foreground">&quot;{search}&quot;</span>
+                <p className="text-xs text-zinc-400">
+                  No standard source matching <span className="font-medium text-white">&quot;{search}&quot;</span>
                 </p>
                 {search.trim() && (
                   <Button
@@ -294,7 +295,7 @@ export function SourceCombobox({
                     variant="outline"
                     size="sm"
                     onClick={() => handleSelect(search.trim())}
-                    className="w-full gap-1.5 text-xs border-dashed border-primary/40 hover:border-primary text-primary"
+                    className="w-full gap-1.5 text-xs border-dashed border-primary/40 hover:border-primary text-primary bg-white/[0.04] hover:bg-white/[0.08] rounded-xl"
                   >
                     <Plus className="h-3.5 w-3.5" />
                     Use &quot;{search.trim()}&quot; as source
@@ -306,8 +307,8 @@ export function SourceCombobox({
 
           {/* Quick Footer */}
           {search.trim() && allFilteredSources.length > 0 && (
-            <div className="p-2 border-t border-border/60 bg-muted/20 text-[11px] text-muted-foreground text-center">
-              Press <kbd className="px-1 py-0.5 rounded bg-muted border border-border text-foreground font-mono">Enter ↵</kbd> to select <span className="text-foreground font-medium">{allFilteredSources[0]}</span>
+            <div className="p-2.5 border-t border-white/10 bg-white/[0.02] text-[11px] text-zinc-400 text-center">
+              Press <kbd className="px-1.5 py-0.5 rounded bg-white/[0.08] border border-white/15 text-white font-mono text-[10px]">Enter ↵</kbd> to select <span className="text-white font-medium">{allFilteredSources[0]}</span>
             </div>
           )}
         </div>

@@ -166,13 +166,14 @@ export function LocationCombobox({
         disabled={disabled}
         onClick={handleOpen}
         className={cn(
-          "flex h-9.5 w-full items-center justify-between gap-2 rounded-lg border border-input bg-background px-3 py-2 text-sm shadow-sm transition-all hover:border-foreground/30 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50 text-foreground text-left",
-          !value && "text-muted-foreground",
+          "flex h-10 w-full items-center justify-between gap-2 rounded-xl border border-white/20 bg-white/[0.05] px-3.5 py-2 text-sm shadow-inner transition-all hover:border-white/35 hover:bg-white/[0.08] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/40 disabled:cursor-not-allowed disabled:opacity-50 text-white text-left backdrop-blur-md",
+          !value && "text-zinc-400",
+          open && "border-primary/60 bg-white/[0.09]",
           className
         )}
       >
-        <div className="flex items-center gap-2 truncate">
-          <MapPin className={cn("h-4 w-4 shrink-0", value ? "text-primary" : "text-muted-foreground")} />
+        <div className="flex items-center gap-2.5 truncate">
+          <MapPin className={cn("h-4 w-4 shrink-0", value ? "text-primary" : "text-zinc-400")} />
           <span className="truncate">{value || placeholder}</span>
         </div>
 
@@ -189,15 +190,15 @@ export function LocationCombobox({
                 }
               }}
               title="Clear location"
-              className="p-1 rounded-md text-muted-foreground hover:text-foreground hover:bg-muted cursor-pointer"
+              className="p-1 rounded-full text-zinc-400 hover:text-white hover:bg-white/10 cursor-pointer transition-colors"
             >
               <X className="h-3.5 w-3.5" />
             </div>
           )}
           <ChevronDown
             className={cn(
-              "h-4 w-4 text-muted-foreground transition-transform duration-200",
-              open && "rotate-180"
+              "h-4 w-4 text-zinc-400 transition-transform duration-200",
+              open && "rotate-180 text-white"
             )}
           />
         </div>
@@ -206,14 +207,14 @@ export function LocationCombobox({
       {/* Popover Dropdown */}
       {open && (
         <div
-          className="absolute top-[calc(100%+6px)] left-0 w-full min-w-[340px] sm:min-w-[460px] md:min-w-[520px] max-w-[95vw] z-[120] rounded-xl border border-border bg-popover/98 backdrop-blur-md shadow-2xl overflow-hidden animate-in fade-in-0 zoom-in-95 duration-150 text-foreground"
+          className="absolute top-[calc(100%+6px)] left-0 w-full min-w-[340px] sm:min-w-[460px] md:min-w-[520px] max-w-[95vw] z-[120] rounded-2xl border border-white/15 bg-[#121319]/95 backdrop-blur-2xl shadow-[0_20px_50px_rgba(0,0,0,0.8)] overflow-hidden animate-in fade-in-0 zoom-in-95 duration-150 text-white"
           style={{ transformOrigin: "top left" }}
         >
           {/* Header Search Bar with Dedicated Search Button */}
-          <div className="p-3 border-b border-border bg-secondary/20">
+          <div className="p-3 border-b border-white/10 bg-white/[0.02]">
             <div className="flex items-center gap-2">
               <div className="relative flex-1">
-                <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground pointer-events-none" />
+                <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-zinc-400 pointer-events-none" />
                 <input
                   ref={searchInputRef}
                   type="text"
@@ -224,13 +225,13 @@ export function LocationCombobox({
                   }}
                   onKeyDown={handleSearchKeyDown}
                   placeholder="Search station, city, state, country (e.g. Andheri, Dadar, Dubai)..."
-                  className="w-full bg-background border border-input rounded-lg pl-9 pr-8 py-2 text-sm text-foreground placeholder:text-muted-foreground/80 focus:outline-none focus:ring-2 focus:ring-primary/40 shadow-inner"
+                  className="w-full bg-white/[0.05] border border-white/15 rounded-xl pl-9.5 pr-8 py-2 text-sm text-white placeholder:text-zinc-500 focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary/40 shadow-inner"
                 />
                 {searchQuery && (
                   <button
                     type="button"
                     onClick={() => setSearchQuery("")}
-                    className="absolute right-2.5 top-1/2 -translate-y-1/2 p-0.5 rounded-full text-muted-foreground hover:text-foreground hover:bg-muted"
+                    className="absolute right-2.5 top-1/2 -translate-y-1/2 p-1 rounded-full text-zinc-400 hover:text-white"
                   >
                     <X className="h-3.5 w-3.5" />
                   </button>
@@ -246,7 +247,7 @@ export function LocationCombobox({
                   if (activeTab !== "search") setActiveTab("search");
                   searchInputRef.current?.focus();
                 }}
-                className="h-9 px-3.5 gap-1.5 font-medium shrink-0 shadow-sm"
+                className="h-10 px-4 gap-1.5 font-medium shrink-0 rounded-xl bg-primary hover:bg-primary/90 shadow-sm"
               >
                 <Search className="h-3.5 w-3.5" />
                 <span>Search</span>
@@ -254,22 +255,22 @@ export function LocationCombobox({
             </div>
 
             {/* Mode Switcher Tabs */}
-            <div className="flex items-center justify-between gap-2 mt-2.5 pt-2 border-t border-border/40 text-xs">
+            <div className="flex items-center justify-between gap-2 mt-3 pt-2.5 border-t border-white/10 text-xs">
               <div className="flex items-center gap-1.5">
                 <button
                   type="button"
                   onClick={() => setActiveTab("search")}
                   className={cn(
-                    "px-3 py-1 rounded-md font-medium transition-colors flex items-center gap-1.5",
+                    "px-3 py-1.5 rounded-lg font-medium transition-all flex items-center gap-1.5 text-xs",
                     activeTab === "search"
-                      ? "bg-primary text-primary-foreground shadow-sm"
-                      : "text-muted-foreground hover:text-foreground hover:bg-muted"
+                      ? "bg-primary text-white shadow-xs font-semibold"
+                      : "text-zinc-400 hover:text-white hover:bg-white/[0.08]"
                   )}
                 >
                   <Compass className="h-3.5 w-3.5" />
                   Global Search
                   {searchQuery.trim() && (
-                    <span className="ml-1 px-1.5 py-0.2 text-[10px] rounded-full bg-background/20 font-bold">
+                    <span className="ml-1 px-1.5 py-0.2 text-[10px] rounded-full bg-black/30 font-bold text-white">
                       {searchResults.length}
                     </span>
                   )}
@@ -279,10 +280,10 @@ export function LocationCombobox({
                   type="button"
                   onClick={() => setActiveTab("hierarchy")}
                   className={cn(
-                    "px-3 py-1 rounded-md font-medium transition-colors flex items-center gap-1.5",
+                    "px-3 py-1.5 rounded-lg font-medium transition-all flex items-center gap-1.5 text-xs",
                     activeTab === "hierarchy"
-                      ? "bg-primary text-primary-foreground shadow-sm"
-                      : "text-muted-foreground hover:text-foreground hover:bg-muted"
+                      ? "bg-primary text-white shadow-xs font-semibold"
+                      : "text-zinc-400 hover:text-white hover:bg-white/[0.08]"
                   )}
                 >
                   <Globe2 className="h-3.5 w-3.5" />

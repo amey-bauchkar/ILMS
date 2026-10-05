@@ -64,9 +64,14 @@ export function LeadInfoCard({ lead }: LeadInfoCardProps) {
                 <Pencil className="h-4 w-4" />
                 <span className="sr-only">Edit lead</span>
               </SheetTrigger>
-              <SheetContent className="sm:max-w-[500px] w-[90vw] overflow-y-auto">
-                <SheetHeader className="mb-6">
-                  <SheetTitle>Edit Lead</SheetTitle>
+              <SheetContent className="sm:max-w-[650px] w-[95vw] overflow-y-auto bg-[#101117]/95 border-l border-white/15 backdrop-blur-2xl p-6 text-white">
+                <SheetHeader className="mb-6 pb-4 border-b border-white/10">
+                  <SheetTitle className="text-xl font-bold tracking-tight text-white flex items-center gap-3">
+                    <div className="h-9 w-9 rounded-xl bg-primary/20 border border-primary/30 flex items-center justify-center text-primary shadow-xs">
+                      <Pencil className="h-4 w-4" />
+                    </div>
+                    <span>Edit Lead</span>
+                  </SheetTitle>
                 </SheetHeader>
                 <LeadForm 
                   key={lead.id + (isEditOpen ? "-open" : "-closed")}
