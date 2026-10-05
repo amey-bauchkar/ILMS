@@ -245,50 +245,61 @@ export function StatusPipeline({ currentStatus, onStatusChange }: StatusPipeline
                   className={cn(
                     "flex flex-col items-center gap-1.5 px-3 py-2 rounded-lg transition-all group focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring",
                     state === "current" && "cursor-default",
-                    state === "future" && "opacity-50 hover:opacity-80 cursor-pointer",
-                    state === "completed" && "cursor-pointer hover:opacity-80"
+                    state === "future" && "opacity-90 hover:opacity-100 cursor-pointer",
+                    state === "completed" && "cursor-pointer hover:opacity-90"
                   )}
                 >
                   {/* Circle */}
                   <div
                     className={cn(
                       "w-8 h-8 rounded-full flex items-center justify-center transition-all border-2",
-                      state === "completed" && "border-transparent",
-                      state === "current" && "ring-4",
-                      state === "future" && "border-dashed border-border bg-transparent"
+                      state === "completed" && "border-solid shadow-xs",
+                      state === "current" && "ring-4 border-solid shadow-sm",
+                      state === "future" && "border-dashed group-hover:scale-105"
                     )}
                     style={{
                       backgroundColor:
                         state === "completed"
                           ? color
                           : state === "current"
-                          ? `${color}20`
-                          : "transparent",
-                      borderColor: state !== "future" ? color : undefined,
+                          ? `${color}25`
+                          : `${color}0d`,
+                      borderColor:
+                        state === "future"
+                          ? `${color}45`
+                          : color,
                       // @ts-expect-error CSS custom property
-                      "--tw-ring-color": `${color}30`,
+                      "--tw-ring-color": `${color}35`,
                     }}
                   >
                     {state === "completed" ? (
                       <CheckCircle2 className="h-4 w-4 text-white" />
                     ) : state === "current" ? (
                       <div
-                        className="w-3 h-3 rounded-full"
+                        className="w-3 h-3 rounded-full shadow-xs"
                         style={{ backgroundColor: color }}
                       />
                     ) : (
-                      <div className="w-2.5 h-2.5 rounded-full bg-border" />
+                      <div
+                        className="w-2.5 h-2.5 rounded-full transition-colors group-hover:scale-110"
+                        style={{ backgroundColor: `${color}60` }}
+                      />
                     )}
                   </div>
 
                   {/* Label */}
                   <span
                     className={cn(
-                      "text-[10px] font-medium leading-tight text-center max-w-[70px] whitespace-normal",
-                      state === "current" && "font-semibold",
-                      state === "future" && "text-muted-foreground"
+                      "text-[10px] font-medium leading-tight text-center max-w-[70px] whitespace-normal transition-colors",
+                      state === "current" && "font-bold",
+                      state === "completed" && "font-semibold"
                     )}
-                    style={{ color: state !== "future" ? color : undefined }}
+                    style={{
+                      color:
+                        state === "future"
+                          ? `${color}aa`
+                          : color,
+                    }}
                   >
                     {status}
                   </span>
@@ -297,14 +308,14 @@ export function StatusPipeline({ currentStatus, onStatusChange }: StatusPipeline
                 {/* Connector */}
                 {!isLast && (
                   <div
-                    className={cn("h-px w-4 shrink-0 mx-0.5")}
+                    className={cn("h-0.5 w-4 shrink-0 mx-0.5 rounded-full transition-all")}
                     style={{
                       backgroundColor:
                         getStepState(linearPipeline[idx + 1].name, localStatusName, linearPipelineNames) !== "future"
                           ? color
-                          : "var(--border)",
+                          : `${color}35`,
                       opacity:
-                        getStepState(linearPipeline[idx + 1].name, localStatusName, linearPipelineNames) === "future" ? 0.3 : 1,
+                        getStepState(linearPipeline[idx + 1].name, localStatusName, linearPipelineNames) === "future" ? 0.7 : 1,
                     }}
                     aria-hidden="true"
                   />
@@ -314,7 +325,7 @@ export function StatusPipeline({ currentStatus, onStatusChange }: StatusPipeline
           })}
 
           {/* Separator for special statuses */}
-          <ChevronRight className="h-4 w-4 text-border mx-2 shrink-0" aria-hidden="true" />
+          <ChevronRight className="h-4 w-4 text-orange-500/40 mx-2 shrink-0" aria-hidden="true" />
 
           {/* Special terminal statuses */}
           {specialPipeline.map((statusObj) => {
@@ -329,29 +340,33 @@ export function StatusPipeline({ currentStatus, onStatusChange }: StatusPipeline
                 onClick={() => handleStepClick(status)}
                 disabled={isActive}
                 className={cn(
-                  "flex flex-col items-center gap-1.5 px-3 py-2 rounded-lg transition-all",
-                  isActive ? "cursor-default" : "opacity-50 hover:opacity-80 cursor-pointer"
+                  "flex flex-col items-center gap-1.5 px-3 py-2 rounded-lg transition-all group",
+                  isActive ? "cursor-default" : "opacity-90 hover:opacity-100 cursor-pointer"
                 )}
               >
                 <div
-                  className="w-8 h-8 rounded-full flex items-center justify-center border-2"
+                  className={cn(
+                    "w-8 h-8 rounded-full flex items-center justify-center border-2 transition-all",
+                    isActive ? "border-solid ring-4 shadow-sm" : "border-dashed group-hover:scale-105"
+                  )}
                   style={{
-                    backgroundColor: isActive ? `${color}20` : "transparent",
-                    borderColor: isActive ? color : "var(--border)",
-                    borderStyle: isActive ? "solid" : "dashed",
+                    backgroundColor: isActive ? `${color}25` : `${color}0d`,
+                    borderColor: isActive ? color : `${color}45`,
+                    // @ts-expect-error custom ring property
+                    "--tw-ring-color": `${color}35`,
                   }}
                 >
                   <div
-                    className="w-3 h-3 rounded-full"
-                    style={{ backgroundColor: isActive ? color : "var(--muted-foreground)" }}
+                    className="w-3 h-3 rounded-full transition-colors"
+                    style={{ backgroundColor: isActive ? color : `${color}60` }}
                   />
                 </div>
                 <span
                   className={cn(
-                    "text-[10px] font-medium text-center max-w-[70px]",
-                    !isActive && "text-muted-foreground"
+                    "text-[10px] font-medium text-center max-w-[70px] transition-colors",
+                    isActive ? "font-bold" : "group-hover:text-white"
                   )}
-                  style={{ color: isActive ? color : undefined }}
+                  style={{ color: isActive ? color : `${color}aa` }}
                 >
                   {status}
                 </span>
