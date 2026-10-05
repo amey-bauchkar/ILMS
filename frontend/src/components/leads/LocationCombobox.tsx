@@ -207,8 +207,8 @@ export function LocationCombobox({
       {/* Popover Dropdown */}
       {open && (
         <div
-          className="absolute top-[calc(100%+6px)] left-0 w-full min-w-[340px] sm:min-w-[460px] md:min-w-[520px] max-w-[95vw] z-[120] rounded-2xl border border-white/15 bg-[#121319]/95 backdrop-blur-2xl shadow-[0_20px_50px_rgba(0,0,0,0.8)] overflow-hidden animate-in fade-in-0 zoom-in-95 duration-150 text-white"
-          style={{ transformOrigin: "top left" }}
+          className="absolute top-[calc(100%+6px)] left-0 w-full z-[120] rounded-2xl border border-white/20 bg-[#121319] shadow-[0_25px_60px_rgba(0,0,0,0.95)] overflow-hidden animate-in fade-in-0 zoom-in-95 duration-150 text-white"
+          style={{ transformOrigin: "top center" }}
         >
           {/* Header Search Bar with Dedicated Search Button */}
           <div className="p-3 border-b border-white/10 bg-white/[0.02]">
@@ -421,11 +421,11 @@ export function LocationCombobox({
                   </div>
 
                   {/* Frequently Selected Key Stations */}
-                  <div className="space-y-1">
+                  <div className="space-y-1.5">
                     <p className="text-[11px] font-semibold uppercase tracking-wider text-zinc-400 px-2">
                       Featured Business Hubs & Stations
                     </p>
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-1 px-1">
+                    <div className="space-y-1 px-1 max-h-[190px] overflow-y-auto">
                       {[
                         { name: "Andheri East (MIDC / SEEPZ), Mumbai, Maharashtra, India", flag: "🇮🇳" },
                         { name: "Andheri West (Lokhandwala / Versova), Mumbai, Maharashtra, India", flag: "🇮🇳" },
@@ -444,13 +444,13 @@ export function LocationCombobox({
                           key={`feat-${item.name}-${idx}`}
                           type="button"
                           onClick={() => handleSelectLocation(item.name)}
-                          className="flex items-center justify-between p-2 rounded-xl text-xs text-left hover:bg-white/[0.08] hover:text-white transition-colors border border-white/10 bg-white/[0.03] text-zinc-300"
+                          className="w-full flex items-center justify-between p-2.5 rounded-xl text-xs text-left hover:bg-white/[0.08] hover:text-white transition-colors border border-white/10 bg-white/[0.03] text-zinc-300 group"
                         >
-                          <div className="flex items-center gap-2 truncate">
-                            <span>{item.flag}</span>
-                            <span className="truncate">{item.name}</span>
+                          <div className="flex items-center gap-2.5 truncate min-w-0 flex-1">
+                            <span className="text-base shrink-0">{item.flag}</span>
+                            <span className="truncate font-medium">{item.name}</span>
                           </div>
-                          <ChevronRight className="h-3 w-3 text-zinc-500 shrink-0" />
+                          <ChevronRight className="h-3.5 w-3.5 text-zinc-500 group-hover:text-white shrink-0 ml-2" />
                         </button>
                       ))}
                     </div>

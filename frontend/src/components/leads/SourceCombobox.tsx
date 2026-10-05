@@ -225,7 +225,7 @@ export function SourceCombobox({
       {/* Downward Dropdown Menu */}
       {open && (
         <div
-          className="absolute top-[calc(100%+6px)] left-0 w-full min-w-[300px] z-[100] rounded-2xl border border-white/15 bg-[#121319]/95 backdrop-blur-2xl shadow-[0_20px_50px_rgba(0,0,0,0.8)] overflow-hidden animate-in fade-in-0 zoom-in-95 duration-100 text-white"
+          className="absolute top-[calc(100%+6px)] left-0 w-full min-w-[280px] max-w-full z-[100] rounded-2xl border border-white/20 bg-[#121319] shadow-[0_25px_60px_rgba(0,0,0,0.95)] overflow-hidden animate-in fade-in-0 zoom-in-95 duration-100 text-white"
           style={{ transformOrigin: "top center" }}
         >
           {/* Search Input Box */}

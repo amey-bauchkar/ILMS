@@ -494,7 +494,7 @@ export function LeadForm({ initialData, onSuccess }: LeadFormProps) {
         </div>
 
         {/* Section 2: Pipeline & Ownership */}
-        <div className="relative z-15 rounded-2xl border border-white/10 bg-gradient-to-b from-[#181a24]/90 to-[#12141c]/80 backdrop-blur-xl p-5 space-y-4 shadow-sm hover:border-white/20 transition-all duration-300">
+        <div className="relative z-[15] rounded-2xl border border-white/10 bg-gradient-to-b from-[#181a24]/90 to-[#12141c]/80 backdrop-blur-xl p-5 space-y-4 shadow-sm hover:border-white/20 transition-all duration-300">
           <div className="flex items-center justify-between pb-3 border-b border-white/[0.08]">
             <div className="flex items-center gap-2.5">
               <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-blue-500/15 text-blue-400 border border-blue-500/25 text-xs font-bold shadow-xs">
@@ -510,7 +510,7 @@ export function LeadForm({ initialData, onSuccess }: LeadFormProps) {
             </span>
           </div>
 
-          <div className="relative z-20 grid sm:grid-cols-2 gap-4">
+          <div className="relative z-[20] grid sm:grid-cols-2 gap-4">
             <FormField
               control={form.control}
               name="source"
@@ -556,7 +556,7 @@ export function LeadForm({ initialData, onSuccess }: LeadFormProps) {
                           </SelectValue>
                         </SelectTrigger>
                       </FormControl>
-                      <SelectContent className="rounded-2xl border border-white/15 bg-[#121319]/95 backdrop-blur-2xl shadow-[0_20px_50px_rgba(0,0,0,0.8)] text-white p-1">
+                      <SelectContent className="rounded-2xl border border-white/20 bg-[#121319] shadow-[0_25px_60px_rgba(0,0,0,0.95)] text-white p-1 z-[130]">
                         {statuses.map((s) => (
                           <SelectItem key={s.id} value={s.id} className="rounded-xl text-zinc-300 hover:text-white hover:bg-white/[0.08] focus:bg-white/[0.1] focus:text-white cursor-pointer px-3 py-2 text-xs sm:text-sm">
                             <span className="flex items-center gap-2">
@@ -574,7 +574,7 @@ export function LeadForm({ initialData, onSuccess }: LeadFormProps) {
             />
           </div>
 
-          <div className="relative z-15 grid sm:grid-cols-2 gap-4">
+          <div className="relative z-[15] grid sm:grid-cols-2 gap-4">
             <FormField
               control={form.control}
               name="priority"
@@ -589,7 +589,7 @@ export function LeadForm({ initialData, onSuccess }: LeadFormProps) {
                         <SelectValue placeholder="Select priority" />
                       </SelectTrigger>
                     </FormControl>
-                    <SelectContent className="rounded-2xl border border-white/15 bg-[#121319]/95 backdrop-blur-2xl shadow-[0_20px_50px_rgba(0,0,0,0.8)] text-white p-1">
+                    <SelectContent className="rounded-2xl border border-white/20 bg-[#121319] shadow-[0_25px_60px_rgba(0,0,0,0.95)] text-white p-1 z-[130]">
                       <SelectItem value="Hot" className="rounded-xl text-zinc-300 hover:text-white hover:bg-white/[0.08] focus:bg-white/[0.1] focus:text-white cursor-pointer px-3 py-2 text-xs sm:text-sm">
                         <span className="flex items-center gap-2 font-medium text-red-400">
                           <span className="w-2.5 h-2.5 rounded-full bg-red-500 shadow-xs" />
@@ -639,7 +639,7 @@ export function LeadForm({ initialData, onSuccess }: LeadFormProps) {
                           </SelectValue>
                         </SelectTrigger>
                       </FormControl>
-                      <SelectContent className="rounded-2xl border border-white/15 bg-[#121319]/95 backdrop-blur-2xl shadow-[0_20px_50px_rgba(0,0,0,0.8)] text-white p-1">
+                      <SelectContent className="rounded-2xl border border-white/20 bg-[#121319] shadow-[0_25px_60px_rgba(0,0,0,0.95)] text-white p-1 z-[130]">
                         {members.map((member) => (
                           <SelectItem key={member.id} value={member.id} className="rounded-xl text-zinc-300 hover:text-white hover:bg-white/[0.08] focus:bg-white/[0.1] focus:text-white cursor-pointer px-3 py-2 text-xs sm:text-sm">
                             <span className="flex items-center gap-2">
@@ -699,7 +699,7 @@ export function LeadForm({ initialData, onSuccess }: LeadFormProps) {
                             <SelectValue placeholder="Select a reason" />
                           </SelectTrigger>
                         </FormControl>
-                        <SelectContent className="rounded-2xl border border-white/15 bg-[#121319]/95 backdrop-blur-2xl shadow-2xl text-white p-1">
+                        <SelectContent className="rounded-2xl border border-white/20 bg-[#121319] shadow-[0_25px_60px_rgba(0,0,0,0.95)] text-white p-1 z-[130]">
                           <SelectItem value="Budget" className="rounded-xl text-zinc-300 hover:text-white hover:bg-white/[0.08]">Budget Constraint</SelectItem>
                           <SelectItem value="Timing" className="rounded-xl text-zinc-300 hover:text-white hover:bg-white/[0.08]">Timing / Deferred</SelectItem>
                           <SelectItem value="Went with competitor" className="rounded-xl text-zinc-300 hover:text-white hover:bg-white/[0.08]">Went with Competitor</SelectItem>

@@ -214,7 +214,7 @@ export function PhoneInputWithCountry({
       {/* Country Code Dropdown Popover */}
       {open && (
         <div
-          className="absolute top-[calc(100%+6px)] left-0 w-[300px] sm:w-[340px] z-[150] rounded-2xl border border-white/15 bg-[#121319]/95 backdrop-blur-2xl shadow-[0_20px_50px_rgba(0,0,0,0.8)] overflow-hidden animate-in fade-in-0 zoom-in-95 duration-100 text-white"
+          className="absolute top-[calc(100%+6px)] left-0 w-[300px] sm:w-[340px] max-w-[calc(100vw-2rem)] z-[150] rounded-2xl border border-white/20 bg-[#121319] shadow-[0_25px_60px_rgba(0,0,0,0.95)] overflow-hidden animate-in fade-in-0 zoom-in-95 duration-100 text-white"
           style={{ transformOrigin: "top left" }}
         >
           {/* Search Box */}
