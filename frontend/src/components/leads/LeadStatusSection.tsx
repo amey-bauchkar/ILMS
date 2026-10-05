@@ -11,10 +11,7 @@ interface LeadStatusSectionProps {
 
 export function LeadStatusSection({ lead }: LeadStatusSectionProps) {
   return (
-    <div className="bg-card border border-border rounded-xl px-4 py-4 shadow-sm">
-      <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground mb-3">
-        Pipeline Status
-      </p>
+    <div className="w-full bg-card/80 backdrop-blur-md border border-border rounded-2xl p-4 sm:p-5 shadow-sm transition-all">
       <StatusPipeline
         currentStatus={lead.status}
         onStatusChange={async (newStatusId, lostReason) => {
@@ -26,7 +23,7 @@ export function LeadStatusSection({ lead }: LeadStatusSectionProps) {
           if (result.error) {
             toast.error(result.error);
           } else {
-            toast.success("Status updated!");
+            toast.success("Lead status updated successfully!");
           }
         }}
       />
