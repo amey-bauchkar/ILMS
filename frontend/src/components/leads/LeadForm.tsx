@@ -18,9 +18,7 @@ import { Input } from "@/components/ui/input";
 import {
   Select,
   SelectContent,
-  SelectGroup,
   SelectItem,
-  SelectLabel,
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
@@ -32,7 +30,25 @@ import { TagManager } from "./TagManager";
 import { SourceCombobox } from "./SourceCombobox";
 import { LocationCombobox } from "./LocationCombobox";
 import { PhoneInputWithCountry } from "./PhoneInputWithCountry";
-import { User, FileText, Tag as TagIcon, Banknote, ListTodo, Loader2, Link2, Trash2 } from "lucide-react";
+import { 
+  User, 
+  Building2, 
+  Phone, 
+  Mail, 
+  Calendar, 
+  Clock, 
+  Tag as TagIcon, 
+  FileText, 
+  Link2, 
+  Trash2, 
+  Loader2, 
+  Briefcase, 
+  MapPin, 
+  IndianRupee, 
+  AlertTriangle,
+  Flame,
+  Sparkles
+} from "lucide-react";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { toast } from "sonner";
 
@@ -195,7 +211,6 @@ export function LeadForm({ initialData, onSuccess }: LeadFormProps) {
     }
   }, [initialData?.id, newStatus?.id, user?.id]);
 
-  // Determine if the selected status is "Lost"
   const watchStatusId = form.watch("status");
   const selectedStatus = statuses.find((s) => s.id === watchStatusId);
   const isLostStatus = selectedStatus?.name === "Lost";
@@ -313,29 +328,73 @@ export function LeadForm({ initialData, onSuccess }: LeadFormProps) {
     }
   }
 
+  const source = form.watch("source");
+  const sourcePlaceholderMap: Record<string, string> = {
+    "LinkedIn": "https://linkedin.com/in/...",
+    "Twitter / X": "https://x.com/...",
+    "Instagram": "https://instagram.com/...",
+    "Facebook": "https://facebook.com/...",
+    "YouTube": "https://youtube.com/@...",
+    "Reddit": "https://reddit.com/r/.../comments/...",
+    "WhatsApp": "https://wa.me/...",
+    "Telegram": "https://t.me/...",
+    "Discord": "https://discord.gg/...",
+    "Threads": "https://threads.net/@...",
+    "Upwork": "https://upwork.com/...",
+    "Fiverr": "https://fiverr.com/...",
+    "Freelancer": "https://freelancer.com/...",
+    "Indeed": "https://indeed.com/...",
+    "Naukri": "https://naukri.com/...",
+    "Wellfound (AngelList)": "https://wellfound.com/...",
+    "Glassdoor": "https://glassdoor.com/...",
+    "Internshala": "https://internshala.com/...",
+    "TopTal": "https://toptal.com/...",
+    "Guru": "https://guru.com/...",
+    "PeoplePerHour": "https://peopleperhour.com/...",
+    "Website Inbound": "https://...",
+    "Google Search / SEO": "https://...",
+    "Google My Business": "https://maps.google.com/...",
+    "Google Business Profile": "https://maps.google.com/...",
+    "Just Dial": "https://justdial.com/...",
+    "Local Business": "https://...",
+    "Referral": "https://...",
+    "Cold Outreach": "https://...",
+    "Events / Conferences": "https://...",
+    "Clutch": "https://clutch.co/profile/...",
+    "Dribbble": "https://dribbble.com/...",
+    "Behance": "https://behance.net/...",
+    "Other": "https://...",
+  };
+
   return (
     <Form {...form}>
       <form onSubmit={form.handleSubmit(onSubmit, onInvalid)} className="space-y-6">
         
-        {/* Contact Info */}
-        <div className="bg-card border border-border p-6 rounded-xl space-y-5 shadow-sm relative overflow-hidden">
-          <div className="absolute top-0 left-0 w-1 h-full bg-primary" />
-          <div className="flex items-center gap-2 mb-2">
-            <div className="p-2 bg-primary/10 rounded-md">
-              <User className="h-4 w-4 text-primary" />
+        {/* Section 1: Contact Details */}
+        <div className="rounded-2xl border border-border/60 bg-secondary/15 p-5 space-y-4 shadow-sm">
+          <div className="flex items-center gap-2 pb-1 border-b border-border/40">
+            <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-primary/10 text-primary">
+              <User className="h-4 w-4" />
             </div>
-            <h3 className="text-sm font-semibold tracking-wide uppercase text-foreground">Contact Info</h3>
+            <div>
+              <h3 className="text-sm font-semibold text-foreground">Contact Information</h3>
+              <p className="text-xs text-muted-foreground">Primary contact and company details</p>
+            </div>
           </div>
-          
-          <div className="grid sm:grid-cols-2 gap-5">
+
+          <div className="grid sm:grid-cols-2 gap-4">
             <FormField
               control={form.control}
               name="name"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Name *</FormLabel>
+                  <FormLabel className="text-xs font-medium text-foreground">Name <span className="text-primary">*</span></FormLabel>
                   <FormControl>
-                    <Input placeholder="John Doe" className="bg-background border-input shadow-sm transition-colors hover:border-foreground/20 focus-visible:ring-1" {...field} />
+                    <Input 
+                      placeholder="e.g. John Doe" 
+                      className="bg-background/80 border-input h-10 shadow-xs focus-visible:ring-1 focus-visible:ring-primary/40 focus-visible:border-primary" 
+                      {...field} 
+                    />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -346,9 +405,14 @@ export function LeadForm({ initialData, onSuccess }: LeadFormProps) {
               name="company"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Company</FormLabel>
+                  <FormLabel className="text-xs font-medium text-foreground">Company</FormLabel>
                   <FormControl>
-                    <Input placeholder="Acme Corp" className="bg-background border-input shadow-sm transition-colors hover:border-foreground/20 focus-visible:ring-1" {...field} value={field.value || ""} />
+                    <Input 
+                      placeholder="e.g. Acme Innovations" 
+                      className="bg-background/80 border-input h-10 shadow-xs focus-visible:ring-1 focus-visible:ring-primary/40 focus-visible:border-primary" 
+                      {...field} 
+                      value={field.value || ""} 
+                    />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -356,13 +420,13 @@ export function LeadForm({ initialData, onSuccess }: LeadFormProps) {
             />
           </div>
 
-          <div className="grid sm:grid-cols-2 gap-5">
+          <div className="grid sm:grid-cols-2 gap-4">
             <FormField
               control={form.control}
               name="phone"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Phone *</FormLabel>
+                  <FormLabel className="text-xs font-medium text-foreground">Phone <span className="text-primary">*</span></FormLabel>
                   <FormControl>
                     <PhoneInputWithCountry
                       value={field.value || ""}
@@ -380,9 +444,15 @@ export function LeadForm({ initialData, onSuccess }: LeadFormProps) {
               name="email"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Email</FormLabel>
+                  <FormLabel className="text-xs font-medium text-foreground">Email</FormLabel>
                   <FormControl>
-                    <Input type="email" placeholder="john@example.com" className="bg-background border-input shadow-sm transition-colors hover:border-foreground/20 focus-visible:ring-1" {...field} value={field.value || ""} />
+                    <Input 
+                      type="email" 
+                      placeholder="john@example.com" 
+                      className="bg-background/80 border-input h-10 shadow-xs focus-visible:ring-1 focus-visible:ring-primary/40 focus-visible:border-primary" 
+                      {...field} 
+                      value={field.value || ""} 
+                    />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -391,23 +461,25 @@ export function LeadForm({ initialData, onSuccess }: LeadFormProps) {
           </div>
         </div>
 
-        {/* Lead Details */}
-        <div className="bg-card border border-border p-6 rounded-xl space-y-5 shadow-sm relative">
-          <div className="absolute top-0 left-0 w-1 h-full bg-blue-500 rounded-l-xl" />
-          <div className="flex items-center gap-2 mb-2">
-            <div className="p-2 bg-blue-500/10 rounded-md">
-              <ListTodo className="h-4 w-4 text-blue-500" />
+        {/* Section 2: Pipeline & Ownership */}
+        <div className="rounded-2xl border border-border/60 bg-secondary/15 p-5 space-y-4 shadow-sm">
+          <div className="flex items-center gap-2 pb-1 border-b border-border/40">
+            <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-blue-500/10 text-blue-400">
+              <Briefcase className="h-4 w-4" />
             </div>
-            <h3 className="text-sm font-semibold tracking-wide uppercase text-foreground">Lead Details</h3>
+            <div>
+              <h3 className="text-sm font-semibold text-foreground">Pipeline & Assignment</h3>
+              <p className="text-xs text-muted-foreground">Source channel, stage, priority & team assignment</p>
+            </div>
           </div>
-          
-          <div className="grid sm:grid-cols-2 gap-5">
+
+          <div className="grid sm:grid-cols-2 gap-4">
             <FormField
               control={form.control}
               name="source"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Source *</FormLabel>
+                  <FormLabel className="text-xs font-medium text-foreground">Lead Source <span className="text-primary">*</span></FormLabel>
                   <FormControl>
                     <SourceCombobox
                       value={field.value}
@@ -419,6 +491,7 @@ export function LeadForm({ initialData, onSuccess }: LeadFormProps) {
                 </FormItem>
               )}
             />
+
             <FormField
               control={form.control}
               name="status"
@@ -426,18 +499,18 @@ export function LeadForm({ initialData, onSuccess }: LeadFormProps) {
                 const currentStatus = statuses.find((s) => s.id === field.value);
                 return (
                   <FormItem>
-                    <FormLabel>Status *</FormLabel>
+                    <FormLabel className="text-xs font-medium text-foreground">Pipeline Stage <span className="text-primary">*</span></FormLabel>
                     <Select onValueChange={field.onChange} value={field.value}>
                       <FormControl>
-                        <SelectTrigger className="bg-background border-input shadow-sm transition-colors hover:border-foreground/20 focus-visible:ring-1">
-                          <SelectValue placeholder="Select status">
+                        <SelectTrigger className="bg-background/80 border-input h-10 shadow-xs focus-visible:ring-1 focus-visible:ring-primary/40 focus-visible:border-primary">
+                          <SelectValue placeholder="Select stage">
                             {currentStatus ? (
                               <span className="flex items-center gap-2">
                                 <span className="w-2 h-2 rounded-full shrink-0" style={{ backgroundColor: currentStatus.color }} />
                                 {currentStatus.name}
                               </span>
                             ) : (
-                              "Select status"
+                              "Select stage"
                             )}
                           </SelectValue>
                         </SelectTrigger>
@@ -460,30 +533,51 @@ export function LeadForm({ initialData, onSuccess }: LeadFormProps) {
             />
           </div>
 
-          <div className="grid sm:grid-cols-2 gap-5">
+          <div className="grid sm:grid-cols-2 gap-4">
             <FormField
               control={form.control}
               name="priority"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Priority *</FormLabel>
+                  <FormLabel className="text-xs font-medium text-foreground">Priority <span className="text-primary">*</span></FormLabel>
                   <Select onValueChange={field.onChange} value={field.value}>
                     <FormControl>
-                      <SelectTrigger className="bg-background border-input shadow-sm transition-colors hover:border-foreground/20 focus-visible:ring-1">
+                      <SelectTrigger className="bg-background/80 border-input h-10 shadow-xs focus-visible:ring-1 focus-visible:ring-primary/40 focus-visible:border-primary">
                         <SelectValue placeholder="Select priority" />
                       </SelectTrigger>
                     </FormControl>
                     <SelectContent>
-                      <SelectItem value="Hot">Hot</SelectItem>
-                      <SelectItem value="Warm">Warm</SelectItem>
-                      <SelectItem value="Cold">Cold</SelectItem>
-                      <SelectItem value="Dead">Dead</SelectItem>
+                      <SelectItem value="Hot">
+                        <span className="flex items-center gap-2">
+                          <span className="w-2 h-2 rounded-full bg-red-500" />
+                          <span>Hot</span>
+                        </span>
+                      </SelectItem>
+                      <SelectItem value="Warm">
+                        <span className="flex items-center gap-2">
+                          <span className="w-2 h-2 rounded-full bg-orange-500" />
+                          <span>Warm</span>
+                        </span>
+                      </SelectItem>
+                      <SelectItem value="Cold">
+                        <span className="flex items-center gap-2">
+                          <span className="w-2 h-2 rounded-full bg-blue-500" />
+                          <span>Cold</span>
+                        </span>
+                      </SelectItem>
+                      <SelectItem value="Dead">
+                        <span className="flex items-center gap-2">
+                          <span className="w-2 h-2 rounded-full bg-zinc-500" />
+                          <span>Dead</span>
+                        </span>
+                      </SelectItem>
                     </SelectContent>
                   </Select>
                   <FormMessage />
                 </FormItem>
               )}
             />
+
             <FormField
               control={form.control}
               name="ownerId"
@@ -491,10 +585,10 @@ export function LeadForm({ initialData, onSuccess }: LeadFormProps) {
                 const currentOwner = members.find((m) => m.id === field.value);
                 return (
                   <FormItem>
-                    <FormLabel>Owner *</FormLabel>
+                    <FormLabel className="text-xs font-medium text-foreground">Assigned Owner <span className="text-primary">*</span></FormLabel>
                     <Select onValueChange={field.onChange} value={field.value}>
                       <FormControl>
-                        <SelectTrigger className="bg-background border-input shadow-sm transition-colors hover:border-foreground/20 focus-visible:ring-1">
+                        <SelectTrigger className="bg-background/80 border-input h-10 shadow-xs focus-visible:ring-1 focus-visible:ring-primary/40 focus-visible:border-primary">
                           <SelectValue placeholder="Select owner">
                             {currentOwner?.name || (members.length > 0 ? "Select owner" : "Loading...")}
                           </SelectValue>
@@ -515,100 +609,41 @@ export function LeadForm({ initialData, onSuccess }: LeadFormProps) {
             />
           </div>
 
-          <div className="grid sm:grid-cols-2 gap-5">
-            <div className="grid grid-cols-2 gap-3">
-              <FormField
-                control={form.control}
-                name="createdAt"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Last Creation Date</FormLabel>
-                    <FormControl>
-                      <Input type="date" className="bg-background border-input shadow-sm transition-colors hover:border-foreground/20 focus-visible:ring-1" {...field} value={field.value || ""} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              <FormField
-                control={form.control}
-                name="createdAtTime"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Creation Time</FormLabel>
-                    <FormControl>
-                      <Input type="time" className="bg-background border-input shadow-sm transition-colors hover:border-foreground/20 focus-visible:ring-1" {...field} value={field.value || ""} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-            </div>
-
-            <div className="grid grid-cols-2 gap-3">
-              <FormField
-                control={form.control}
-                name="lastContactedAt"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Last Contacted Date</FormLabel>
-                    <FormControl>
-                      <Input type="date" className="bg-background border-input shadow-sm transition-colors hover:border-foreground/20 focus-visible:ring-1" {...field} value={field.value || ""} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              <FormField
-                control={form.control}
-                name="lastContactedAtTime"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Contacted Time</FormLabel>
-                    <FormControl>
-                      <Input type="time" className="bg-background border-input shadow-sm transition-colors hover:border-foreground/20 focus-visible:ring-1" {...field} value={field.value || ""} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-            </div>
-          </div>
-
-          <div className="grid sm:grid-cols-2 gap-5">
-            <FormField
-              control={form.control}
-              name="location"
-              render={({ field }) => (
-                <FormItem className="sm:col-span-2">
-                  <FormLabel>Location / Place</FormLabel>
-                  <FormControl>
-                    <LocationCombobox
-                      value={field.value || ""}
-                      onChange={field.onChange}
-                      placeholder="Select or search station, city, state, country..."
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-          </div>
+          <FormField
+            control={form.control}
+            name="location"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel className="text-xs font-medium text-foreground">Location / Geography</FormLabel>
+                <FormControl>
+                  <LocationCombobox
+                    value={field.value || ""}
+                    onChange={field.onChange}
+                    placeholder="Select or search station, city, state, country..."
+                  />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
 
           {/* Conditional Lost Reason */}
           {isLostStatus && (
-            <div className="space-y-4 pt-4 mt-4 border-t border-destructive/20">
-              <h4 className="font-medium text-destructive">Lost Details</h4>
-              <div className="grid sm:grid-cols-2 gap-5">
+            <div className="rounded-xl border border-destructive/30 bg-destructive/10 p-4 space-y-3 mt-3">
+              <div className="flex items-center gap-2 text-destructive font-semibold text-xs tracking-wider uppercase">
+                <AlertTriangle className="w-4 h-4" />
+                Lost Lead Details
+              </div>
+              <div className="grid sm:grid-cols-2 gap-4">
                 <FormField
                   control={form.control}
                   name="lostReason"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Reason for Loss</FormLabel>
+                      <FormLabel className="text-xs font-medium text-foreground">Reason for Loss</FormLabel>
                       <Select onValueChange={field.onChange} value={field.value}>
                         <FormControl>
-                          <SelectTrigger className="bg-background border-input shadow-sm transition-colors hover:border-foreground/20 focus-visible:ring-1">
+                          <SelectTrigger className="bg-background/90 border-input h-10 shadow-xs">
                             <SelectValue placeholder="Select a reason" />
                           </SelectTrigger>
                         </FormControl>
@@ -630,11 +665,11 @@ export function LeadForm({ initialData, onSuccess }: LeadFormProps) {
                   name="lostReasonDetails"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Additional Context</FormLabel>
+                      <FormLabel className="text-xs font-medium text-foreground">Additional Context</FormLabel>
                       <FormControl>
-                        <Textarea 
-                          className="bg-background border-input shadow-sm transition-colors hover:border-foreground/20 focus-visible:ring-1" 
-                          placeholder="Elaborate on why this lead was lost..." 
+                        <Input 
+                          className="bg-background/90 border-input h-10 shadow-xs" 
+                          placeholder="Why was this lead lost?" 
                           {...field} 
                           value={field.value || ""} 
                         />
@@ -648,234 +683,218 @@ export function LeadForm({ initialData, onSuccess }: LeadFormProps) {
           )}
         </div>
 
-        {/* Deal Info */}
-        <div className="bg-card border border-border p-6 rounded-xl space-y-5 shadow-sm relative overflow-hidden">
-          <div className="absolute top-0 left-0 w-1 h-full bg-green-500" />
-          <div className="flex items-center gap-2 mb-2">
-            <div className="p-2 bg-green-500/10 rounded-md">
-              <Banknote className="h-4 w-4 text-green-500" />
+        {/* Section 3: Activity Timelines & Schedule */}
+        <div className="rounded-2xl border border-border/60 bg-secondary/15 p-5 space-y-4 shadow-sm">
+          <div className="flex items-center gap-2 pb-1 border-b border-border/40">
+            <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-emerald-500/10 text-emerald-400">
+              <Calendar className="h-4 w-4" />
             </div>
-            <h3 className="text-sm font-semibold tracking-wide uppercase text-foreground">Deal Info</h3>
+            <div>
+              <h3 className="text-sm font-semibold text-foreground">Activity & Scheduling</h3>
+              <p className="text-xs text-muted-foreground">Creation, last contacted & next follow-up dates</p>
+            </div>
           </div>
-          
-          <div className="grid sm:grid-cols-2 gap-5">
+
+          <div className="grid sm:grid-cols-3 gap-4">
+            {/* Creation Date & Time */}
+            <div className="space-y-1.5 p-3 rounded-xl border border-border/40 bg-background/50">
+              <span className="text-xs font-medium text-muted-foreground flex items-center gap-1.5">
+                <Clock className="w-3.5 h-3.5 text-primary" /> Creation Date & Time
+              </span>
+              <div className="grid grid-cols-5 gap-1.5 pt-1">
+                <div className="col-span-3">
+                  <FormField
+                    control={form.control}
+                    name="createdAt"
+                    render={({ field }) => (
+                      <FormItem className="space-y-0">
+                        <FormControl>
+                          <Input 
+                            type="date" 
+                            className="bg-background border-input h-9 text-xs px-2 shadow-2xs" 
+                            {...field} 
+                            value={field.value || ""} 
+                          />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                </div>
+                <div className="col-span-2">
+                  <FormField
+                    control={form.control}
+                    name="createdAtTime"
+                    render={({ field }) => (
+                      <FormItem className="space-y-0">
+                        <FormControl>
+                          <Input 
+                            type="time" 
+                            className="bg-background border-input h-9 text-xs px-2 shadow-2xs" 
+                            {...field} 
+                            value={field.value || ""} 
+                          />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                </div>
+              </div>
+            </div>
+
+            {/* Last Contacted Date & Time */}
+            <div className="space-y-1.5 p-3 rounded-xl border border-border/40 bg-background/50">
+              <span className="text-xs font-medium text-muted-foreground flex items-center gap-1.5">
+                <Phone className="w-3.5 h-3.5 text-blue-400" /> Last Contacted
+              </span>
+              <div className="grid grid-cols-5 gap-1.5 pt-1">
+                <div className="col-span-3">
+                  <FormField
+                    control={form.control}
+                    name="lastContactedAt"
+                    render={({ field }) => (
+                      <FormItem className="space-y-0">
+                        <FormControl>
+                          <Input 
+                            type="date" 
+                            className="bg-background border-input h-9 text-xs px-2 shadow-2xs" 
+                            {...field} 
+                            value={field.value || ""} 
+                          />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                </div>
+                <div className="col-span-2">
+                  <FormField
+                    control={form.control}
+                    name="lastContactedAtTime"
+                    render={({ field }) => (
+                      <FormItem className="space-y-0">
+                        <FormControl>
+                          <Input 
+                            type="time" 
+                            className="bg-background border-input h-9 text-xs px-2 shadow-2xs" 
+                            {...field} 
+                            value={field.value || ""} 
+                          />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                </div>
+              </div>
+            </div>
+
+            {/* Next Follow-up Date & Time */}
+            <div className="space-y-1.5 p-3 rounded-xl border border-border/40 bg-background/50">
+              <span className="text-xs font-medium text-muted-foreground flex items-center gap-1.5">
+                <Sparkles className="w-3.5 h-3.5 text-amber-400" /> Next Follow-up
+              </span>
+              <div className="grid grid-cols-5 gap-1.5 pt-1">
+                <div className="col-span-3">
+                  <FormField
+                    control={form.control}
+                    name="nextFollowUpDate"
+                    render={({ field }) => (
+                      <FormItem className="space-y-0">
+                        <FormControl>
+                          <Input 
+                            type="date" 
+                            className="bg-background border-input h-9 text-xs px-2 shadow-2xs" 
+                            {...field} 
+                            value={field.value || ""} 
+                          />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                </div>
+                <div className="col-span-2">
+                  <FormField
+                    control={form.control}
+                    name="nextFollowUpTime"
+                    render={({ field }) => (
+                      <FormItem className="space-y-0">
+                        <FormControl>
+                          <Input 
+                            type="time" 
+                            className="bg-background border-input h-9 text-xs px-2 shadow-2xs" 
+                            {...field} 
+                            value={field.value || "10:00"} 
+                          />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Section 4: Deal Value & Reference Links */}
+        <div className="rounded-2xl border border-border/60 bg-secondary/15 p-5 space-y-4 shadow-sm">
+          <div className="flex items-center gap-2 pb-1 border-b border-border/40">
+            <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-amber-500/10 text-amber-400">
+              <IndianRupee className="h-4 w-4" />
+            </div>
+            <div>
+              <h3 className="text-sm font-semibold text-foreground">Deal Value & Reference Link</h3>
+              <p className="text-xs text-muted-foreground">Estimated revenue and origin reference URL</p>
+            </div>
+          </div>
+
+          <div className="grid sm:grid-cols-2 gap-4">
             <FormField
               control={form.control}
               name="dealValue"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Deal Value (₹)</FormLabel>
+                  <FormLabel className="text-xs font-medium text-foreground">Deal Value (₹)</FormLabel>
                   <FormControl>
-                    <Input 
-                      type="number" 
-                      placeholder="50000" 
-                      className="bg-background border-input shadow-sm transition-colors hover:border-foreground/20 focus-visible:ring-1"
-                      {...field} 
-                      value={field.value || ""} 
-                      onChange={(e) => field.onChange(e.target.valueAsNumber || undefined)}
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            <div className="grid sm:grid-cols-2 gap-3">
-              <FormField
-                control={form.control}
-                name="nextFollowUpDate"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Next Follow-up Date</FormLabel>
-                    <FormControl>
-                      <Input type="date" className="bg-background border-input shadow-sm transition-colors hover:border-foreground/20 focus-visible:ring-1" {...field} value={field.value || ""} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              <FormField
-                control={form.control}
-                name="nextFollowUpTime"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Next Follow-up Time</FormLabel>
-                    <FormControl>
-                      <Input type="time" className="bg-background border-input shadow-sm transition-colors hover:border-foreground/20 focus-visible:ring-1" {...field} value={field.value || "10:00"} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-            </div>
-          </div>
-        </div>
-
-        {/* Links */}
-        <div className="bg-card border border-border p-6 rounded-xl space-y-5 shadow-sm relative overflow-hidden">
-          <div className="absolute top-0 left-0 w-1 h-full bg-cyan-500" />
-          <div className="flex items-center gap-2 mb-2">
-            <div className="p-2 bg-cyan-500/10 rounded-md">
-              <Link2 className="h-4 w-4 text-cyan-500" />
-            </div>
-            <h3 className="text-sm font-semibold tracking-wide uppercase text-foreground">Links</h3>
-          </div>
-          
-          <FormField
-            control={form.control}
-            name="sourceLink"
-            render={({ field }) => {
-              const source = form.watch("source");
-              const placeholderMap: Record<string, string> = {
-                "LinkedIn": "https://linkedin.com/in/...",
-                "Twitter / X": "https://x.com/...",
-                "Instagram": "https://instagram.com/...",
-                "Facebook": "https://facebook.com/...",
-                "YouTube": "https://youtube.com/@...",
-                "Reddit": "https://reddit.com/r/.../comments/...",
-                "WhatsApp": "https://wa.me/...",
-                "Telegram": "https://t.me/...",
-                "Discord": "https://discord.gg/...",
-                "Threads": "https://threads.net/@...",
-                "Upwork": "https://upwork.com/...",
-                "Fiverr": "https://fiverr.com/...",
-                "Freelancer": "https://freelancer.com/...",
-                "Indeed": "https://indeed.com/...",
-                "Naukri": "https://naukri.com/...",
-                "Wellfound (AngelList)": "https://wellfound.com/...",
-                "Glassdoor": "https://glassdoor.com/...",
-                "Internshala": "https://internshala.com/...",
-                "TopTal": "https://toptal.com/...",
-                "Guru": "https://guru.com/...",
-                "PeoplePerHour": "https://peopleperhour.com/...",
-                "Website Inbound": "https://...",
-                "Google Search / SEO": "https://...",
-                "Google My Business": "https://maps.google.com/...",
-                "Google Business Profile": "https://maps.google.com/...",
-                "Just Dial": "https://justdial.com/...",
-                "Local Business": "https://...",
-                "Referral": "https://...",
-                "Cold Outreach": "https://...",
-                "Events / Conferences": "https://...",
-                "Clutch": "https://clutch.co/profile/...",
-                "Dribbble": "https://dribbble.com/...",
-                "Behance": "https://behance.net/...",
-                "Other": "https://...",
-              };
-              const labelMap: Record<string, string> = {
-                "LinkedIn": "LinkedIn Profile Link",
-                "Twitter / X": "Twitter / X Profile Link",
-                "Instagram": "Instagram Profile Link",
-                "Facebook": "Facebook Profile Link",
-                "YouTube": "YouTube Channel / Video Link",
-                "Reddit": "Reddit Post Link",
-                "WhatsApp": "WhatsApp Link",
-                "Telegram": "Telegram Link",
-                "Discord": "Discord Link",
-                "Threads": "Threads Profile Link",
-                "Upwork": "Upwork Job / Profile Link",
-                "Fiverr": "Fiverr Order / Profile Link",
-                "Freelancer": "Freelancer Project Link",
-                "Indeed": "Indeed Job Link",
-                "Naukri": "Naukri Job / Candidate Link",
-                "Wellfound (AngelList)": "Wellfound Profile Link",
-                "Glassdoor": "Glassdoor Link",
-                "Internshala": "Internshala Applicant Link",
-                "TopTal": "TopTal Profile Link",
-                "Guru": "Guru Project Link",
-                "PeoplePerHour": "PeoplePerHour Link",
-                "Website Inbound": "Website URL",
-                "Google Search / SEO": "Landing Page URL",
-                "Google My Business": "Google My Business (GMB) Link",
-                "Google Business Profile": "GMB Profile Link",
-                "Just Dial": "Just Dial Listing Link",
-                "Local Business": "Business Website / Map Link",
-                "Referral": "Referral Link / Reference",
-                "Cold Outreach": "Campaign / Reference Link",
-                "Events / Conferences": "Event Website / URL",
-                "Clutch": "Clutch Review / Profile Link",
-                "Dribbble": "Dribbble Portfolio Link",
-                "Behance": "Behance Portfolio Link",
-                "Other": "Source Link",
-              };
-              return (
-                <FormItem>
-                  <FormLabel>
-                    {labelMap[source] || "Source Link"}{" "}
-                    <span className="text-xs text-muted-foreground font-normal">(Optional)</span>
-                  </FormLabel>
-                  <FormControl>
-                    <Input 
-                      type="text" 
-                      placeholder={placeholderMap[source] || "e.g. link or reference"} 
-                      className="bg-background border-input shadow-sm transition-colors hover:border-foreground/20 focus-visible:ring-1"
-                      {...field} 
-                      value={field.value || ""} 
-                    />
-                  </FormControl>
-                  <FormDescription>
-                    Optional reference link or URL where this lead was found.
-                  </FormDescription>
-                  <FormMessage />
-                </FormItem>
-              );
-            }}
-          />
-        </div>
-
-        {/* Tags & Notes */}
-        <div className="bg-card border border-border p-6 rounded-xl space-y-6 shadow-sm relative">
-          <div className="absolute top-0 left-0 w-1 h-full bg-purple-500 rounded-l-xl" />
-          
-          <div className="space-y-4">
-            <div className="flex items-center gap-2 mb-2">
-              <div className="p-2 bg-purple-500/10 rounded-md">
-                <TagIcon className="h-4 w-4 text-purple-500" />
-              </div>
-              <h3 className="text-sm font-semibold tracking-wide uppercase text-foreground">Tags</h3>
-            </div>
-            
-            <FormField
-              control={form.control}
-              name="tags"
-              render={({ field }) => (
-                <FormItem>
-                  <FormControl>
-                    <div className="bg-background p-3 rounded-md border border-input shadow-sm">
-                      <TagManager 
-                        tags={field.value || []} 
-                        onChange={field.onChange} 
+                    <div className="relative">
+                      <span className="absolute left-3 top-1/2 -translate-y-1/2 text-sm text-muted-foreground">₹</span>
+                      <Input 
+                        type="number" 
+                        placeholder="50,000" 
+                        className="bg-background/80 border-input h-10 pl-7 shadow-xs focus-visible:ring-1 focus-visible:ring-primary/40 focus-visible:border-primary"
+                        {...field} 
+                        value={field.value || ""} 
+                        onChange={(e) => field.onChange(e.target.valueAsNumber || undefined)}
                       />
                     </div>
                   </FormControl>
-                  <FormDescription>
-                    Add relevant tags to categorize this lead.
-                  </FormDescription>
                   <FormMessage />
                 </FormItem>
               )}
             />
-          </div>
 
-          <div className="space-y-4 pt-4 border-t border-border/50">
-            <div className="flex items-center gap-2 mb-2">
-              <div className="p-2 bg-purple-500/10 rounded-md">
-                <FileText className="h-4 w-4 text-purple-500" />
-              </div>
-              <h3 className="text-sm font-semibold tracking-wide uppercase text-foreground">Notes</h3>
-            </div>
-            
             <FormField
               control={form.control}
-              name="notes"
+              name="sourceLink"
               render={({ field }) => (
                 <FormItem>
+                  <FormLabel className="text-xs font-medium text-foreground">
+                    Source Link <span className="text-xs text-muted-foreground font-normal">(Optional)</span>
+                  </FormLabel>
                   <FormControl>
-                    <Textarea
-                      placeholder="Any initial notes about this lead..."
-                      className="min-h-[100px] resize-y bg-background border-input shadow-sm transition-colors hover:border-foreground/20 focus-visible:ring-1"
-                      {...field}
-                      value={field.value || ""}
-                    />
+                    <div className="relative">
+                      <Link2 className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+                      <Input 
+                        type="text" 
+                        placeholder={sourcePlaceholderMap[source] || "https://..."} 
+                        className="bg-background/80 border-input h-10 pl-9 shadow-xs focus-visible:ring-1 focus-visible:ring-primary/40 focus-visible:border-primary"
+                        {...field} 
+                        value={field.value || ""} 
+                      />
+                    </div>
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -884,30 +903,89 @@ export function LeadForm({ initialData, onSuccess }: LeadFormProps) {
           </div>
         </div>
 
-        <div className="flex flex-col sm:flex-row items-center justify-between gap-3 pt-6 mt-6 border-t border-border">
+        {/* Section 5: Categorization & Notes */}
+        <div className="rounded-2xl border border-border/60 bg-secondary/15 p-5 space-y-4 shadow-sm">
+          <div className="flex items-center gap-2 pb-1 border-b border-border/40">
+            <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-purple-500/10 text-purple-400">
+              <TagIcon className="h-4 w-4" />
+            </div>
+            <div>
+              <h3 className="text-sm font-semibold text-foreground">Tags & Notes</h3>
+              <p className="text-xs text-muted-foreground">Label categorizations and lead interaction notes</p>
+            </div>
+          </div>
+
+          <FormField
+            control={form.control}
+            name="tags"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel className="text-xs font-medium text-foreground">Tags</FormLabel>
+                <FormControl>
+                  <div className="bg-background/80 p-3 rounded-xl border border-input shadow-xs">
+                    <TagManager 
+                      tags={field.value || []} 
+                      onChange={field.onChange} 
+                    />
+                  </div>
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+
+          <FormField
+            control={form.control}
+            name="notes"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel className="text-xs font-medium text-foreground">Notes & Context</FormLabel>
+                <FormControl>
+                  <Textarea
+                    placeholder="Enter discussion summary, key requirements, or background context..."
+                    className="min-h-[90px] resize-y bg-background/80 border-input shadow-xs focus-visible:ring-1 focus-visible:ring-primary/40 focus-visible:border-primary rounded-xl"
+                    {...field}
+                    value={field.value || ""}
+                  />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+        </div>
+
+        {/* Form Action Footer */}
+        <div className="flex flex-col sm:flex-row items-center justify-between gap-3 pt-4 border-t border-border/80 sticky bottom-0 bg-background/95 backdrop-blur-md p-2 -mx-2 rounded-b-xl z-20">
           {initialData?.id ? (
             <Button
               type="button"
               variant="ghost"
               size="sm"
-              className="text-red-500 hover:text-red-400 hover:bg-red-500/10 gap-1.5 w-full sm:w-auto"
+              className="text-red-400 hover:text-red-300 hover:bg-red-500/10 gap-1.5 w-full sm:w-auto"
               onClick={() => setShowDeleteConfirm(true)}
               disabled={saving || isDeleting}
             >
-              <Trash2 className="w-4 h-4 text-red-500" />
+              <Trash2 className="w-4 h-4" />
               Delete Lead
             </Button>
           ) : (
             <div />
           )}
 
-          <Button type="submit" size="lg" className="w-full sm:w-auto min-w-[150px] font-semibold" disabled={saving || isDeleting}>
-            {saving ? (
-              <><Loader2 className="w-4 h-4 animate-spin mr-2" />{initialData?.id ? "Saving..." : "Adding..."}</>
-            ) : (
-              initialData?.id ? "Save Changes" : "Add Lead"
-            )}
-          </Button>
+          <div className="flex items-center gap-2 w-full sm:w-auto">
+            <Button 
+              type="submit" 
+              size="lg" 
+              className="w-full sm:w-auto min-w-[160px] font-semibold shadow-md shadow-primary/20 hover:shadow-primary/40 transition-all h-11" 
+              disabled={saving || isDeleting}
+            >
+              {saving ? (
+                <><Loader2 className="w-4 h-4 animate-spin mr-2" />{initialData?.id ? "Saving..." : "Adding..."}</>
+              ) : (
+                initialData?.id ? "Save Changes" : "Create Lead"
+              )}
+            </Button>
+          </div>
         </div>
 
         {/* Delete Lead Confirmation Modal */}
