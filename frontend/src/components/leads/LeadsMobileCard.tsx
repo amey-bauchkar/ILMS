@@ -46,10 +46,11 @@ export default function LeadsMobileCard({
                                     e.stopPropagation();
                                     onEdit(lead);
                                 }}
-                                className="p-1.5 rounded-lg bg-secondary text-muted-foreground hover:text-foreground hover:bg-secondary/80 transition-colors"
+                                className="flex items-center gap-1 px-2 py-1 rounded-md text-xs font-semibold bg-primary/10 text-primary hover:bg-primary hover:text-white transition-colors"
                                 title="Edit Lead"
                             >
-                                <Pencil className="w-3.5 h-3.5" />
+                                <Pencil className="w-3 h-3" />
+                                <span>Edit</span>
                             </button>
                         )}
                         {onDelete && (

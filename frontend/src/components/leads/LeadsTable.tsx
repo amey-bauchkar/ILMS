@@ -394,12 +394,12 @@ export default function LeadsTable() {
                                         <TableCell className="hidden lg:table-cell text-muted-foreground text-sm">
                                             {formatDateSafely(lead.createdAt) ?? <span className="text-muted-foreground/60">—</span>}
                                         </TableCell>
-                                        <TableCell className="text-center px-2 whitespace-nowrap w-[80px]">
-                                            <div className="flex items-center justify-center gap-1">
+                                        <TableCell className="text-center px-2 whitespace-nowrap w-[90px]">
+                                            <div className="flex items-center justify-center gap-1.5">
                                                 <Button
-                                                    variant="ghost"
-                                                    size="icon"
-                                                    className="h-8 w-8 text-muted-foreground hover:text-primary hover:bg-primary/10 transition-colors rounded-lg"
+                                                    variant="outline"
+                                                    size="sm"
+                                                    className="h-7 px-2 gap-1 text-xs font-semibold border-primary/30 bg-primary/10 text-primary hover:bg-primary hover:text-white transition-all rounded-lg shadow-2xs"
                                                     onClick={(e) => {
                                                         e.preventDefault();
                                                         e.stopPropagation();
@@ -408,12 +408,13 @@ export default function LeadsTable() {
                                                     title="Edit Lead"
                                                     aria-label="Edit Lead"
                                                 >
-                                                    <Pencil className="h-4 w-4 text-primary" />
+                                                    <Pencil className="h-3 w-3" />
+                                                    <span>Edit</span>
                                                 </Button>
                                                 <Button
                                                     variant="ghost"
                                                     size="icon"
-                                                    className="h-8 w-8 text-muted-foreground hover:text-destructive hover:bg-destructive/10 transition-colors rounded-lg"
+                                                    className="h-7 w-7 text-muted-foreground hover:text-destructive hover:bg-destructive/10 transition-colors rounded-lg"
                                                     onClick={(e) => {
                                                         e.preventDefault();
                                                         e.stopPropagation();
@@ -422,7 +423,7 @@ export default function LeadsTable() {
                                                     title="Delete Lead"
                                                     aria-label="Delete Lead"
                                                 >
-                                                    <Trash2 className="h-4 w-4 text-destructive" />
+                                                    <Trash2 className="h-3.5 w-3.5 text-destructive" />
                                                 </Button>
                                             </div>
                                         </TableCell>

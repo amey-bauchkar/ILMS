@@ -11,6 +11,9 @@ interface LeadPageProps {
   }>;
 }
 
+import Link from "next/link";
+import { ArrowLeft } from "lucide-react";
+
 export default async function LeadDetailPage({ params }: LeadPageProps) {
   const { id } = await params;
   
@@ -56,7 +59,29 @@ export default async function LeadDetailPage({ params }: LeadPageProps) {
   };
 
   return (
-    <div className="space-y-6 pb-10">
+    <div className="space-y-5 pb-10">
+      {/* Top Header & Breadcrumb */}
+      <div className="flex items-center justify-between gap-3 pb-1 border-b border-border/60">
+        <div className="flex items-center gap-2 text-sm">
+          <Link
+            href="/leads"
+            className="inline-flex items-center gap-1.5 text-xs font-semibold text-muted-foreground hover:text-foreground transition-colors px-2.5 py-1.5 rounded-lg bg-secondary/50 hover:bg-secondary border border-border/50 shadow-2xs"
+          >
+            <ArrowLeft className="h-3.5 w-3.5" />
+            <span>Back to Leads</span>
+          </Link>
+          <span className="text-muted-foreground/40 font-mono">/</span>
+          <span className="font-semibold text-foreground truncate max-w-[280px]">
+            {lead.name}
+          </span>
+          {lead.company && (
+            <span className="text-xs text-muted-foreground hidden sm:inline-block">
+              ({lead.company})
+            </span>
+          )}
+        </div>
+      </div>
+
       {/* Status Pipeline — interactive stepper with confirmation dialog */}
       <LeadStatusSection lead={lead} />
 

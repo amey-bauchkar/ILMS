@@ -58,13 +58,19 @@ export function LeadInfoCard({ lead }: LeadInfoCardProps) {
             )}
           </div>
           
-          <div className="flex items-center gap-1 shrink-0">
+          <div className="flex items-center gap-1.5 shrink-0">
             <Sheet open={isEditOpen} onOpenChange={setIsEditOpen}>
-              <SheetTrigger render={<Button variant="ghost" size="icon" className="h-8 w-8" />}>
-                <Pencil className="h-4 w-4" />
-                <span className="sr-only">Edit lead</span>
-              </SheetTrigger>
-              <SheetContent className="sm:max-w-[650px] w-[95vw] overflow-y-auto bg-[#101117]/95 border-l border-white/15 backdrop-blur-2xl p-6 text-white">
+              <SheetTrigger render={
+                <Button 
+                  variant="outline" 
+                  size="sm" 
+                  className="h-8 px-2.5 gap-1.5 text-xs font-semibold border-primary/40 bg-primary/10 text-primary hover:bg-primary hover:text-white transition-all rounded-lg shadow-xs"
+                >
+                  <Pencil className="h-3.5 w-3.5" />
+                  <span>Edit Lead</span>
+                </Button>
+              } />
+              <SheetContent className="sm:max-w-[650px] w-[95vw] overflow-y-auto bg-[#101117] border-l border-white/15 backdrop-blur-2xl p-6 text-white">
                 <SheetHeader className="mb-6 pb-4 border-b border-white/10">
                   <SheetTitle className="text-xl font-bold tracking-tight text-white flex items-center gap-3">
                     <div className="h-9 w-9 rounded-xl bg-primary/20 border border-primary/30 flex items-center justify-center text-primary shadow-xs">
@@ -106,7 +112,7 @@ export function LeadInfoCard({ lead }: LeadInfoCardProps) {
             <Button
               variant="ghost"
               size="icon"
-              className="h-8 w-8 text-muted-foreground hover:text-destructive hover:bg-destructive/10"
+              className="h-8 w-8 text-muted-foreground hover:text-destructive hover:bg-destructive/10 rounded-lg"
               onClick={() => setIsDeleteOpen(true)}
               title="Delete Lead"
             >
@@ -175,11 +181,30 @@ export function LeadInfoCard({ lead }: LeadInfoCardProps) {
       </CardHeader>
       
       <CardContent className="space-y-6">
-        {/* Contact Actions */}
-        <div className="flex gap-2">
+        {/* Primary Action Buttons */}
+        <div className="grid grid-cols-2 gap-2.5">
+          <Button
+            type="button"
+            variant="default"
+            onClick={() => setIsEditOpen(true)}
+            className="w-full flex items-center justify-center gap-2 h-10 font-medium rounded-xl bg-primary hover:bg-primary/90 text-white shadow-xs"
+          >
+            <Pencil className="h-4 w-4" />
+            <span>Edit Lead</span>
+          </Button>
+
           <CallLogModal
             leadName={lead.name}
             leadId={lead.id}
+            trigger={
+              <Button
+                variant="outline"
+                className="w-full flex items-center justify-center gap-2 h-10 font-medium rounded-xl border-border hover:bg-muted"
+              >
+                <PhoneCall className="h-4 w-4 text-emerald-500" />
+                <span>Log Call</span>
+              </Button>
+            }
           />
         </div>
 
