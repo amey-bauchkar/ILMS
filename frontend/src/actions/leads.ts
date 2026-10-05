@@ -175,6 +175,7 @@ export async function createLead(rawData: {
   customFields.source = data.source;
   if (data.source_link) customFields.source_link = data.source_link;
   if (data.location) customFields.location = data.location;
+  if (data.priority) customFields.priority = data.priority;
 
   const safeDbSource = VALID_DB_ENUM_SOURCES.includes(data.source) ? data.source : 'Other';
 
@@ -220,16 +221,27 @@ export async function createLead(rawData: {
     .select('id')
     .single();
 
-  // Retry with 'Other' as source enum fallback if needed
-  if (error && insertPayload.source !== 'Other') {
-    insertPayload.source = 'Other';
-    const retryResult = await clientToUse
-      .from('leads')
-      .insert(insertPayload)
-      .select('id')
-      .single();
-    lead = retryResult.data;
-    error = retryResult.error;
+  // Retry with enum fallbacks if database ENUM does not have the value yet
+  if (error) {
+    let shouldRetry = false;
+    if (insertPayload.priority === 'Dead') {
+      insertPayload.priority = 'Cold';
+      shouldRetry = true;
+    }
+    if (insertPayload.source !== 'Other') {
+      insertPayload.source = 'Other';
+      shouldRetry = true;
+    }
+
+    if (shouldRetry) {
+      const retryResult = await clientToUse
+        .from('leads')
+        .insert(insertPayload)
+        .select('id')
+        .single();
+      lead = retryResult.data;
+      error = retryResult.error;
+    }
   }
 
   if (error) {
@@ -379,7 +391,10 @@ export async function updateLead(
   }
   if (data.status_id !== undefined) updateData.status_id = data.status_id;
   if (data.owner_id !== undefined) updateData.owner_id = data.owner_id;
-  if (data.priority !== undefined) updateData.priority = data.priority;
+  if (data.priority !== undefined) {
+    currentCf.priority = data.priority;
+    updateData.priority = data.priority;
+  }
   if (data.estimated_deal_value !== undefined) updateData.estimated_deal_value = data.estimated_deal_value;
   if (data.created_at !== undefined) {
     try {
@@ -405,14 +420,25 @@ export async function updateLead(
     .update(updateData)
     .eq('id', leadId);
 
-  // Retry with 'Other' as source enum fallback if needed
-  if (error && updateData.source && updateData.source !== 'Other') {
-    updateData.source = 'Other';
-    const retry = await clientToUse
-      .from('leads')
-      .update(updateData)
-      .eq('id', leadId);
-    error = retry.error;
+  // Retry with enum fallbacks if database ENUM does not have the value yet
+  if (error) {
+    let shouldRetry = false;
+    if (updateData.priority === 'Dead') {
+      updateData.priority = 'Cold';
+      shouldRetry = true;
+    }
+    if (updateData.source && updateData.source !== 'Other') {
+      updateData.source = 'Other';
+      shouldRetry = true;
+    }
+
+    if (shouldRetry) {
+      const retry = await clientToUse
+        .from('leads')
+        .update(updateData)
+        .eq('id', leadId);
+      error = retry.error;
+    }
   }
 
   if (error) {
