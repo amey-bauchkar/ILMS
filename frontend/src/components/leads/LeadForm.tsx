@@ -1022,8 +1022,8 @@ export function LeadForm({ initialData, onSuccess }: LeadFormProps) {
           />
         </div>
 
-        {/* Executive Sticky Action Bar */}
-        <div className="sticky bottom-0 -mx-3.5 sm:-mx-7 -mb-3.5 sm:-mb-7 mt-6 p-3 sm:p-4 px-3.5 sm:px-7 bg-[#0c0d12]/95 backdrop-blur-2xl border-t border-white/10 flex flex-col sm:flex-row items-center justify-between gap-3 z-30 rounded-b-2xl sm:rounded-b-3xl shadow-[0_-12px_32px_rgba(0,0,0,0.6)] w-[calc(100%+1.75rem)] sm:w-[calc(100%+3.5rem)]">
+        {/* Form Actions (Positioned at the end of the form) */}
+        <div className="pt-4 flex flex-col sm:flex-row items-center justify-between gap-3 w-full border-t border-white/10">
           <div className="flex items-center gap-2 w-full sm:w-auto">
             {initialData?.id && (
               <Button
