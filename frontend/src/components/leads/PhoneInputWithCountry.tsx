@@ -162,14 +162,14 @@ export function PhoneInputWithCountry({
   };
 
   return (
-    <div ref={dropdownRef} className={cn("relative flex w-full", open ? "z-[100]" : "z-auto", className)}>
+    <div ref={dropdownRef} className={cn("relative flex w-full min-w-0", open ? "z-[100]" : "z-auto", className)}>
       {/* Country Code Picker Dropdown Button */}
       <button
         type="button"
         disabled={disabled}
         onClick={() => setOpen((prev) => !prev)}
         className={cn(
-          "flex h-10 items-center gap-1.5 rounded-l-xl border border-r-0 border-white/20 bg-white/[0.06] px-3 py-2 text-sm font-medium transition-all hover:bg-white/[0.1] hover:border-white/30 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/40 disabled:cursor-not-allowed disabled:opacity-50 text-white shrink-0 select-none backdrop-blur-md shadow-inner",
+          "flex h-10 items-center gap-1.5 rounded-l-xl border border-r-0 border-white/20 bg-white/[0.06] px-2.5 sm:px-3 py-2 text-sm font-medium transition-all hover:bg-white/[0.1] hover:border-white/30 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/40 disabled:cursor-not-allowed disabled:opacity-50 text-white shrink-0 select-none backdrop-blur-md shadow-inner",
           open && "bg-white/[0.12] border-primary/60"
         )}
         title={`Country: ${selectedCountry.name} (${selectedCountry.dialCode})`}
@@ -187,7 +187,7 @@ export function PhoneInputWithCountry({
       </button>
 
       {/* Actual Phone Number Input Field */}
-      <div className="relative flex-1">
+      <div className="relative flex-1 min-w-0">
         <input
           ref={phoneInputRef}
           type="tel"
@@ -195,7 +195,7 @@ export function PhoneInputWithCountry({
           value={value}
           onChange={handleInputChange}
           placeholder={selectedCountry.placeholder || `${selectedCountry.dialCode} 9876543210`}
-          className="flex h-10 w-full rounded-r-xl border border-white/20 bg-white/[0.05] px-3.5 py-2 text-sm shadow-inner transition-all hover:border-white/35 focus:border-primary focus:bg-white/[0.08] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/25 disabled:cursor-not-allowed disabled:opacity-50 text-white placeholder:text-zinc-500 backdrop-blur-md"
+          className="flex h-10 w-full min-w-0 rounded-r-xl border border-white/20 bg-white/[0.05] px-3 py-2 text-sm shadow-inner transition-all hover:border-white/35 focus:border-primary focus:bg-white/[0.08] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/25 disabled:cursor-not-allowed disabled:opacity-50 text-white placeholder:text-zinc-500 backdrop-blur-md"
         />
 
         {value && (

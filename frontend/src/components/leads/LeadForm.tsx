@@ -380,10 +380,10 @@ export function LeadForm({ initialData, onSuccess }: LeadFormProps) {
 
   return (
     <Form {...form}>
-      <form onSubmit={form.handleSubmit(onSubmit, onInvalid)} className="space-y-5">
+      <form onSubmit={form.handleSubmit(onSubmit, onInvalid)} className="space-y-5 w-full max-w-full min-w-0 overflow-x-hidden">
         
         {/* Section 1: Contact Details */}
-        <div className="relative z-20 rounded-2xl border border-white/10 bg-gradient-to-b from-[#181a24]/90 to-[#12141c]/80 backdrop-blur-xl p-3.5 sm:p-5 space-y-4 shadow-sm hover:border-white/20 transition-all duration-300">
+        <div className="relative z-20 rounded-2xl border border-white/10 bg-gradient-to-b from-[#181a24]/90 to-[#12141c]/80 backdrop-blur-xl p-3.5 sm:p-5 space-y-4 shadow-sm hover:border-white/20 transition-all duration-300 w-full min-w-0 overflow-hidden">
           <div className="flex items-center justify-between gap-2 pb-3 border-b border-white/[0.08]">
             <div className="flex items-center gap-2.5 min-w-0 flex-1">
               <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-lg bg-primary/15 text-primary border border-primary/25 text-xs font-bold shadow-xs">
@@ -494,7 +494,7 @@ export function LeadForm({ initialData, onSuccess }: LeadFormProps) {
         </div>
 
         {/* Section 2: Pipeline & Ownership */}
-        <div className="relative z-[15] rounded-2xl border border-white/10 bg-gradient-to-b from-[#181a24]/90 to-[#12141c]/80 backdrop-blur-xl p-3.5 sm:p-5 space-y-4 shadow-sm hover:border-white/20 transition-all duration-300">
+        <div className="relative z-[15] rounded-2xl border border-white/10 bg-gradient-to-b from-[#181a24]/90 to-[#12141c]/80 backdrop-blur-xl p-3.5 sm:p-5 space-y-4 shadow-sm hover:border-white/20 transition-all duration-300 w-full min-w-0 overflow-hidden">
           <div className="flex items-center justify-between gap-2 pb-3 border-b border-white/[0.08]">
             <div className="flex items-center gap-2.5 min-w-0 flex-1">
               <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-lg bg-blue-500/15 text-blue-400 border border-blue-500/25 text-xs font-bold shadow-xs">
@@ -736,7 +736,7 @@ export function LeadForm({ initialData, onSuccess }: LeadFormProps) {
         </div>
 
         {/* Section 3: Activity Timelines & Schedule */}
-        <div className="relative z-[5] rounded-2xl border border-white/10 bg-gradient-to-b from-[#181a24]/90 to-[#12141c]/80 backdrop-blur-xl p-3.5 sm:p-5 space-y-4 shadow-sm hover:border-white/20 transition-all duration-300">
+        <div className="relative z-[5] rounded-2xl border border-white/10 bg-gradient-to-b from-[#181a24]/90 to-[#12141c]/80 backdrop-blur-xl p-3.5 sm:p-5 space-y-4 shadow-sm hover:border-white/20 transition-all duration-300 w-full min-w-0 overflow-hidden">
           <div className="flex items-center justify-between gap-2 pb-3 border-b border-white/[0.08]">
             <div className="flex items-center gap-2.5 min-w-0 flex-1">
               <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-lg bg-emerald-500/15 text-emerald-400 border border-emerald-500/25 text-xs font-bold shadow-xs">
@@ -752,14 +752,14 @@ export function LeadForm({ initialData, onSuccess }: LeadFormProps) {
             </span>
           </div>
 
-          <div className="grid sm:grid-cols-3 gap-4">
+          <div className="grid sm:grid-cols-3 gap-4 min-w-0">
             {/* Creation Date & Time */}
-            <div className="space-y-2 p-3.5 rounded-xl border border-white/10 bg-white/[0.02] shadow-inner">
+            <div className="space-y-2 p-3.5 rounded-xl border border-white/10 bg-white/[0.02] shadow-inner min-w-0">
               <span className="text-xs font-medium text-zinc-300 flex items-center gap-1.5">
                 <Clock className="w-3.5 h-3.5 text-primary shrink-0" /> Creation Timestamp
               </span>
-              <div className="grid grid-cols-1 xs:grid-cols-5 gap-1.5 pt-1">
-                <div className="xs:col-span-3">
+              <div className="grid grid-cols-1 sm:grid-cols-5 gap-1.5 pt-1 min-w-0">
+                <div className="sm:col-span-3 min-w-0">
                   <FormField
                     control={form.control}
                     name="createdAt"
@@ -768,7 +768,7 @@ export function LeadForm({ initialData, onSuccess }: LeadFormProps) {
                         <FormControl>
                           <Input 
                             type="date" 
-                            className="h-9.5 w-full rounded-lg border border-white/20 bg-white/[0.05] px-2.5 py-1 text-xs text-white shadow-inner transition-all hover:border-white/35 focus:border-primary" 
+                            className="h-9.5 w-full min-w-0 rounded-lg border border-white/20 bg-white/[0.05] px-2.5 py-1 text-xs text-white shadow-inner transition-all hover:border-white/35 focus:border-primary" 
                             {...field} 
                             value={field.value || ""} 
                           />
@@ -778,7 +778,7 @@ export function LeadForm({ initialData, onSuccess }: LeadFormProps) {
                     )}
                   />
                 </div>
-                <div className="xs:col-span-2">
+                <div className="sm:col-span-2 min-w-0">
                   <FormField
                     control={form.control}
                     name="createdAtTime"
@@ -787,7 +787,7 @@ export function LeadForm({ initialData, onSuccess }: LeadFormProps) {
                         <FormControl>
                           <Input 
                             type="time" 
-                            className="h-9.5 w-full rounded-lg border border-white/20 bg-white/[0.05] px-2 py-1 text-xs text-white shadow-inner transition-all hover:border-white/35 focus:border-primary" 
+                            className="h-9.5 w-full min-w-0 rounded-lg border border-white/20 bg-white/[0.05] px-2.5 py-1 text-xs text-white shadow-inner transition-all hover:border-white/35 focus:border-primary" 
                             {...field} 
                             value={field.value || ""} 
                           />
@@ -801,12 +801,12 @@ export function LeadForm({ initialData, onSuccess }: LeadFormProps) {
             </div>
 
             {/* Last Contacted Date & Time */}
-            <div className="space-y-2 p-3.5 rounded-xl border border-white/10 bg-white/[0.02] shadow-inner">
+            <div className="space-y-2 p-3.5 rounded-xl border border-white/10 bg-white/[0.02] shadow-inner min-w-0">
               <span className="text-xs font-medium text-zinc-300 flex items-center gap-1.5">
                 <Phone className="w-3.5 h-3.5 text-blue-400 shrink-0" /> Last Contacted
               </span>
-              <div className="grid grid-cols-1 xs:grid-cols-5 gap-1.5 pt-1">
-                <div className="xs:col-span-3">
+              <div className="grid grid-cols-1 sm:grid-cols-5 gap-1.5 pt-1 min-w-0">
+                <div className="sm:col-span-3 min-w-0">
                   <FormField
                     control={form.control}
                     name="lastContactedAt"
@@ -815,7 +815,7 @@ export function LeadForm({ initialData, onSuccess }: LeadFormProps) {
                         <FormControl>
                           <Input 
                             type="date" 
-                            className="h-9.5 w-full rounded-lg border border-white/20 bg-white/[0.05] px-2.5 py-1 text-xs text-white shadow-inner transition-all hover:border-white/35 focus:border-primary" 
+                            className="h-9.5 w-full min-w-0 rounded-lg border border-white/20 bg-white/[0.05] px-2.5 py-1 text-xs text-white shadow-inner transition-all hover:border-white/35 focus:border-primary" 
                             {...field} 
                             value={field.value || ""} 
                           />
@@ -825,7 +825,7 @@ export function LeadForm({ initialData, onSuccess }: LeadFormProps) {
                     )}
                   />
                 </div>
-                <div className="xs:col-span-2">
+                <div className="sm:col-span-2 min-w-0">
                   <FormField
                     control={form.control}
                     name="lastContactedAtTime"
@@ -834,7 +834,7 @@ export function LeadForm({ initialData, onSuccess }: LeadFormProps) {
                         <FormControl>
                           <Input 
                             type="time" 
-                            className="h-9.5 w-full rounded-lg border border-white/20 bg-white/[0.05] px-2 py-1 text-xs text-white shadow-inner transition-all hover:border-white/35 focus:border-primary" 
+                            className="h-9.5 w-full min-w-0 rounded-lg border border-white/20 bg-white/[0.05] px-2.5 py-1 text-xs text-white shadow-inner transition-all hover:border-white/35 focus:border-primary" 
                             {...field} 
                             value={field.value || ""} 
                           />
@@ -848,12 +848,12 @@ export function LeadForm({ initialData, onSuccess }: LeadFormProps) {
             </div>
 
             {/* Next Follow-up Date & Time */}
-            <div className="space-y-2 p-3.5 rounded-xl border border-white/10 bg-white/[0.02] shadow-inner">
+            <div className="space-y-2 p-3.5 rounded-xl border border-white/10 bg-white/[0.02] shadow-inner min-w-0">
               <span className="text-xs font-medium text-zinc-300 flex items-center gap-1.5">
                 <Sparkles className="w-3.5 h-3.5 text-amber-400 shrink-0" /> Next Follow-up
               </span>
-              <div className="grid grid-cols-1 xs:grid-cols-5 gap-1.5 pt-1">
-                <div className="xs:col-span-3">
+              <div className="grid grid-cols-1 sm:grid-cols-5 gap-1.5 pt-1 min-w-0">
+                <div className="sm:col-span-3 min-w-0">
                   <FormField
                     control={form.control}
                     name="nextFollowUpDate"
@@ -862,7 +862,7 @@ export function LeadForm({ initialData, onSuccess }: LeadFormProps) {
                         <FormControl>
                           <Input 
                             type="date" 
-                            className="h-9.5 w-full rounded-lg border border-white/20 bg-white/[0.05] px-2.5 py-1 text-xs text-white shadow-inner transition-all hover:border-white/35 focus:border-primary" 
+                            className="h-9.5 w-full min-w-0 rounded-lg border border-white/20 bg-white/[0.05] px-2.5 py-1 text-xs text-white shadow-inner transition-all hover:border-white/35 focus:border-primary" 
                             {...field} 
                             value={field.value || ""} 
                           />
@@ -872,7 +872,7 @@ export function LeadForm({ initialData, onSuccess }: LeadFormProps) {
                     )}
                   />
                 </div>
-                <div className="xs:col-span-2">
+                <div className="sm:col-span-2 min-w-0">
                   <FormField
                     control={form.control}
                     name="nextFollowUpTime"
@@ -881,7 +881,7 @@ export function LeadForm({ initialData, onSuccess }: LeadFormProps) {
                         <FormControl>
                           <Input 
                             type="time" 
-                            className="h-9.5 w-full rounded-lg border border-white/20 bg-white/[0.05] px-2 py-1 text-xs text-white shadow-inner transition-all hover:border-white/35 focus:border-primary" 
+                            className="h-9.5 w-full min-w-0 rounded-lg border border-white/20 bg-white/[0.05] px-2.5 py-1 text-xs text-white shadow-inner transition-all hover:border-white/35 focus:border-primary" 
                             {...field} 
                             value={field.value || "10:00"} 
                           />
@@ -897,7 +897,7 @@ export function LeadForm({ initialData, onSuccess }: LeadFormProps) {
         </div>
 
         {/* Section 4: Deal Value & Reference Links */}
-        <div className="relative z-[3] rounded-2xl border border-white/10 bg-gradient-to-b from-[#181a24]/90 to-[#12141c]/80 backdrop-blur-xl p-3.5 sm:p-5 space-y-4 shadow-sm hover:border-white/20 transition-all duration-300">
+        <div className="relative z-[3] rounded-2xl border border-white/10 bg-gradient-to-b from-[#181a24]/90 to-[#12141c]/80 backdrop-blur-xl p-3.5 sm:p-5 space-y-4 shadow-sm hover:border-white/20 transition-all duration-300 w-full min-w-0 overflow-hidden">
           <div className="flex items-center justify-between gap-2 pb-3 border-b border-white/[0.08]">
             <div className="flex items-center gap-2.5 min-w-0 flex-1">
               <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-lg bg-amber-500/15 text-amber-400 border border-amber-500/25 text-xs font-bold shadow-xs">
@@ -967,7 +967,7 @@ export function LeadForm({ initialData, onSuccess }: LeadFormProps) {
         </div>
 
         {/* Section 5: Categorization & Notes */}
-        <div className="relative z-[1] rounded-2xl border border-white/10 bg-gradient-to-b from-[#181a24]/90 to-[#12141c]/80 backdrop-blur-xl p-3.5 sm:p-5 space-y-4 shadow-sm hover:border-white/20 transition-all duration-300">
+        <div className="relative z-[1] rounded-2xl border border-white/10 bg-gradient-to-b from-[#181a24]/90 to-[#12141c]/80 backdrop-blur-xl p-3.5 sm:p-5 space-y-4 shadow-sm hover:border-white/20 transition-all duration-300 w-full min-w-0 overflow-hidden">
           <div className="flex items-center justify-between gap-2 pb-3 border-b border-white/[0.08]">
             <div className="flex items-center gap-2.5 min-w-0 flex-1">
               <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-lg bg-purple-500/15 text-purple-400 border border-purple-500/25 text-xs font-bold shadow-xs">
@@ -1023,18 +1023,18 @@ export function LeadForm({ initialData, onSuccess }: LeadFormProps) {
         </div>
 
         {/* Executive Sticky Action Bar */}
-        <div className="sticky bottom-0 -mx-4 sm:-mx-7 -mb-4 sm:-mb-7 mt-6 p-4 px-4 sm:px-7 bg-[#0c0d12]/92 backdrop-blur-2xl border-t border-white/10 flex flex-col sm:flex-row items-center justify-between gap-3 z-30 rounded-b-3xl shadow-[0_-12px_32px_rgba(0,0,0,0.6)]">
+        <div className="sticky bottom-0 -mx-3.5 sm:-mx-7 -mb-3.5 sm:-mb-7 mt-6 p-3 sm:p-4 px-3.5 sm:px-7 bg-[#0c0d12]/95 backdrop-blur-2xl border-t border-white/10 flex flex-col sm:flex-row items-center justify-between gap-3 z-30 rounded-b-2xl sm:rounded-b-3xl shadow-[0_-12px_32px_rgba(0,0,0,0.6)] w-[calc(100%+1.75rem)] sm:w-[calc(100%+3.5rem)]">
           <div className="flex items-center gap-2 w-full sm:w-auto">
             {initialData?.id && (
               <Button
                 type="button"
                 variant="ghost"
                 size="sm"
-                className="text-red-400 hover:text-red-300 hover:bg-red-500/10 border border-red-500/20 gap-1.5 h-10 px-3.5 rounded-xl transition-all"
+                className="text-red-400 hover:text-red-300 hover:bg-red-500/10 border border-red-500/20 gap-1.5 h-10 px-3.5 rounded-xl transition-all w-full sm:w-auto"
                 onClick={() => setShowDeleteConfirm(true)}
                 disabled={saving || isDeleting}
               >
-                <Trash2 className="w-4 h-4" />
+                <Trash2 className="w-4 h-4 shrink-0" />
                 <span>Delete Lead</span>
               </Button>
             )}
@@ -1050,11 +1050,11 @@ export function LeadForm({ initialData, onSuccess }: LeadFormProps) {
             <Button 
               type="submit" 
               size="lg" 
-              className="w-full sm:w-auto min-w-[170px] font-semibold text-white bg-gradient-to-r from-[#FF5A1F] via-[#FF6D2C] to-[#FF8542] hover:from-[#e04e18] hover:to-[#FF5A1F] border border-white/20 shadow-[0_4px_20px_rgba(255,90,31,0.4)] hover:shadow-[0_6px_28px_rgba(255,90,31,0.6)] transition-all h-10.5 px-6 rounded-xl active:scale-[0.98]" 
+              className="w-full sm:w-auto sm:min-w-[170px] font-semibold text-white bg-gradient-to-r from-[#FF5A1F] via-[#FF6D2C] to-[#FF8542] hover:from-[#e04e18] hover:to-[#FF5A1F] border border-white/20 shadow-[0_4px_20px_rgba(255,90,31,0.4)] hover:shadow-[0_6px_28px_rgba(255,90,31,0.6)] transition-all h-10.5 px-6 rounded-xl active:scale-[0.98]" 
               disabled={saving || isDeleting}
             >
               {saving ? (
-                <><Loader2 className="w-4 h-4 animate-spin mr-2" />{initialData?.id ? "Saving Changes..." : "Creating Lead..."}</>
+                <><Loader2 className="w-4 h-4 animate-spin mr-2 shrink-0" />{initialData?.id ? "Saving Changes..." : "Creating Lead..."}</>
               ) : (
                 initialData?.id ? "Save Changes" : "Create Lead"
               )}
