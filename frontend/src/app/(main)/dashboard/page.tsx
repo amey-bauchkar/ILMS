@@ -33,8 +33,8 @@ export default function DashboardPage() {
       {/* Page header */}
       <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4 border-b border-border pb-4">
         <div className="flex flex-col gap-1">
-          <h2 className="text-3xl font-bold tracking-tight">Dashboard Overview</h2>
-          <p className="text-muted-foreground text-base">
+          <h2 className="text-2xl sm:text-3xl font-bold tracking-tight">Dashboard Overview</h2>
+          <p className="text-muted-foreground text-sm sm:text-base">
             Welcome back to Foremark CRM. Here&apos;s what&apos;s happening today.
           </p>
         </div>

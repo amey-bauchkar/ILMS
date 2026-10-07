@@ -756,10 +756,10 @@ export function LeadForm({ initialData, onSuccess }: LeadFormProps) {
             {/* Creation Date & Time */}
             <div className="space-y-2 p-3.5 rounded-xl border border-white/10 bg-white/[0.02] shadow-inner">
               <span className="text-xs font-medium text-zinc-300 flex items-center gap-1.5">
-                <Clock className="w-3.5 h-3.5 text-primary" /> Creation Timestamp
+                <Clock className="w-3.5 h-3.5 text-primary shrink-0" /> Creation Timestamp
               </span>
-              <div className="grid grid-cols-5 gap-1.5 pt-1">
-                <div className="col-span-3">
+              <div className="grid grid-cols-1 xs:grid-cols-5 gap-1.5 pt-1">
+                <div className="xs:col-span-3">
                   <FormField
                     control={form.control}
                     name="createdAt"
@@ -768,7 +768,7 @@ export function LeadForm({ initialData, onSuccess }: LeadFormProps) {
                         <FormControl>
                           <Input 
                             type="date" 
-                            className="h-9.5 rounded-lg border border-white/20 bg-white/[0.05] px-2.5 py-1 text-xs text-white shadow-inner transition-all hover:border-white/35 focus:border-primary" 
+                            className="h-9.5 w-full rounded-lg border border-white/20 bg-white/[0.05] px-2.5 py-1 text-xs text-white shadow-inner transition-all hover:border-white/35 focus:border-primary" 
                             {...field} 
                             value={field.value || ""} 
                           />
@@ -778,7 +778,7 @@ export function LeadForm({ initialData, onSuccess }: LeadFormProps) {
                     )}
                   />
                 </div>
-                <div className="col-span-2">
+                <div className="xs:col-span-2">
                   <FormField
                     control={form.control}
                     name="createdAtTime"
@@ -787,7 +787,7 @@ export function LeadForm({ initialData, onSuccess }: LeadFormProps) {
                         <FormControl>
                           <Input 
                             type="time" 
-                            className="h-9.5 rounded-lg border border-white/20 bg-white/[0.05] px-2 py-1 text-xs text-white shadow-inner transition-all hover:border-white/35 focus:border-primary" 
+                            className="h-9.5 w-full rounded-lg border border-white/20 bg-white/[0.05] px-2 py-1 text-xs text-white shadow-inner transition-all hover:border-white/35 focus:border-primary" 
                             {...field} 
                             value={field.value || ""} 
                           />
@@ -803,10 +803,10 @@ export function LeadForm({ initialData, onSuccess }: LeadFormProps) {
             {/* Last Contacted Date & Time */}
             <div className="space-y-2 p-3.5 rounded-xl border border-white/10 bg-white/[0.02] shadow-inner">
               <span className="text-xs font-medium text-zinc-300 flex items-center gap-1.5">
-                <Phone className="w-3.5 h-3.5 text-blue-400" /> Last Contacted
+                <Phone className="w-3.5 h-3.5 text-blue-400 shrink-0" /> Last Contacted
               </span>
-              <div className="grid grid-cols-5 gap-1.5 pt-1">
-                <div className="col-span-3">
+              <div className="grid grid-cols-1 xs:grid-cols-5 gap-1.5 pt-1">
+                <div className="xs:col-span-3">
                   <FormField
                     control={form.control}
                     name="lastContactedAt"
@@ -815,7 +815,7 @@ export function LeadForm({ initialData, onSuccess }: LeadFormProps) {
                         <FormControl>
                           <Input 
                             type="date" 
-                            className="h-9.5 rounded-lg border border-white/20 bg-white/[0.05] px-2.5 py-1 text-xs text-white shadow-inner transition-all hover:border-white/35 focus:border-primary" 
+                            className="h-9.5 w-full rounded-lg border border-white/20 bg-white/[0.05] px-2.5 py-1 text-xs text-white shadow-inner transition-all hover:border-white/35 focus:border-primary" 
                             {...field} 
                             value={field.value || ""} 
                           />
@@ -825,7 +825,7 @@ export function LeadForm({ initialData, onSuccess }: LeadFormProps) {
                     )}
                   />
                 </div>
-                <div className="col-span-2">
+                <div className="xs:col-span-2">
                   <FormField
                     control={form.control}
                     name="lastContactedAtTime"
@@ -834,7 +834,7 @@ export function LeadForm({ initialData, onSuccess }: LeadFormProps) {
                         <FormControl>
                           <Input 
                             type="time" 
-                            className="h-9.5 rounded-lg border border-white/20 bg-white/[0.05] px-2 py-1 text-xs text-white shadow-inner transition-all hover:border-white/35 focus:border-primary" 
+                            className="h-9.5 w-full rounded-lg border border-white/20 bg-white/[0.05] px-2 py-1 text-xs text-white shadow-inner transition-all hover:border-white/35 focus:border-primary" 
                             {...field} 
                             value={field.value || ""} 
                           />
@@ -850,10 +850,10 @@ export function LeadForm({ initialData, onSuccess }: LeadFormProps) {
             {/* Next Follow-up Date & Time */}
             <div className="space-y-2 p-3.5 rounded-xl border border-white/10 bg-white/[0.02] shadow-inner">
               <span className="text-xs font-medium text-zinc-300 flex items-center gap-1.5">
-                <Sparkles className="w-3.5 h-3.5 text-amber-400" /> Next Follow-up
+                <Sparkles className="w-3.5 h-3.5 text-amber-400 shrink-0" /> Next Follow-up
               </span>
-              <div className="grid grid-cols-5 gap-1.5 pt-1">
-                <div className="col-span-3">
+              <div className="grid grid-cols-1 xs:grid-cols-5 gap-1.5 pt-1">
+                <div className="xs:col-span-3">
                   <FormField
                     control={form.control}
                     name="nextFollowUpDate"
@@ -862,7 +862,7 @@ export function LeadForm({ initialData, onSuccess }: LeadFormProps) {
                         <FormControl>
                           <Input 
                             type="date" 
-                            className="h-9.5 rounded-lg border border-white/20 bg-white/[0.05] px-2.5 py-1 text-xs text-white shadow-inner transition-all hover:border-white/35 focus:border-primary" 
+                            className="h-9.5 w-full rounded-lg border border-white/20 bg-white/[0.05] px-2.5 py-1 text-xs text-white shadow-inner transition-all hover:border-white/35 focus:border-primary" 
                             {...field} 
                             value={field.value || ""} 
                           />
@@ -872,7 +872,7 @@ export function LeadForm({ initialData, onSuccess }: LeadFormProps) {
                     )}
                   />
                 </div>
-                <div className="col-span-2">
+                <div className="xs:col-span-2">
                   <FormField
                     control={form.control}
                     name="nextFollowUpTime"
@@ -881,7 +881,7 @@ export function LeadForm({ initialData, onSuccess }: LeadFormProps) {
                         <FormControl>
                           <Input 
                             type="time" 
-                            className="h-9.5 rounded-lg border border-white/20 bg-white/[0.05] px-2 py-1 text-xs text-white shadow-inner transition-all hover:border-white/35 focus:border-primary" 
+                            className="h-9.5 w-full rounded-lg border border-white/20 bg-white/[0.05] px-2 py-1 text-xs text-white shadow-inner transition-all hover:border-white/35 focus:border-primary" 
                             {...field} 
                             value={field.value || "10:00"} 
                           />
@@ -1023,7 +1023,7 @@ export function LeadForm({ initialData, onSuccess }: LeadFormProps) {
         </div>
 
         {/* Executive Sticky Action Bar */}
-        <div className="sticky bottom-0 -mx-6 -mb-6 mt-6 p-4 px-6 bg-[#0c0d12]/92 backdrop-blur-2xl border-t border-white/10 flex flex-col sm:flex-row items-center justify-between gap-3 z-30 rounded-b-3xl shadow-[0_-12px_32px_rgba(0,0,0,0.6)]">
+        <div className="sticky bottom-0 -mx-4 sm:-mx-7 -mb-4 sm:-mb-7 mt-6 p-4 px-4 sm:px-7 bg-[#0c0d12]/92 backdrop-blur-2xl border-t border-white/10 flex flex-col sm:flex-row items-center justify-between gap-3 z-30 rounded-b-3xl shadow-[0_-12px_32px_rgba(0,0,0,0.6)]">
           <div className="flex items-center gap-2 w-full sm:w-auto">
             {initialData?.id && (
               <Button

@@ -32,11 +32,14 @@ export default function LeadsMobileCard({
     return (
         <div className="block mb-3">
             <div className="rounded-xl border border-border bg-card p-4 hover:border-primary/40 hover:shadow-sm transition-all relative">
-                <div className="flex justify-between items-start mb-2">
-                    <Link href={`/leads/${lead.id}`} className="hover:text-primary transition-colors">
-                        <h3 className="font-semibold text-foreground hover:text-primary text-base transition-colors">{lead.name}</h3>
-                    </Link>
-                    <div className="flex items-center gap-1.5">
+                <div className="flex items-start justify-between gap-2 mb-2">
+                    <div className="min-w-0 flex-1">
+                        <Link href={`/leads/${lead.id}`} className="hover:text-primary transition-colors block">
+                            <h3 className="font-semibold text-foreground hover:text-primary text-base transition-colors truncate">{lead.name}</h3>
+                        </Link>
+                        {lead.company && <p className="text-xs text-muted-foreground truncate mt-0.5">{lead.company}</p>}
+                    </div>
+                    <div className="flex items-center gap-1.5 shrink-0">
                         <DotBadge color={lead.statusColor} label={lead.status} />
                         {onEdit && (
                             <button
@@ -50,7 +53,7 @@ export default function LeadsMobileCard({
                                 title="Edit Lead"
                             >
                                 <Pencil className="w-3 h-3" />
-                                <span>Edit</span>
+                                <span className="hidden xs:inline">Edit</span>
                             </button>
                         )}
                         {onDelete && (
@@ -69,7 +72,6 @@ export default function LeadsMobileCard({
                         )}
                     </div>
                 </div>
-                {lead.company && <p className="text-sm text-muted-foreground mb-2">{lead.company}</p>}
                 <div className="flex flex-wrap items-center gap-2 text-xs text-muted-foreground">
                     <DotBadge color={priorityColors[lead.priority]} label={lead.priority} />
                     <span>{lead.source}</span>

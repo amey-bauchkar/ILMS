@@ -222,7 +222,7 @@ export function StatusPipeline({ currentStatus, onStatusChange }: StatusPipeline
     <div className="space-y-4">
       {/* Linear pipeline stepper */}
       <div
-        className="overflow-x-auto pb-2"
+        className="overflow-x-auto pb-2 scroll-smooth [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]"
         style={{ WebkitOverflowScrolling: "touch" }}
         aria-label="Lead status pipeline"
         role="navigation"

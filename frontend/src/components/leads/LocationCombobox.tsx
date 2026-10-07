@@ -286,8 +286,9 @@ export function LocationCombobox({
                       : "text-zinc-400 hover:text-white hover:bg-white/[0.08]"
                   )}
                 >
-                  <Globe2 className="h-3.5 w-3.5" />
-                  Browse by Country ➔ State ➔ Station
+                  <Globe2 className="h-3.5 w-3.5 shrink-0" />
+                  <span className="hidden sm:inline">Browse by Country ➔ State ➔ Station</span>
+                  <span className="sm:hidden">Browse</span>
                 </button>
               </div>
 

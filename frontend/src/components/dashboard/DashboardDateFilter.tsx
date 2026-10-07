@@ -24,8 +24,8 @@ const OPTIONS: { value: DateFilter; label: string }[] = [
 
 export function DashboardDateFilter({ value, onChange, customRange, onCustomRangeChange }: DashboardDateFilterProps) {
   return (
-    <div className="flex items-center gap-2">
-      <div className="flex items-center rounded-md bg-secondary/30 p-1">
+    <div className="flex items-center gap-2 w-full sm:w-auto">
+      <div className="flex flex-wrap sm:flex-nowrap items-center gap-0.5 rounded-lg bg-secondary/30 p-1 w-full sm:w-auto">
         {OPTIONS.map((opt) => {
           const isCustom = opt.value === "custom";
           
@@ -35,7 +35,7 @@ export function DashboardDateFilter({ value, onChange, customRange, onCustomRang
                 <PopoverTrigger
                   onClick={() => onChange(opt.value)}
                   className={cn(
-                    "px-3 py-1 text-xs font-medium rounded-md transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring flex items-center gap-1",
+                    "px-2.5 sm:px-3 py-1 text-xs font-medium rounded-md transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring flex items-center gap-1 shrink-0",
                     value === opt.value
                       ? "bg-primary text-primary-foreground shadow-sm"
                       : "text-muted-foreground hover:text-foreground hover:bg-secondary/60"
@@ -73,7 +73,7 @@ export function DashboardDateFilter({ value, onChange, customRange, onCustomRang
               key={opt.value}
               onClick={() => onChange(opt.value)}
               className={cn(
-                "px-3 py-1 text-xs font-medium rounded-md transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring",
+                "px-2.5 sm:px-3 py-1 text-xs font-medium rounded-md transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring shrink-0",
                 value === opt.value
                   ? "bg-primary text-primary-foreground shadow-sm"
                   : "text-muted-foreground hover:text-foreground hover:bg-secondary/60"

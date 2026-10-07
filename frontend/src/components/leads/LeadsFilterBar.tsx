@@ -169,109 +169,114 @@ export default function LeadsFilterBar({
                     placeholder="Search by name, company, phone, or email..."
                     value={filters.search}
                     onChange={(e) => onChange({ ...filters, search: e.target.value })}
-                    className="max-w-xs"
+                    className="w-full sm:w-72 sm:max-w-xs"
                 />
 
-                <MultiSelectDropdown
-                    label="Status"
-                    options={statuses.map((s) => ({ value: s.name, label: s.name, color: s.color }))}
-                    selected={filters.statuses}
-                    onChange={(vals) => onChange({ ...filters, statuses: vals })}
-                />
+                <div className="flex flex-wrap items-center gap-2 w-full sm:w-auto">
+                    <MultiSelectDropdown
+                        label="Status"
+                        options={statuses.map((s) => ({ value: s.name, label: s.name, color: s.color }))}
+                        selected={filters.statuses}
+                        onChange={(vals) => onChange({ ...filters, statuses: vals })}
+                    />
 
-                <MultiSelectDropdown
-                    label="Source"
-                    options={ALL_SOURCES.map((s) => ({ value: s, label: s }))}
-                    selected={filters.sources}
-                    onChange={(vals) => onChange({ ...filters, sources: vals })}
-                />
+                    <MultiSelectDropdown
+                        label="Source"
+                        options={ALL_SOURCES.map((s) => ({ value: s, label: s }))}
+                        selected={filters.sources}
+                        onChange={(vals) => onChange({ ...filters, sources: vals })}
+                    />
 
-                <MultiSelectDropdown
-                    label="Owner"
-                    options={members.map((m) => ({ value: m.id, label: m.name }))}
-                    selected={filters.ownerIds}
-                    onChange={(vals) => onChange({ ...filters, ownerIds: vals })}
-                />
+                    <MultiSelectDropdown
+                        label="Owner"
+                        options={members.map((m) => ({ value: m.id, label: m.name }))}
+                        selected={filters.ownerIds}
+                        onChange={(vals) => onChange({ ...filters, ownerIds: vals })}
+                    />
 
-                <MultiSelectDropdown
-                    label="Tags"
-                    options={tags.map((t) => ({ value: t.name, label: t.name }))}
-                    selected={filters.tags}
-                    onChange={(vals) => onChange({ ...filters, tags: vals })}
-                />
+                    <MultiSelectDropdown
+                        label="Tags"
+                        options={tags.map((t) => ({ value: t.name, label: t.name }))}
+                        selected={filters.tags}
+                        onChange={(vals) => onChange({ ...filters, tags: vals })}
+                    />
 
-                <MultiSelectDropdown
-                    label="Priority"
-                    options={PRIORITY_OPTIONS}
-                    selected={filters.priorities || []}
-                    onChange={(vals) => onChange({ ...filters, priorities: vals })}
-                />
+                    <MultiSelectDropdown
+                        label="Priority"
+                        options={PRIORITY_OPTIONS}
+                        selected={filters.priorities || []}
+                        onChange={(vals) => onChange({ ...filters, priorities: vals })}
+                    />
 
-                {hasActiveFilters && (
-                    <Button size="sm" variant="ghost" onClick={() => onChange(emptyFilters)}>
-                        Clear All
-                    </Button>
-                )}
+                    {hasActiveFilters && (
+                        <Button size="sm" variant="ghost" onClick={() => onChange(emptyFilters)}>
+                            Clear All
+                        </Button>
+                    )}
+                </div>
 
-                <div className="flex-1" />
+                <div className="hidden sm:flex sm:flex-1" />
 
-                {/* Saved Views Dropdown */}
-                <DropdownMenu>
-                    <DropdownMenuTrigger className={cn(buttonVariants({ variant: "outline", size: "sm" }), "gap-2")}>
-                        <Bookmark className="w-4 h-4" />
-                        My Views
-                    </DropdownMenuTrigger>
-                    <DropdownMenuContent align="end" className="w-56">
-                        <DropdownMenuGroup>
-                            <DropdownMenuLabel>Saved Views</DropdownMenuLabel>
-                            <DropdownMenuSeparator />
-                            {views.length === 0 ? (
-                                <div className="p-2 text-xs text-muted-foreground">No saved views.</div>
-                            ) : (
-                                views.map((v) => (
-                                    <DropdownMenuItem 
-                                        key={v.id} 
-                                        onClick={() => handleApplyView(v.filters)}
-                                        className="flex justify-between items-center"
-                                    >
-                                        <span>{v.name}</span>
-                                        <X 
-                                            className="w-3 h-3 text-muted-foreground hover:text-destructive" 
-                                            onClick={async (e) => {
-                                                e.stopPropagation();
-                                                await deleteView(v.id);
-                                                refreshViews();
-                                            }}
-                                        />
-                                    </DropdownMenuItem>
-                                ))
-                            )}
-                        </DropdownMenuGroup>
-                    </DropdownMenuContent>
-                </DropdownMenu>
+                {/* Saved Views & Actions */}
+                <div className="flex items-center gap-2 ml-auto sm:ml-0">
+                    {/* Saved Views Dropdown */}
+                    <DropdownMenu>
+                        <DropdownMenuTrigger className={cn(buttonVariants({ variant: "outline", size: "sm" }), "gap-2")}>
+                            <Bookmark className="w-4 h-4" />
+                            <span>My Views</span>
+                        </DropdownMenuTrigger>
+                        <DropdownMenuContent align="end" className="w-56">
+                            <DropdownMenuGroup>
+                                <DropdownMenuLabel>Saved Views</DropdownMenuLabel>
+                                <DropdownMenuSeparator />
+                                {views.length === 0 ? (
+                                    <div className="p-2 text-xs text-muted-foreground">No saved views.</div>
+                                ) : (
+                                    views.map((v) => (
+                                        <DropdownMenuItem 
+                                            key={v.id} 
+                                            onClick={() => handleApplyView(v.filters)}
+                                            className="flex justify-between items-center"
+                                        >
+                                            <span>{v.name}</span>
+                                            <X 
+                                                className="w-3 h-3 text-muted-foreground hover:text-destructive" 
+                                                onClick={async (e) => {
+                                                    e.stopPropagation();
+                                                    await deleteView(v.id);
+                                                    refreshViews();
+                                                }}
+                                            />
+                                        </DropdownMenuItem>
+                                    ))
+                                )}
+                            </DropdownMenuGroup>
+                        </DropdownMenuContent>
+                    </DropdownMenu>
 
-                {/* Save Current View */}
-                {hasActiveFilters && (
-                    <Popover open={isSavingView} onOpenChange={setIsSavingView}>
-                        <PopoverTrigger className={cn(buttonVariants({ variant: "outline", size: "sm" }), "gap-2 text-primary")}>
-                            <Save className="w-4 h-4" />
-                            Save View
-                        </PopoverTrigger>
-                        <PopoverContent align="end" className="w-64 p-3">
-                            <div className="flex flex-col gap-2">
-                                <span className="text-sm font-medium">Save current filters</span>
-                                <Input 
-                                    placeholder="View Name" 
-                                    value={newViewName} 
-                                    onChange={(e) => setNewViewName(e.target.value)}
-                                    className="h-8 text-sm"
-                                    onKeyDown={(e) => e.key === 'Enter' && handleSaveView()}
-                                />
-                                <Button size="sm" onClick={handleSaveView}>Save</Button>
-                            </div>
-                        </PopoverContent>
-                    </Popover>
-                )}
+                    {/* Save Current View */}
+                    {hasActiveFilters && (
+                        <Popover open={isSavingView} onOpenChange={setIsSavingView}>
+                            <PopoverTrigger className={cn(buttonVariants({ variant: "outline", size: "sm" }), "gap-2 text-primary")}>
+                                <Save className="w-4 h-4" />
+                                <span>Save View</span>
+                            </PopoverTrigger>
+                            <PopoverContent align="end" className="w-64 p-3">
+                                <div className="flex flex-col gap-2">
+                                    <span className="text-sm font-medium">Save current filters</span>
+                                    <Input 
+                                        placeholder="View Name" 
+                                        value={newViewName} 
+                                        onChange={(e) => setNewViewName(e.target.value)}
+                                        className="h-8 text-sm"
+                                        onKeyDown={(e) => e.key === 'Enter' && handleSaveView()}
+                                    />
+                                    <Button size="sm" onClick={handleSaveView}>Save</Button>
+                                </div>
+                            </PopoverContent>
+                        </Popover>
+                    )}
+                </div>
             </div>
 
             {hasActiveFilters && (
