@@ -380,10 +380,10 @@ export function LeadForm({ initialData, onSuccess }: LeadFormProps) {
 
   return (
     <Form {...form}>
-      <form onSubmit={form.handleSubmit(onSubmit, onInvalid)} className="space-y-5 w-full max-w-full min-w-0 overflow-x-hidden">
+      <form onSubmit={form.handleSubmit(onSubmit, onInvalid)} className="space-y-5 w-full max-w-full min-w-0">
         
         {/* Section 1: Contact Details */}
-        <div className="relative z-20 rounded-2xl border border-white/10 bg-gradient-to-b from-[#181a24]/90 to-[#12141c]/80 backdrop-blur-xl p-3.5 sm:p-5 space-y-4 shadow-sm hover:border-white/20 transition-all duration-300 w-full min-w-0 overflow-hidden">
+        <div className="relative z-30 rounded-2xl border border-white/10 bg-gradient-to-b from-[#181a24]/90 to-[#12141c]/80 backdrop-blur-xl p-3.5 sm:p-5 space-y-4 shadow-sm hover:border-white/20 transition-all duration-300 w-full min-w-0">
           <div className="flex items-center justify-between gap-2 pb-3 border-b border-white/[0.08]">
             <div className="flex items-center gap-2.5 min-w-0 flex-1">
               <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-lg bg-primary/15 text-primary border border-primary/25 text-xs font-bold shadow-xs">
@@ -494,7 +494,7 @@ export function LeadForm({ initialData, onSuccess }: LeadFormProps) {
         </div>
 
         {/* Section 2: Pipeline & Ownership */}
-        <div className="relative z-[15] rounded-2xl border border-white/10 bg-gradient-to-b from-[#181a24]/90 to-[#12141c]/80 backdrop-blur-xl p-3.5 sm:p-5 space-y-4 shadow-sm hover:border-white/20 transition-all duration-300 w-full min-w-0 overflow-hidden">
+        <div className="relative z-20 rounded-2xl border border-white/10 bg-gradient-to-b from-[#181a24]/90 to-[#12141c]/80 backdrop-blur-xl p-3.5 sm:p-5 space-y-4 shadow-sm hover:border-white/20 transition-all duration-300 w-full min-w-0">
           <div className="flex items-center justify-between gap-2 pb-3 border-b border-white/[0.08]">
             <div className="flex items-center gap-2.5 min-w-0 flex-1">
               <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-lg bg-blue-500/15 text-blue-400 border border-blue-500/25 text-xs font-bold shadow-xs">
@@ -736,7 +736,7 @@ export function LeadForm({ initialData, onSuccess }: LeadFormProps) {
         </div>
 
         {/* Section 3: Activity Timelines & Schedule */}
-        <div className="relative z-[5] rounded-2xl border border-white/10 bg-gradient-to-b from-[#181a24]/90 to-[#12141c]/80 backdrop-blur-xl p-3.5 sm:p-5 space-y-4 shadow-sm hover:border-white/20 transition-all duration-300 w-full min-w-0 overflow-hidden">
+        <div className="relative z-10 rounded-2xl border border-white/10 bg-gradient-to-b from-[#181a24]/90 to-[#12141c]/80 backdrop-blur-xl p-3.5 sm:p-5 space-y-4 shadow-sm hover:border-white/20 transition-all duration-300 w-full min-w-0">
           <div className="flex items-center justify-between gap-2 pb-3 border-b border-white/[0.08]">
             <div className="flex items-center gap-2.5 min-w-0 flex-1">
               <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-lg bg-emerald-500/15 text-emerald-400 border border-emerald-500/25 text-xs font-bold shadow-xs">
@@ -897,7 +897,7 @@ export function LeadForm({ initialData, onSuccess }: LeadFormProps) {
         </div>
 
         {/* Section 4: Deal Value & Reference Links */}
-        <div className="relative z-[3] rounded-2xl border border-white/10 bg-gradient-to-b from-[#181a24]/90 to-[#12141c]/80 backdrop-blur-xl p-3.5 sm:p-5 space-y-4 shadow-sm hover:border-white/20 transition-all duration-300 w-full min-w-0 overflow-hidden">
+        <div className="relative z-[5] rounded-2xl border border-white/10 bg-gradient-to-b from-[#181a24]/90 to-[#12141c]/80 backdrop-blur-xl p-3.5 sm:p-5 space-y-4 shadow-sm hover:border-white/20 transition-all duration-300 w-full min-w-0">
           <div className="flex items-center justify-between gap-2 pb-3 border-b border-white/[0.08]">
             <div className="flex items-center gap-2.5 min-w-0 flex-1">
               <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-lg bg-amber-500/15 text-amber-400 border border-amber-500/25 text-xs font-bold shadow-xs">
@@ -926,7 +926,7 @@ export function LeadForm({ initialData, onSuccess }: LeadFormProps) {
                       <Input 
                         type="number" 
                         placeholder="50,000" 
-                        className="h-10 rounded-xl border border-white/20 bg-white/[0.05] pl-9 pr-3.5 py-2 text-sm text-white placeholder:text-zinc-500 shadow-inner backdrop-blur-md transition-all hover:border-white/35 hover:bg-white/[0.08] focus-visible:border-primary focus-visible:bg-white/[0.09] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/25"
+                        className="h-10 rounded-xl border border-white/20 bg-white/[0.05] pl-9 pr-3.5 py-2 text-sm text-white placeholder:text-zinc-500 shadow-inner backdrop-blur-md transition-all hover:border-white/35 hover:bg-white/[0.08] focus-visible:border-primary focus-visible:bg-white/[0.09] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/25" 
                         {...field} 
                         value={field.value || ""} 
                         onChange={(e) => field.onChange(e.target.valueAsNumber || undefined)}
@@ -953,7 +953,7 @@ export function LeadForm({ initialData, onSuccess }: LeadFormProps) {
                       <Input 
                         type="text" 
                         placeholder={sourcePlaceholderMap[source] || "https://..."} 
-                        className="h-10 rounded-xl border border-white/20 bg-white/[0.05] pl-10 pr-3.5 py-2 text-sm text-white placeholder:text-zinc-500 shadow-inner backdrop-blur-md transition-all hover:border-white/35 hover:bg-white/[0.08] focus-visible:border-primary focus-visible:bg-white/[0.09] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/25"
+                        className="h-10 rounded-xl border border-white/20 bg-white/[0.05] pl-10 pr-3.5 py-2 text-sm text-white placeholder:text-zinc-500 shadow-inner backdrop-blur-md transition-all hover:border-white/35 hover:bg-white/[0.08] focus-visible:border-primary focus-visible:bg-white/[0.09] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/25" 
                         {...field} 
                         value={field.value || ""} 
                       />
@@ -967,7 +967,7 @@ export function LeadForm({ initialData, onSuccess }: LeadFormProps) {
         </div>
 
         {/* Section 5: Categorization & Notes */}
-        <div className="relative z-[1] rounded-2xl border border-white/10 bg-gradient-to-b from-[#181a24]/90 to-[#12141c]/80 backdrop-blur-xl p-3.5 sm:p-5 space-y-4 shadow-sm hover:border-white/20 transition-all duration-300 w-full min-w-0 overflow-hidden">
+        <div className="relative z-[1] rounded-2xl border border-white/10 bg-gradient-to-b from-[#181a24]/90 to-[#12141c]/80 backdrop-blur-xl p-3.5 sm:p-5 space-y-4 shadow-sm hover:border-white/20 transition-all duration-300 w-full min-w-0">
           <div className="flex items-center justify-between gap-2 pb-3 border-b border-white/[0.08]">
             <div className="flex items-center gap-2.5 min-w-0 flex-1">
               <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-lg bg-purple-500/15 text-purple-400 border border-purple-500/25 text-xs font-bold shadow-xs">
