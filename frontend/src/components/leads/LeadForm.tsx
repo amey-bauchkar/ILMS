@@ -383,18 +383,18 @@ export function LeadForm({ initialData, onSuccess }: LeadFormProps) {
       <form onSubmit={form.handleSubmit(onSubmit, onInvalid)} className="space-y-5">
         
         {/* Section 1: Contact Details */}
-        <div className="relative z-20 rounded-2xl border border-white/10 bg-gradient-to-b from-[#181a24]/90 to-[#12141c]/80 backdrop-blur-xl p-5 space-y-4 shadow-sm hover:border-white/20 transition-all duration-300">
-          <div className="flex items-center justify-between pb-3 border-b border-white/[0.08]">
-            <div className="flex items-center gap-2.5">
-              <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-primary/15 text-primary border border-primary/25 text-xs font-bold shadow-xs">
+        <div className="relative z-20 rounded-2xl border border-white/10 bg-gradient-to-b from-[#181a24]/90 to-[#12141c]/80 backdrop-blur-xl p-3.5 sm:p-5 space-y-4 shadow-sm hover:border-white/20 transition-all duration-300">
+          <div className="flex items-center justify-between gap-2 pb-3 border-b border-white/[0.08]">
+            <div className="flex items-center gap-2.5 min-w-0 flex-1">
+              <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-lg bg-primary/15 text-primary border border-primary/25 text-xs font-bold shadow-xs">
                 01
               </div>
-              <div>
-                <h3 className="text-xs font-bold uppercase tracking-wider text-zinc-100">Contact Information</h3>
-                <p className="text-[11px] text-zinc-400">Primary prospect contact and organization identity</p>
+              <div className="min-w-0 flex-1">
+                <h3 className="text-xs font-bold uppercase tracking-wider text-zinc-100 truncate">Contact Information</h3>
+                <p className="text-[11px] text-zinc-400 truncate hidden xs:block">Primary prospect contact and organization identity</p>
               </div>
             </div>
-            <span className="text-[10px] font-semibold text-primary uppercase tracking-wider bg-primary/10 px-2 py-0.5 rounded-md border border-primary/20">
+            <span className="hidden sm:inline-block shrink-0 text-[10px] font-semibold text-primary uppercase tracking-wider bg-primary/10 px-2 py-0.5 rounded-md border border-primary/20">
               Core Identity
             </span>
           </div>
@@ -494,18 +494,18 @@ export function LeadForm({ initialData, onSuccess }: LeadFormProps) {
         </div>
 
         {/* Section 2: Pipeline & Ownership */}
-        <div className="relative z-[15] rounded-2xl border border-white/10 bg-gradient-to-b from-[#181a24]/90 to-[#12141c]/80 backdrop-blur-xl p-5 space-y-4 shadow-sm hover:border-white/20 transition-all duration-300">
-          <div className="flex items-center justify-between pb-3 border-b border-white/[0.08]">
-            <div className="flex items-center gap-2.5">
-              <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-blue-500/15 text-blue-400 border border-blue-500/25 text-xs font-bold shadow-xs">
+        <div className="relative z-[15] rounded-2xl border border-white/10 bg-gradient-to-b from-[#181a24]/90 to-[#12141c]/80 backdrop-blur-xl p-3.5 sm:p-5 space-y-4 shadow-sm hover:border-white/20 transition-all duration-300">
+          <div className="flex items-center justify-between gap-2 pb-3 border-b border-white/[0.08]">
+            <div className="flex items-center gap-2.5 min-w-0 flex-1">
+              <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-lg bg-blue-500/15 text-blue-400 border border-blue-500/25 text-xs font-bold shadow-xs">
                 02
               </div>
-              <div>
-                <h3 className="text-xs font-bold uppercase tracking-wider text-zinc-100">Pipeline & Assignment</h3>
-                <p className="text-[11px] text-zinc-400">Lead attribution, current stage, priority & account owner</p>
+              <div className="min-w-0 flex-1">
+                <h3 className="text-xs font-bold uppercase tracking-wider text-zinc-100 truncate">Pipeline & Assignment</h3>
+                <p className="text-[11px] text-zinc-400 truncate hidden xs:block">Lead attribution, current stage, priority & account owner</p>
               </div>
             </div>
-            <span className="text-[10px] font-medium text-zinc-400 uppercase tracking-wider bg-white/[0.04] px-2 py-0.5 rounded-md border border-white/5">
+            <span className="hidden sm:inline-block shrink-0 text-[10px] font-medium text-zinc-400 uppercase tracking-wider bg-white/[0.04] px-2 py-0.5 rounded-md border border-white/5">
               Sales Routing
             </span>
           </div>
@@ -736,18 +736,18 @@ export function LeadForm({ initialData, onSuccess }: LeadFormProps) {
         </div>
 
         {/* Section 3: Activity Timelines & Schedule */}
-        <div className="relative z-[5] rounded-2xl border border-white/10 bg-gradient-to-b from-[#181a24]/90 to-[#12141c]/80 backdrop-blur-xl p-5 space-y-4 shadow-sm hover:border-white/20 transition-all duration-300">
-          <div className="flex items-center justify-between pb-3 border-b border-white/[0.08]">
-            <div className="flex items-center gap-2.5">
-              <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-emerald-500/15 text-emerald-400 border border-emerald-500/25 text-xs font-bold shadow-xs">
+        <div className="relative z-[5] rounded-2xl border border-white/10 bg-gradient-to-b from-[#181a24]/90 to-[#12141c]/80 backdrop-blur-xl p-3.5 sm:p-5 space-y-4 shadow-sm hover:border-white/20 transition-all duration-300">
+          <div className="flex items-center justify-between gap-2 pb-3 border-b border-white/[0.08]">
+            <div className="flex items-center gap-2.5 min-w-0 flex-1">
+              <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-lg bg-emerald-500/15 text-emerald-400 border border-emerald-500/25 text-xs font-bold shadow-xs">
                 03
               </div>
-              <div>
-                <h3 className="text-xs font-bold uppercase tracking-wider text-zinc-100">Activity & Follow-Up</h3>
-                <p className="text-[11px] text-zinc-400">Creation record, last engagement & scheduled follow-up</p>
+              <div className="min-w-0 flex-1">
+                <h3 className="text-xs font-bold uppercase tracking-wider text-zinc-100 truncate">Activity & Follow-Up</h3>
+                <p className="text-[11px] text-zinc-400 truncate hidden xs:block">Creation record, last engagement & scheduled follow-up</p>
               </div>
             </div>
-            <span className="text-[10px] font-medium text-emerald-400 uppercase tracking-wider bg-emerald-500/10 px-2 py-0.5 rounded-md border border-emerald-500/20">
+            <span className="hidden sm:inline-block shrink-0 text-[10px] font-medium text-emerald-400 uppercase tracking-wider bg-emerald-500/10 px-2 py-0.5 rounded-md border border-emerald-500/20">
               Timelines
             </span>
           </div>
@@ -897,18 +897,18 @@ export function LeadForm({ initialData, onSuccess }: LeadFormProps) {
         </div>
 
         {/* Section 4: Deal Value & Reference Links */}
-        <div className="relative z-[3] rounded-2xl border border-white/10 bg-gradient-to-b from-[#181a24]/90 to-[#12141c]/80 backdrop-blur-xl p-5 space-y-4 shadow-sm hover:border-white/20 transition-all duration-300">
-          <div className="flex items-center justify-between pb-3 border-b border-white/[0.08]">
-            <div className="flex items-center gap-2.5">
-              <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-amber-500/15 text-amber-400 border border-amber-500/25 text-xs font-bold shadow-xs">
+        <div className="relative z-[3] rounded-2xl border border-white/10 bg-gradient-to-b from-[#181a24]/90 to-[#12141c]/80 backdrop-blur-xl p-3.5 sm:p-5 space-y-4 shadow-sm hover:border-white/20 transition-all duration-300">
+          <div className="flex items-center justify-between gap-2 pb-3 border-b border-white/[0.08]">
+            <div className="flex items-center gap-2.5 min-w-0 flex-1">
+              <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-lg bg-amber-500/15 text-amber-400 border border-amber-500/25 text-xs font-bold shadow-xs">
                 04
               </div>
-              <div>
-                <h3 className="text-xs font-bold uppercase tracking-wider text-zinc-100">Financials & Reference</h3>
-                <p className="text-[11px] text-zinc-400">Estimated deal valuation and origin channel URL</p>
+              <div className="min-w-0 flex-1">
+                <h3 className="text-xs font-bold uppercase tracking-wider text-zinc-100 truncate">Financials & Reference</h3>
+                <p className="text-[11px] text-zinc-400 truncate hidden xs:block">Estimated deal valuation and origin channel URL</p>
               </div>
             </div>
-            <span className="text-[10px] font-medium text-amber-400 uppercase tracking-wider bg-amber-500/10 px-2 py-0.5 rounded-md border border-amber-500/20">
+            <span className="hidden sm:inline-block shrink-0 text-[10px] font-medium text-amber-400 uppercase tracking-wider bg-amber-500/10 px-2 py-0.5 rounded-md border border-amber-500/20">
               Commercial
             </span>
           </div>
@@ -967,18 +967,18 @@ export function LeadForm({ initialData, onSuccess }: LeadFormProps) {
         </div>
 
         {/* Section 5: Categorization & Notes */}
-        <div className="relative z-[1] rounded-2xl border border-white/10 bg-gradient-to-b from-[#181a24]/90 to-[#12141c]/80 backdrop-blur-xl p-5 space-y-4 shadow-sm hover:border-white/20 transition-all duration-300">
-          <div className="flex items-center justify-between pb-3 border-b border-white/[0.08]">
-            <div className="flex items-center gap-2.5">
-              <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-purple-500/15 text-purple-400 border border-purple-500/25 text-xs font-bold shadow-xs">
+        <div className="relative z-[1] rounded-2xl border border-white/10 bg-gradient-to-b from-[#181a24]/90 to-[#12141c]/80 backdrop-blur-xl p-3.5 sm:p-5 space-y-4 shadow-sm hover:border-white/20 transition-all duration-300">
+          <div className="flex items-center justify-between gap-2 pb-3 border-b border-white/[0.08]">
+            <div className="flex items-center gap-2.5 min-w-0 flex-1">
+              <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-lg bg-purple-500/15 text-purple-400 border border-purple-500/25 text-xs font-bold shadow-xs">
                 05
               </div>
-              <div>
-                <h3 className="text-xs font-bold uppercase tracking-wider text-zinc-100">Tags & Collaboration Notes</h3>
-                <p className="text-[11px] text-zinc-400">Contextual tags and internal communication logs</p>
+              <div className="min-w-0 flex-1">
+                <h3 className="text-xs font-bold uppercase tracking-wider text-zinc-100 truncate">Tags & Collaboration Notes</h3>
+                <p className="text-[11px] text-zinc-400 truncate hidden xs:block">Contextual tags and internal communication logs</p>
               </div>
             </div>
-            <span className="text-[10px] font-medium text-purple-400 uppercase tracking-wider bg-purple-500/10 px-2 py-0.5 rounded-md border border-purple-500/20">
+            <span className="hidden sm:inline-block shrink-0 text-[10px] font-medium text-purple-400 uppercase tracking-wider bg-purple-500/10 px-2 py-0.5 rounded-md border border-purple-500/20">
               Context
             </span>
           </div>
