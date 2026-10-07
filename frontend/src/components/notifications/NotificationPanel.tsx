@@ -198,17 +198,17 @@ export function NotificationPanel() {
         </div>
 
         {/* Footer */}
-        <div className="p-3.5 border-t border-[#262626] bg-[#141414] flex items-center justify-between text-xs text-[#737373]">
-          <span className="flex items-center gap-1.5">
-            <Clock className="w-3.5 h-3.5 text-primary" />
-            Auto-alerts 30m prior & at scheduled time
+        <div className="p-3.5 border-t border-border bg-card/90 flex items-center justify-between text-xs text-muted-foreground">
+          <span className="flex items-center gap-1.5 truncate">
+            <Clock className="w-3.5 h-3.5 text-primary shrink-0" />
+            <span className="truncate">Auto-alerts 30m prior & scheduled</span>
           </span>
           <Link
             href="/leads"
             onClick={() => setIsOpen(false)}
-            className="text-primary hover:underline font-medium"
+            className="text-primary hover:underline font-medium shrink-0 ml-2"
           >
-            View All Leads →
+            All Leads →
           </Link>
         </div>
       </SheetContent>
@@ -332,14 +332,14 @@ function NotificationCard({
         <div className="flex items-center justify-between gap-2 pt-2 border-t border-border">
           <a
             href={`tel:${item.phone}`}
-            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-emerald-500/10 border border-emerald-500/20 text-emerald-500 hover:bg-emerald-500/20 transition-colors text-xs font-medium"
+            className="inline-flex items-center gap-1.5 px-2.5 sm:px-3 py-1.5 rounded-lg bg-emerald-500/10 border border-emerald-500/20 text-emerald-500 hover:bg-emerald-500/20 transition-colors text-xs font-medium min-w-0"
             title="Call Lead"
           >
-            <Phone className="w-3.5 h-3.5" />
-            <span>Call ({item.phone})</span>
+            <Phone className="w-3.5 h-3.5 shrink-0" />
+            <span className="truncate">Call <span className="hidden sm:inline">({item.phone})</span></span>
           </a>
 
-          <div className="flex items-center gap-1.5">
+          <div className="flex items-center gap-1.5 shrink-0">
             <Link
               href={`/leads/${item.leadId}`}
               onClick={onClosePanel}

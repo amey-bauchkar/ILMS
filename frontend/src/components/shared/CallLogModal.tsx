@@ -207,7 +207,7 @@ function CallLogForm({
                   key={value}
                   onClick={() => form.setValue("outcome", value, { shouldValidate: true })}
                   className={cn(
-                    "flex items-center gap-2 px-3 py-2.5 rounded-lg border text-sm font-medium transition-all text-left",
+                    "flex items-center gap-1.5 sm:gap-2 px-2.5 sm:px-3 py-2 sm:py-2.5 rounded-lg border text-xs sm:text-sm font-medium transition-all text-left",
                     isSelected
                       ? "border-current ring-1 ring-current"
                       : "border-border bg-secondary/30 text-muted-foreground hover:bg-secondary/60 hover:text-foreground"
@@ -218,8 +218,8 @@ function CallLogForm({
                       : {}
                   }
                 >
-                  <Icon className="h-4 w-4 shrink-0" />
-                  <span className="leading-tight">{label}</span>
+                  <Icon className="h-3.5 w-3.5 sm:h-4 sm:w-4 shrink-0" />
+                  <span className="leading-tight truncate sm:break-normal">{label}</span>
                 </button>
               );
             })}
@@ -399,7 +399,7 @@ export function CallLogModal({ leadName, leadId, trigger }: CallLogModalProps) {
       )}
 
       <Dialog open={open} onOpenChange={setOpen}>
-        <DialogContent className="sm:max-w-[540px] w-[95vw] max-h-[90vh] overflow-y-auto [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
+        <DialogContent className="sm:max-w-[540px] w-[95vw] p-4 sm:p-6 rounded-2xl max-h-[90vh] overflow-y-auto [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
           <DialogHeader>
             <DialogTitle>
               Log Call{leadName ? ` — ${leadName}` : ""}

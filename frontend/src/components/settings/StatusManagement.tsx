@@ -87,7 +87,7 @@ export function StatusManagement({ statuses }: { statuses: Status[] }) {
 
   return (
     <div className="space-y-4">
-      <div className="flex justify-between items-center">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
         <div>
           <h3 className="text-lg font-medium">Pipeline Statuses</h3>
           <p className="text-sm text-muted-foreground">
@@ -95,10 +95,10 @@ export function StatusManagement({ statuses }: { statuses: Status[] }) {
           </p>
         </div>
         <Dialog open={isOpen} onOpenChange={setIsOpen}>
-          <DialogTrigger render={<Button onClick={handleOpenNew} />}>
+          <DialogTrigger render={<Button className="w-full sm:w-auto" onClick={handleOpenNew} />}>
             Add Status
           </DialogTrigger>
-          <DialogContent>
+          <DialogContent className="w-[95vw] sm:max-w-[425px]">
             <DialogHeader>
               <DialogTitle>{editingId ? "Edit Status" : "Create Status"}</DialogTitle>
               <DialogDescription>
@@ -159,7 +159,7 @@ export function StatusManagement({ statuses }: { statuses: Status[] }) {
         </Dialog>
       </div>
 
-      <div className="border rounded-md">
+      <div className="border rounded-md overflow-x-auto">
         <Table>
           <TableHeader>
             <TableRow>

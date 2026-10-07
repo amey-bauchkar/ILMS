@@ -97,7 +97,7 @@ export function UserManagement({ users: initialUsers }: { users: User[] }) {
 
   return (
     <div className="space-y-4">
-      <div className="flex justify-between items-center">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
         <div>
           <h3 className="text-lg font-medium">Team Members</h3>
           <p className="text-sm text-muted-foreground">
@@ -105,10 +105,10 @@ export function UserManagement({ users: initialUsers }: { users: User[] }) {
           </p>
         </div>
         <Dialog open={isInviteOpen} onOpenChange={setIsInviteOpen}>
-          <DialogTrigger render={<Button />}>
+          <DialogTrigger render={<Button className="w-full sm:w-auto" />}>
             Invite User
           </DialogTrigger>
-          <DialogContent>
+          <DialogContent className="w-[95vw] sm:max-w-[425px]">
             <DialogHeader>
               <DialogTitle>Invite Team Member</DialogTitle>
               <DialogDescription>
@@ -160,7 +160,7 @@ export function UserManagement({ users: initialUsers }: { users: User[] }) {
         </Dialog>
       </div>
 
-      <div className="border rounded-md">
+      <div className="border rounded-md overflow-x-auto">
         <Table>
           <TableHeader>
             <TableRow>

@@ -437,7 +437,7 @@ export default function LeadsTable() {
 
             {/* Edit Lead Modal */}
             <Dialog open={!!editingLead} onOpenChange={(open) => { if (!open) setEditingLead(null); }}>
-                <DialogContent className="sm:max-w-[840px] w-[95vw] max-h-[92vh] overflow-y-auto bg-[#101117]/95 border border-white/15 backdrop-blur-2xl p-6 sm:p-7 text-white shadow-[0_25px_70px_rgba(0,0,0,0.8),inset_0_1px_0_0_rgba(255,255,255,0.1)] rounded-3xl [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
+                <DialogContent className="sm:max-w-[840px] w-[95vw] max-h-[92vh] overflow-y-auto bg-[#101117]/95 border border-white/15 backdrop-blur-2xl p-4 sm:p-7 text-white shadow-[0_25px_70px_rgba(0,0,0,0.8),inset_0_1px_0_0_rgba(255,255,255,0.1)] rounded-3xl [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
                     <DialogHeader className="mb-6 pb-4 border-b border-white/10">
                         <DialogTitle className="text-xl font-bold tracking-tight text-white flex items-center gap-3">
                             <div className="h-9 w-9 rounded-xl bg-primary/20 border border-primary/30 flex items-center justify-center text-primary shadow-xs">
@@ -480,7 +480,7 @@ export default function LeadsTable() {
 
             {/* Delete Lead Confirmation Modal */}
             <Dialog open={!!deletingLead} onOpenChange={(open) => { if (!open) setDeletingLead(null); }}>
-                <DialogContent className="sm:max-w-[425px]">
+                <DialogContent className="sm:max-w-[425px] w-[95vw] p-5 sm:p-6 rounded-2xl">
                     <DialogHeader>
                         <DialogTitle>Delete Lead</DialogTitle>
                         <DialogDescription>
@@ -515,11 +515,11 @@ export default function LeadsTable() {
             </Dialog>
 
             {/* Pagination */}
-            <div className="flex justify-between items-center mt-4">
-                <span className="text-sm text-[#737373]">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mt-4">
+                <span className="text-xs sm:text-sm text-muted-foreground text-center sm:text-left">
                     {filteredSorted.length} leads · Page {page} of {totalPages}
                 </span>
-                <div className="flex gap-2">
+                <div className="flex justify-center gap-2">
                     <Button
                         variant="outline"
                         size="sm"

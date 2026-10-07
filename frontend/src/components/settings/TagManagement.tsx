@@ -68,7 +68,7 @@ export function TagManagement({ tags }: { tags: Tag[] }) {
 
   return (
     <div className="space-y-4">
-      <div className="flex justify-between items-center">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
         <div>
           <h3 className="text-lg font-medium">Global Tags</h3>
           <p className="text-sm text-muted-foreground">
@@ -76,10 +76,10 @@ export function TagManagement({ tags }: { tags: Tag[] }) {
           </p>
         </div>
         <Dialog open={isOpen} onOpenChange={setIsOpen}>
-          <DialogTrigger render={<Button onClick={handleOpenNew} />}>
+          <DialogTrigger render={<Button onClick={handleOpenNew} className="w-full sm:w-auto" />}>
             Create Tag
           </DialogTrigger>
-          <DialogContent>
+          <DialogContent className="w-[95vw] sm:max-w-md p-4 sm:p-6 rounded-2xl">
             <DialogHeader>
               <DialogTitle>{editingId ? "Edit Tag" : "Create Tag"}</DialogTitle>
               <DialogDescription>
@@ -99,7 +99,7 @@ export function TagManagement({ tags }: { tags: Tag[] }) {
                 </div>
               </div>
               <DialogFooter>
-                <Button type="submit" disabled={loading}>
+                <Button type="submit" disabled={loading} className="w-full sm:w-auto">
                   {loading ? "Saving..." : "Save Tag"}
                 </Button>
               </DialogFooter>
@@ -108,23 +108,25 @@ export function TagManagement({ tags }: { tags: Tag[] }) {
         </Dialog>
       </div>
 
-      <div className="flex flex-wrap gap-4 border p-6 rounded-md bg-card/40">
+      <div className="flex flex-wrap gap-2.5 sm:gap-4 border p-4 sm:p-6 rounded-xl bg-card/40">
         {tags.map((tag) => (
-          <div key={tag.id} className="group relative flex items-center gap-2 border rounded-full pl-3 pr-2 py-1.5 bg-background shadow-sm">
+          <div key={tag.id} className="group relative flex items-center gap-2 border rounded-full pl-3 pr-2 py-1.5 bg-background shadow-xs">
             <div 
-              className="w-2.5 h-2.5 rounded-full bg-slate-500" 
+              className="w-2.5 h-2.5 rounded-full bg-slate-500 shrink-0" 
             />
-            <span className="text-sm font-medium">{tag.name}</span>
-            <div className="ml-2 flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+            <span className="text-xs sm:text-sm font-medium">{tag.name}</span>
+            <div className="ml-1 sm:ml-2 flex items-center gap-1 opacity-100 sm:opacity-0 sm:group-hover:opacity-100 transition-opacity">
               <button 
+                type="button"
                 onClick={() => handleOpenEdit(tag)}
-                className="text-muted-foreground hover:text-foreground text-xs font-semibold px-1"
+                className="text-muted-foreground hover:text-foreground text-[11px] sm:text-xs font-semibold px-1 py-0.5 rounded hover:bg-secondary transition-colors"
               >
                 Edit
               </button>
               <button 
+                type="button"
                 onClick={() => handleDelete(tag.id)}
-                className="text-destructive/70 hover:text-destructive text-xs font-semibold px-1"
+                className="text-destructive/70 hover:text-destructive text-[11px] sm:text-xs font-semibold px-1 py-0.5 rounded hover:bg-destructive/10 transition-colors"
               >
                 ✕
               </button>

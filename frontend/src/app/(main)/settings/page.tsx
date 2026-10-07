@@ -64,34 +64,34 @@ export default async function SettingsPage() {
   return (
     <div className="w-full space-y-6">
       <div className="flex flex-col gap-1 border-b border-border pb-4">
-        <h2 className="text-3xl font-bold tracking-tight">Settings</h2>
-        <p className="text-muted-foreground text-base">
+        <h2 className="text-2xl sm:text-3xl font-bold tracking-tight">Settings</h2>
+        <p className="text-muted-foreground text-sm sm:text-base">
           Manage your account settings and application preferences.
         </p>
       </div>
 
       <Tabs defaultValue="profile" className="space-y-4">
-        <TabsList className="bg-card/50 border border-border p-1 h-auto rounded-lg flex overflow-x-auto overflow-y-hidden whitespace-nowrap justify-start w-full sm:w-fit sm:justify-center">
-          <TabsTrigger value="profile" className="rounded-md px-6 py-2 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground transition-all">
+        <TabsList className="bg-card/50 border border-border p-1 h-auto rounded-lg flex overflow-x-auto overflow-y-hidden whitespace-nowrap justify-start w-full sm:w-fit sm:justify-center [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
+          <TabsTrigger value="profile" className="rounded-md px-3.5 sm:px-6 py-1.5 sm:py-2 text-xs sm:text-sm data-[state=active]:bg-primary data-[state=active]:text-primary-foreground transition-all">
             Profile
           </TabsTrigger>
-          <TabsTrigger value="application" className="rounded-md px-6 py-2 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground transition-all">
+          <TabsTrigger value="application" className="rounded-md px-3.5 sm:px-6 py-1.5 sm:py-2 text-xs sm:text-sm data-[state=active]:bg-primary data-[state=active]:text-primary-foreground transition-all">
             Application
           </TabsTrigger>
           
           {isAdmin && (
             <>
-              <TabsTrigger value="users" className="rounded-md px-6 py-2 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground transition-all">
+              <TabsTrigger value="users" className="rounded-md px-3.5 sm:px-6 py-1.5 sm:py-2 text-xs sm:text-sm data-[state=active]:bg-primary data-[state=active]:text-primary-foreground transition-all">
                 Team
               </TabsTrigger>
-              <TabsTrigger value="statuses" className="rounded-md px-6 py-2 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground transition-all">
+              <TabsTrigger value="statuses" className="rounded-md px-3.5 sm:px-6 py-1.5 sm:py-2 text-xs sm:text-sm data-[state=active]:bg-primary data-[state=active]:text-primary-foreground transition-all">
                 Statuses
               </TabsTrigger>
             </>
           )}
 
           {canManageTags && (
-            <TabsTrigger value="tags" className="rounded-md px-6 py-2 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground transition-all">
+            <TabsTrigger value="tags" className="rounded-md px-3.5 sm:px-6 py-1.5 sm:py-2 text-xs sm:text-sm data-[state=active]:bg-primary data-[state=active]:text-primary-foreground transition-all">
               Tags
             </TabsTrigger>
           )}
@@ -99,13 +99,13 @@ export default async function SettingsPage() {
         
         <TabsContent value="profile" className="focus-visible:outline-none focus-visible:ring-0">
           <Card className="border-border bg-card/40 backdrop-blur-sm shadow-xl">
-            <CardHeader className="border-b border-border/50 pb-4 mb-4">
+            <CardHeader className="border-b border-border/50 p-4 sm:p-6 pb-4 mb-4">
               <CardTitle className="text-xl">Profile Details</CardTitle>
               <CardDescription className="text-sm">
                 View your personal information and role.
               </CardDescription>
             </CardHeader>
-            <CardContent className="px-6 pb-4">
+            <CardContent className="p-4 sm:p-6 pt-0 pb-4">
               <ProfileSettings profile={profile as User} />
             </CardContent>
           </Card>
@@ -113,13 +113,13 @@ export default async function SettingsPage() {
         
         <TabsContent value="application" className="focus-visible:outline-none focus-visible:ring-0">
           <Card className="border-border bg-card/40 backdrop-blur-sm shadow-xl">
-            <CardHeader className="border-b border-border/50 pb-4 mb-4">
+            <CardHeader className="border-b border-border/50 p-4 sm:p-6 pb-4 mb-4">
               <CardTitle className="text-xl">Application Preferences</CardTitle>
               <CardDescription>
                 Customize your Foremark CRM display, color themes, and workspace preferences.
               </CardDescription>
             </CardHeader>
-            <CardContent className="px-6 pb-6">
+            <CardContent className="p-4 sm:p-6 pt-0 pb-6">
               <ThemeSettings />
             </CardContent>
           </Card>
@@ -129,13 +129,13 @@ export default async function SettingsPage() {
           <>
             <TabsContent value="users" className="focus-visible:outline-none focus-visible:ring-0">
               <Card className="border-border bg-card/40 backdrop-blur-sm shadow-xl">
-                <CardHeader className="border-b border-border/50 pb-4 mb-4">
+                <CardHeader className="border-b border-border/50 p-4 sm:p-6 pb-4 mb-4">
                   <CardTitle className="text-xl">User Management</CardTitle>
                   <CardDescription>
                     Invite team members and manage their roles and access.
                   </CardDescription>
                 </CardHeader>
-                <CardContent className="px-6 pb-6">
+                <CardContent className="p-4 sm:p-6 pt-0 pb-6">
                   <UserManagement users={users} />
                 </CardContent>
               </Card>
@@ -143,13 +143,13 @@ export default async function SettingsPage() {
 
             <TabsContent value="statuses" className="focus-visible:outline-none focus-visible:ring-0">
               <Card className="border-border bg-card/40 backdrop-blur-sm shadow-xl">
-                <CardHeader className="border-b border-border/50 pb-4 mb-4">
+                <CardHeader className="border-b border-border/50 p-4 sm:p-6 pb-4 mb-4">
                   <CardTitle className="text-xl">Status Management</CardTitle>
                   <CardDescription>
                     Configure the stages a lead passes through in your pipeline.
                   </CardDescription>
                 </CardHeader>
-                <CardContent className="px-6 pb-6">
+                <CardContent className="p-4 sm:p-6 pt-0 pb-6">
                   <StatusManagement statuses={statuses} />
                 </CardContent>
               </Card>
@@ -160,13 +160,13 @@ export default async function SettingsPage() {
         {canManageTags && (
           <TabsContent value="tags" className="focus-visible:outline-none focus-visible:ring-0">
             <Card className="border-border bg-card/40 backdrop-blur-sm shadow-xl">
-              <CardHeader className="border-b border-border/50 pb-4 mb-4">
+              <CardHeader className="border-b border-border/50 p-4 sm:p-6 pb-4 mb-4">
                 <CardTitle className="text-xl">Tag Management</CardTitle>
                 <CardDescription>
                   Create and organize tags that can be applied to categorize leads.
                 </CardDescription>
               </CardHeader>
-              <CardContent className="px-6 pb-6">
+              <CardContent className="p-4 sm:p-6 pt-0 pb-6">
                 <TagManagement tags={tags} />
               </CardContent>
             </Card>

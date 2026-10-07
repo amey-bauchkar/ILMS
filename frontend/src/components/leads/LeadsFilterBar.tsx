@@ -77,7 +77,7 @@ function MultiSelectDropdown({
             <PopoverTrigger render={<Button variant="outline" size="sm" />}>
                 {label} {selected.length > 0 ? `(${selected.length})` : ""}
             </PopoverTrigger>
-            <PopoverContent className="w-60 p-2 shadow-xl border-border bg-popover rounded-xl">
+            <PopoverContent align="start" className="w-60 p-2 shadow-xl border-border bg-popover rounded-xl">
                 {options.length > 5 && (
                     <div className="relative mb-2">
                         <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-muted-foreground pointer-events-none" />
