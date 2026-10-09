@@ -21,6 +21,7 @@ const createLeadSchema = z.object({
   created_at: z.string().nullable().optional(),
   last_contacted_at: z.string().nullable().optional(),
   next_followup_date: z.string().nullable().optional(),
+  next_followup_time: z.string().nullable().optional(),
   notes: z.string().max(2000).nullable().optional(),
   tags: z.array(z.string().max(100)).max(50).nullable().optional(),
   lost_reason: z.string().nullable().optional(),
@@ -45,6 +46,7 @@ const updateLeadSchema = z.object({
   source_link: z.string().nullable().optional(),
   notes: z.string().max(2000).nullable().optional(),
   next_followup_date: z.string().nullable().optional(),
+  next_followup_time: z.string().nullable().optional(),
   lost_reason: z.string().nullable().optional(),
   lost_reason_details: z.string().max(1000).nullable().optional(),
   tags: z.array(z.string().max(100)).max(50).nullable().optional(),
@@ -115,6 +117,7 @@ export async function createLead(rawData: {
   last_contacted_at?: string;
   location?: string;
   next_followup_date?: string;
+  next_followup_time?: string;
   notes?: string;
   tags?: string[];
   lost_reason?: string;
@@ -176,6 +179,13 @@ export async function createLead(rawData: {
   if (data.source_link) customFields.source_link = data.source_link;
   if (data.location) customFields.location = data.location;
   if (data.priority) customFields.priority = data.priority;
+  if (data.next_followup_time) customFields.next_followup_time = data.next_followup_time;
+  if (data.next_followup_date) {
+    const datePart = data.next_followup_date.split('T')[0];
+    const timePart = data.next_followup_time || (data.next_followup_date.includes('T') ? data.next_followup_date.split('T')[1]?.slice(0, 5) : '10:00');
+    customFields.next_followup_time = timePart;
+    customFields.next_followup_datetime = `${datePart}T${timePart}:00`;
+  }
 
   const safeDbSource = VALID_DB_ENUM_SOURCES.includes(data.source) ? data.source : 'Other';
 
@@ -191,7 +201,7 @@ export async function createLead(rawData: {
     created_by: dbUser.id,
     priority: data.priority as any,
     estimated_deal_value: data.estimated_deal_value || 0,
-    next_followup_date: data.next_followup_date || null,
+    next_followup_date: data.next_followup_date ? data.next_followup_date.split('T')[0] : null,
     lost_reason: data.lost_reason as any || null,
     lost_reason_details: data.lost_reason_details || null,
     custom_fields: customFields,
@@ -275,10 +285,12 @@ export async function createLead(rawData: {
   // Create reminder if next_followup_date is set
   if (data.next_followup_date && lead) {
     try {
+      const datePart = data.next_followup_date.split('T')[0];
+      const timePart = data.next_followup_time || customFields.next_followup_time || '10:00';
       await clientToUse.from('reminders').insert({
         lead_id: lead.id,
         title: `Follow-up: ${data.name}`,
-        due_date: new Date(data.next_followup_date).toISOString(),
+        due_date: new Date(`${datePart}T${timePart}:00`).toISOString(),
         status: 'pending' as any,
         assigned_to: data.owner_id,
         created_by: dbUser.id,
@@ -314,6 +326,7 @@ export async function updateLead(
     source_link?: string | null;
     notes?: string | null;
     next_followup_date?: string | null;
+    next_followup_time?: string | null;
     lost_reason?: string | null;
     lost_reason_details?: string | null;
     tags?: string[];
@@ -373,12 +386,13 @@ export async function updateLead(
     }
   }
 
-  const { data: existing } = await clientToUse.from('leads').select('custom_fields, source').eq('id', leadId).single();
+  const { data: existing } = await clientToUse.from('leads').select('custom_fields, source, next_followup_date, owner_id, name').eq('id', leadId).single();
   const currentCf = (existing?.custom_fields as Record<string, any>) || {};
 
   if (data.source !== undefined) currentCf.source = data.source;
   if (data.source_link !== undefined) currentCf.source_link = data.source_link || null;
   if (data.location !== undefined) currentCf.location = data.location || null;
+  if (data.next_followup_time !== undefined) currentCf.next_followup_time = data.next_followup_time || null;
 
   const updateData: any = {};
   if (data.name !== undefined) updateData.name = data.name;
@@ -410,7 +424,26 @@ export async function updateLead(
       updateData.last_contacted_at = null;
     }
   }
-  if (data.next_followup_date !== undefined) updateData.next_followup_date = data.next_followup_date;
+  if (data.next_followup_date !== undefined) {
+    if (data.next_followup_date) {
+      const datePart = data.next_followup_date.split('T')[0];
+      const timePart = data.next_followup_time !== undefined
+        ? data.next_followup_time
+        : (currentCf.next_followup_time || (data.next_followup_date.includes('T') ? data.next_followup_date.split('T')[1]?.slice(0, 5) : '10:00'));
+      
+      updateData.next_followup_date = datePart;
+      currentCf.next_followup_time = timePart || '10:00';
+      currentCf.next_followup_datetime = `${datePart}T${currentCf.next_followup_time}:00`;
+    } else {
+      updateData.next_followup_date = null;
+      currentCf.next_followup_time = null;
+      currentCf.next_followup_datetime = null;
+    }
+  } else if (data.next_followup_time !== undefined && existing?.next_followup_date) {
+    const datePart = existing.next_followup_date.split('T')[0];
+    currentCf.next_followup_datetime = `${datePart}T${data.next_followup_time || '10:00'}:00`;
+  }
+
   if (data.lost_reason !== undefined) updateData.lost_reason = data.lost_reason;
   if (data.lost_reason_details !== undefined) updateData.lost_reason_details = data.lost_reason_details;
   updateData.custom_fields = currentCf;
@@ -475,15 +508,25 @@ export async function updateLead(
   }
 
   // Sync reminder if next_followup_date was modified
-  if (data.next_followup_date !== undefined) {
+  if (data.next_followup_date !== undefined || data.next_followup_time !== undefined) {
     try {
-      if (data.next_followup_date) {
+      const effectiveDate = data.next_followup_date !== undefined ? data.next_followup_date : existing?.next_followup_date;
+      if (effectiveDate) {
+        const datePart = effectiveDate.split('T')[0];
+        const timePart = data.next_followup_time || currentCf.next_followup_time || '10:00';
+
+        await clientToUse
+          .from('reminders')
+          .delete()
+          .eq('lead_id', leadId)
+          .eq('status', 'pending');
+
         await clientToUse.from('reminders').insert({
           lead_id: leadId,
-          title: `Follow-up: ${data.name || 'Lead'}`,
-          due_date: new Date(data.next_followup_date).toISOString(),
+          title: `Follow-up: ${data.name || existing?.name || 'Lead'}`,
+          due_date: new Date(`${datePart}T${timePart}:00`).toISOString(),
           status: 'pending' as any,
-          assigned_to: data.owner_id || dbUser.id,
+          assigned_to: data.owner_id || existing?.owner_id || dbUser.id,
           created_by: dbUser.id,
         });
       } else {

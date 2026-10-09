@@ -111,6 +111,7 @@ export function LeadInfoCard({ lead }: LeadInfoCardProps) {
                 location: lead.location || undefined,
                 sourceLink: lead.sourceLink || undefined,
                 nextFollowUpDate: lead.nextFollowUpDate || undefined,
+                nextFollowUpTime: lead.nextFollowUpTime || undefined,
                 lostReason: lead.lostReason as any,
                 lostReasonDetails: (lead as any).lostReasonDetails || undefined,
                 tags: lead.tags,

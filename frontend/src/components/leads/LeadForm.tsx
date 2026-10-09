@@ -90,14 +90,11 @@ function parseTimePart(isoOrDateStr?: string | null): string {
   if (!isoOrDateStr) return "10:00";
   try {
     if (isoOrDateStr.includes("T")) {
-      const d = new Date(isoOrDateStr);
-      if (!isNaN(d.getTime())) {
-        const hours = String(d.getHours()).padStart(2, '0');
-        const minutes = String(d.getMinutes()).padStart(2, '0');
-        return `${hours}:${minutes}`;
-      }
       const timePart = isoOrDateStr.split("T")[1];
       return timePart ? timePart.slice(0, 5) : "10:00";
+    }
+    if (/^\d{2}:\d{2}/.test(isoOrDateStr)) {
+      return isoOrDateStr.slice(0, 5);
     }
     return "10:00";
   } catch {
@@ -113,6 +110,8 @@ interface LeadFormProps {
     location?: string; 
     lastContactedAt?: string;
     lastContactedAtTime?: string;
+    nextFollowUpDate?: string;
+    nextFollowUpTime?: string;
   };
   onSuccess?: () => void;
 }
@@ -230,13 +229,13 @@ export function LeadForm({ initialData, onSuccess }: LeadFormProps) {
     setSaving(true);
     try {
       let combinedFollowUp: string | null = null;
+      let followUpDateOnly: string | null = null;
+      let followUpTimeOnly: string | null = null;
+
       if (data.nextFollowUpDate && data.nextFollowUpDate.trim() !== "") {
-        const time = data.nextFollowUpTime && data.nextFollowUpTime.trim() !== "" ? data.nextFollowUpTime : "10:00";
-        try {
-          combinedFollowUp = new Date(`${data.nextFollowUpDate}T${time}:00`).toISOString();
-        } catch {
-          combinedFollowUp = `${data.nextFollowUpDate}T${time}:00`;
-        }
+        followUpDateOnly = data.nextFollowUpDate.trim();
+        followUpTimeOnly = data.nextFollowUpTime && data.nextFollowUpTime.trim() !== "" ? data.nextFollowUpTime.trim() : "10:00";
+        combinedFollowUp = `${followUpDateOnly}T${followUpTimeOnly}:00`;
       }
 
       let combinedCreatedAt: string | undefined = undefined;
@@ -278,7 +277,8 @@ export function LeadForm({ initialData, onSuccess }: LeadFormProps) {
           location: data.location || null,
           source_link: data.sourceLink || null,
           notes: data.notes || undefined,
-          next_followup_date: combinedFollowUp,
+          next_followup_date: followUpDateOnly,
+          next_followup_time: followUpTimeOnly,
           lost_reason: (data.lostReason as any) || null,
           lost_reason_details: data.lostReasonDetails || null,
           tags: data.tags,
@@ -305,7 +305,8 @@ export function LeadForm({ initialData, onSuccess }: LeadFormProps) {
           created_at: combinedCreatedAt,
           last_contacted_at: combinedLastContactedAt || undefined,
           location: data.location || undefined,
-          next_followup_date: combinedFollowUp || undefined,
+          next_followup_date: followUpDateOnly || undefined,
+          next_followup_time: followUpTimeOnly || undefined,
           notes: data.notes || undefined,
           tags: data.tags,
           lost_reason: (data.lostReason as any) || undefined,

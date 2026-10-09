@@ -465,6 +465,7 @@ export default function LeadsTable() {
                                 location: editingLead.location || undefined,
                                 sourceLink: editingLead.sourceLink || undefined,
                                 nextFollowUpDate: editingLead.nextFollowUpDate || undefined,
+                                nextFollowUpTime: editingLead.nextFollowUpTime || undefined,
                                 tags: editingLead.tags,
                                 lostReason: editingLead.lostReason as any,
                                 lostReasonDetails: (editingLead as any).lostReasonDetails || undefined,

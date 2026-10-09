@@ -28,6 +28,7 @@ export interface EnrichedLead {
   sourceLink?: string | null;
   lastContactedAt: string | null;
   nextFollowUpDate: string | null;
+  nextFollowUpTime?: string | null;
   lostReason: string | null;
 }
 
@@ -62,27 +63,39 @@ export function useLeads() {
       return;
     }
 
-    const enriched: EnrichedLead[] = (data || []).map((row: any) => ({
-      id: row.id,
-      name: row.name,
-      company: row.company_name,
-      phone: row.phone,
-      email: row.email,
-      source: (row.custom_fields as any)?.source || row.source,
-      sourceLink: (row.custom_fields as any)?.source_link || null,
-      status: row.status?.name || "Unknown",
-      statusColor: resolveStatusColor(row.status?.name, row.status?.color),
-      statusId: row.status_id,
-      owner: row.owner || { id: "", name: "Unassigned", email: "", role: "" },
-      priority: (row.custom_fields as any)?.priority || row.priority,
-      tags: (row.lead_tags || []).map((lt: any) => lt.tags?.name).filter(Boolean),
-      dealValue: row.estimated_deal_value,
-      createdAt: row.created_at,
-      location: row.location || (row.custom_fields as any)?.location || null,
-      lastContactedAt: row.last_contacted_at,
-      nextFollowUpDate: row.next_followup_date,
-      lostReason: row.lost_reason,
-    }));
+    const enriched: EnrichedLead[] = (data || []).map((row: any) => {
+      const followUpDateRaw = row.next_followup_date;
+      const followUpTimeRaw = (row.custom_fields as any)?.next_followup_time || null;
+      let combinedNextFollowUp = followUpDateRaw;
+      if (followUpDateRaw && followUpTimeRaw) {
+        combinedNextFollowUp = `${followUpDateRaw.split('T')[0]}T${followUpTimeRaw}:00`;
+      } else if ((row.custom_fields as any)?.next_followup_datetime) {
+        combinedNextFollowUp = (row.custom_fields as any).next_followup_datetime;
+      }
+
+      return {
+        id: row.id,
+        name: row.name,
+        company: row.company_name,
+        phone: row.phone,
+        email: row.email,
+        source: (row.custom_fields as any)?.source || row.source,
+        sourceLink: (row.custom_fields as any)?.source_link || null,
+        status: row.status?.name || "Unknown",
+        statusColor: resolveStatusColor(row.status?.name, row.status?.color),
+        statusId: row.status_id,
+        owner: row.owner || { id: "", name: "Unassigned", email: "", role: "" },
+        priority: (row.custom_fields as any)?.priority || row.priority,
+        tags: (row.lead_tags || []).map((lt: any) => lt.tags?.name).filter(Boolean),
+        dealValue: row.estimated_deal_value,
+        createdAt: row.created_at,
+        location: row.location || (row.custom_fields as any)?.location || null,
+        lastContactedAt: row.last_contacted_at,
+        nextFollowUpDate: combinedNextFollowUp,
+        nextFollowUpTime: followUpTimeRaw || (combinedNextFollowUp?.includes('T') ? combinedNextFollowUp.split('T')[1]?.slice(0, 5) : null),
+        lostReason: row.lost_reason,
+      };
+    });
 
     setLeads(enriched);
     setLoading(false);
@@ -277,25 +290,39 @@ export function useDashboardData() {
 
       if (leadsError) throw leadsError;
 
-      const enrichedLeads: EnrichedLead[] = (leadsData || []).map((row: any) => ({
-        id: row.id,
-        name: row.name,
-        company: row.company_name,
-        phone: row.phone,
-        email: row.email,
-        source: row.source,
-        status: row.status?.name || "Unknown",
-        statusColor: resolveStatusColor(row.status?.name, row.status?.color),
-        statusId: row.status_id,
-        owner: row.owner || { id: "", name: "Unassigned", email: "", role: "" },
-        priority: (row.custom_fields as any)?.priority || row.priority,
-        tags: (row.lead_tags || []).map((lt: any) => lt.tags?.name).filter(Boolean),
-        dealValue: row.estimated_deal_value,
-        createdAt: row.created_at,
-        lastContactedAt: row.last_contacted_at,
-        nextFollowUpDate: row.next_followup_date,
-        lostReason: row.lost_reason,
-      }));
+      const enrichedLeads: EnrichedLead[] = (leadsData || []).map((row: any) => {
+        const followUpDateRaw = row.next_followup_date;
+        const followUpTimeRaw = (row.custom_fields as any)?.next_followup_time || null;
+        let combinedNextFollowUp = followUpDateRaw;
+        if (followUpDateRaw && followUpTimeRaw) {
+          combinedNextFollowUp = `${followUpDateRaw.split('T')[0]}T${followUpTimeRaw}:00`;
+        } else if ((row.custom_fields as any)?.next_followup_datetime) {
+          combinedNextFollowUp = (row.custom_fields as any).next_followup_datetime;
+        }
+
+        return {
+          id: row.id,
+          name: row.name,
+          company: row.company_name,
+          phone: row.phone,
+          email: row.email,
+          source: (row.custom_fields as any)?.source || row.source,
+          sourceLink: (row.custom_fields as any)?.source_link || null,
+          status: row.status?.name || "Unknown",
+          statusColor: resolveStatusColor(row.status?.name, row.status?.color),
+          statusId: row.status_id,
+          owner: row.owner || { id: "", name: "Unassigned", email: "", role: "" },
+          priority: (row.custom_fields as any)?.priority || row.priority,
+          tags: (row.lead_tags || []).map((lt: any) => lt.tags?.name).filter(Boolean),
+          dealValue: row.estimated_deal_value,
+          createdAt: row.created_at,
+          location: row.location || (row.custom_fields as any)?.location || null,
+          lastContactedAt: row.last_contacted_at,
+          nextFollowUpDate: combinedNextFollowUp,
+          nextFollowUpTime: followUpTimeRaw || (combinedNextFollowUp?.includes('T') ? combinedNextFollowUp.split('T')[1]?.slice(0, 5) : null),
+          lostReason: row.lost_reason,
+        };
+      });
 
       // Fetch statuses (for resolving UUIDs to names in activities)
       const { data: statusesData } = await supabase

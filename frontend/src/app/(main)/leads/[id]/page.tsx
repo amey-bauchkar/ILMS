@@ -37,6 +37,15 @@ export default async function LeadDetailPage({ params }: LeadPageProps) {
   
   const row = rawRow as any;
 
+  const followUpDateRaw = row.next_followup_date;
+  const followUpTimeRaw = (row.custom_fields as any)?.next_followup_time || null;
+  let combinedNextFollowUp = followUpDateRaw;
+  if (followUpDateRaw && followUpTimeRaw) {
+    combinedNextFollowUp = `${followUpDateRaw.split('T')[0]}T${followUpTimeRaw}:00`;
+  } else if ((row.custom_fields as any)?.next_followup_datetime) {
+    combinedNextFollowUp = (row.custom_fields as any).next_followup_datetime;
+  }
+
   const lead: EnrichedLead = {
     id: row.id,
     name: row.name,
@@ -55,7 +64,8 @@ export default async function LeadDetailPage({ params }: LeadPageProps) {
     createdAt: row.created_at,
     location: row.location || (row.custom_fields as any)?.location || null,
     lastContactedAt: row.last_contacted_at,
-    nextFollowUpDate: row.next_followup_date,
+    nextFollowUpDate: combinedNextFollowUp,
+    nextFollowUpTime: followUpTimeRaw || (combinedNextFollowUp?.includes('T') ? combinedNextFollowUp.split('T')[1]?.slice(0, 5) : null),
     lostReason: row.lost_reason,
   };
 
