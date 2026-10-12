@@ -6,6 +6,7 @@ import { Input } from "@/components/ui/input";
 import { X, Plus, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useTags } from "@/hooks/use-data";
+import { cn } from "@/lib/utils";
 
 interface TagManagerProps {
   tags: string[];
@@ -87,7 +88,7 @@ export function TagManager({ tags, onChange, readOnly = false }: TagManagerProps
 
       {/* Add tag input */}
       {!readOnly && (
-        <div className="relative">
+        <div className={cn("relative transition-all", showSuggestions ? "z-50" : "z-10")}>
           <div className="flex gap-2">
             <input
               placeholder="Add a tag (e.g. VIP, Hot-Lead)..."
@@ -120,10 +121,10 @@ export function TagManager({ tags, onChange, readOnly = false }: TagManagerProps
 
           {/* Inline suggestions */}
           {showSuggestions && (filteredSuggestions.length > 0 || showCreateOption) && (
-            <div className="absolute top-[calc(100%+4px)] left-0 w-full z-50 bg-[#121319]/95 backdrop-blur-2xl border border-white/15 rounded-xl shadow-2xl max-h-40 overflow-y-auto p-1 text-white">
+            <div className="absolute top-[calc(100%+6px)] left-0 w-full z-[100] bg-[#161824] border border-white/20 rounded-xl shadow-[0_20px_50px_rgba(0,0,0,0.85)] ring-1 ring-black/60 max-h-48 overflow-y-auto p-1.5 text-white">
               {loading && (
                 <div className="flex items-center gap-2 px-3 py-2 text-xs text-zinc-400">
-                  <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                  <Loader2 className="h-3.5 w-3.5 animate-spin text-primary" />
                   Loading tags...
                 </div>
               )}
@@ -131,26 +132,28 @@ export function TagManager({ tags, onChange, readOnly = false }: TagManagerProps
                 <button
                   key={suggestion}
                   type="button"
-                  className="w-full text-left px-3 py-1.5 text-xs sm:text-sm rounded-lg hover:bg-white/[0.08] transition-colors text-zinc-200 hover:text-white"
+                  className="w-full text-left px-3 py-2 text-xs sm:text-sm rounded-lg hover:bg-white/10 transition-colors text-zinc-100 hover:text-white flex items-center justify-between"
                   onMouseDown={(e) => {
                     e.preventDefault();
                     addTag(suggestion);
                   }}
                 >
-                  {suggestion}
+                  <span>{suggestion}</span>
+                  <Plus className="h-3.5 w-3.5 text-zinc-400 opacity-60" />
                 </button>
               ))}
               
               {showCreateOption && (
                 <button
                   type="button"
-                  className="w-full text-left px-3 py-1.5 text-xs sm:text-sm rounded-lg hover:bg-white/[0.08] transition-colors text-primary font-medium italic"
+                  className="w-full text-left px-3 py-2 text-xs sm:text-sm rounded-lg hover:bg-white/10 transition-colors text-primary font-medium flex items-center gap-1.5 border-t border-white/10 mt-1 pt-1.5"
                   onMouseDown={(e) => {
                     e.preventDefault();
                     addTag(inputValue);
                   }}
                 >
-                  + Create &quot;{inputValue.trim()}&quot;
+                  <Plus className="h-3.5 w-3.5 text-primary shrink-0" />
+                  <span>Create &quot;{inputValue.trim()}&quot;</span>
                 </button>
               )}
             </div>

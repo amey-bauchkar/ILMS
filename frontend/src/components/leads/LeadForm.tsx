@@ -988,10 +988,10 @@ export function LeadForm({ initialData, onSuccess }: LeadFormProps) {
             control={form.control}
             name="tags"
             render={({ field }) => (
-              <FormItem>
+              <FormItem className="relative z-30">
                 <FormLabel className="text-xs font-medium text-zinc-300">Lead Tags</FormLabel>
                 <FormControl>
-                  <div className="bg-white/[0.03] p-3.5 rounded-xl border border-white/15 backdrop-blur-md shadow-inner">
+                  <div className="bg-white/[0.03] p-3.5 rounded-xl border border-white/15 shadow-inner">
                     <TagManager 
                       tags={field.value || []} 
                       onChange={field.onChange} 
@@ -1007,7 +1007,7 @@ export function LeadForm({ initialData, onSuccess }: LeadFormProps) {
             control={form.control}
             name="notes"
             render={({ field }) => (
-              <FormItem>
+              <FormItem className="relative z-10">
                 <FormLabel className="text-xs font-medium text-zinc-300">Discussion Notes & Background</FormLabel>
                 <FormControl>
                   <Textarea

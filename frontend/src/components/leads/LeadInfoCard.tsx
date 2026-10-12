@@ -356,7 +356,7 @@ export function LeadInfoCard({ lead }: LeadInfoCardProps) {
         </div>
 
         {/* Tags — Interactive TagManager (Task Brief: removable + addable) */}
-        <div className="pt-4 border-t border-border/50">
+        <div className="pt-4 border-t border-border/50 relative z-20">
           <TagManager
             tags={lead.tags}
             onChange={(newTags) => {
