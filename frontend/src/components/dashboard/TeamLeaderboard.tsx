@@ -1,8 +1,8 @@
 "use client";
 
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
-import { EnrichedLead } from "@/hooks/use-data";
-import { Trophy } from "lucide-react";
+import { EnrichedLead, useTeamMembers } from "@/hooks/use-data";
+import { Users } from "lucide-react";
 import { avatarColor } from "@/lib/avatar-colors";
 import { DateFilter, CustomDateRange, isWithinFilter } from "@/lib/utils";
 
@@ -13,107 +13,149 @@ interface TeamLeaderboardProps {
 }
 
 export function TeamLeaderboard({ leads, dateFilter = "month", customRange }: TeamLeaderboardProps) {
+  const { members } = useTeamMembers();
   const filteredLeads = leads.filter(l => isWithinFilter(l.createdAt, dateFilter, customRange));
 
-  // Group by owner name to merge duplicate user records (e.g. same person with 2 emails)
-  const membersByName = new Map<string, { member: EnrichedLead["owner"]; leads: EnrichedLead[] }>();
-  filteredLeads.forEach((l) => {
-    const key = l.owner.name;
-    if (!membersByName.has(key)) {
-      membersByName.set(key, { member: l.owner, leads: [] });
-    }
-    membersByName.get(key)!.leads.push(l);
+  // Build employee directory with performance stats
+  const employeeMap = new Map<string, {
+    id: string;
+    name: string;
+    role: string;
+    won: number;
+    pipeline: number;
+    revenue: number;
+    total: number;
+  }>();
+
+  // 1. Seed all active team members from the DB so all employees appear
+  members.forEach((m) => {
+    const key = m.name.toLowerCase().trim();
+    employeeMap.set(key, {
+      id: m.id,
+      name: m.name,
+      role: m.role || "Member",
+      won: 0,
+      pipeline: 0,
+      revenue: 0,
+      total: 0,
+    });
   });
 
-  const leaderboard = Array.from(membersByName.values())
-    .map(({ member, leads: memberLeads }) => {
-      const won = memberLeads.filter((l) => l.status === "Won").length;
-      const pipeline = memberLeads
-        .filter((l) => !["Won", "Lost", "Junk"].includes(l.status))
-        .length;
-      const revenue = memberLeads
-        .filter((l) => l.status === "Won")
-        .reduce((s, l) => s + (l.dealValue || 0), 0);
+  // 2. Also ensure any lead owners not already in members are included (except Unassigned)
+  filteredLeads.forEach((l) => {
+    if (!l.owner?.name || l.owner.name === "Unassigned") return;
+    const key = l.owner.name.toLowerCase().trim();
+    if (!employeeMap.has(key)) {
+      employeeMap.set(key, {
+        id: l.owner.id || key,
+        name: l.owner.name,
+        role: l.owner.role || "Member",
+        won: 0,
+        pipeline: 0,
+        revenue: 0,
+        total: 0,
+      });
+    }
 
-      return { member, won, pipeline, revenue, total: memberLeads.length };
-    })
-    .sort((a, b) => b.won - a.won || b.revenue - a.revenue);
+    const emp = employeeMap.get(key)!;
+    emp.total += 1;
+    if (l.status === "Won") {
+      emp.won += 1;
+      emp.revenue += l.dealValue || 0;
+    } else if (!["Lost", "Junk"].includes(l.status)) {
+      emp.pipeline += 1;
+    }
+  });
 
-  const rankColors = ["#eab308", "#a3a3a3", "#e87811"];
-  const rankLabels = ["🥇", "🥈", "🥉"];
+  // Sort employees alphabetically by name instead of ranking
+  const employeeList = Array.from(employeeMap.values()).sort((a, b) =>
+    a.name.localeCompare(b.name, undefined, { sensitivity: "base" })
+  );
 
   return (
     <Card>
       <CardHeader>
-        <div className="flex items-center gap-2">
-          <div className="p-1.5 bg-yellow-500/10 rounded-md">
-            <Trophy className="h-4 w-4 text-yellow-500" />
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-2">
+            <div className="p-1.5 bg-primary/10 rounded-md">
+              <Users className="h-4 w-4 text-primary" />
+            </div>
+            <div>
+              <CardTitle>Team Members</CardTitle>
+              <CardDescription>Overview of all employees and active leads</CardDescription>
+            </div>
           </div>
-          <div>
-            <CardTitle>Team Leaderboard</CardTitle>
-            <CardDescription>Ranked by closed deals</CardDescription>
-          </div>
+          <span className="text-xs text-muted-foreground px-2 py-0.5 rounded-md bg-secondary/50 border border-border/40">
+            {employeeList.length} {employeeList.length === 1 ? "Employee" : "Employees"}
+          </span>
         </div>
       </CardHeader>
       <CardContent>
-        <div className="space-y-2">
-          {leaderboard.map((entry, idx) => {
-            const dName = entry.member.name;
-            const initials = dName
-              .split(" ")
-              .map((n) => n[0])
-              .join("")
-              .slice(0, 2)
-              .toUpperCase();
-            const color = avatarColor(dName);
+        {employeeList.length === 0 ? (
+          <div className="py-8 text-center text-sm text-muted-foreground">
+            No team members found.
+          </div>
+        ) : (
+          <div className="space-y-2">
+            {employeeList.map((entry) => {
+              const dName = entry.name;
+              const cleanName = dName.replace(/[^a-zA-Z0-9\s]/g, "").trim();
+              const initials = (cleanName || dName)
+                .split(/\s+/)
+                .filter(Boolean)
+                .map((n) => n[0])
+                .join("")
+                .slice(0, 2)
+                .toUpperCase();
+              const color = avatarColor(dName);
 
-            return (
-              <div
-                key={entry.member.id}
-                className="flex items-center gap-3 p-3 rounded-lg border border-border/50 bg-secondary/20 hover:bg-secondary/40 transition-colors"
-              >
-                {/* Rank */}
-                <span className="text-lg w-6 text-center shrink-0">
-                  {idx < 3 ? rankLabels[idx] : `#${idx + 1}`}
-                </span>
-
-                {/* Avatar */}
+              return (
                 <div
-                  className="w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold text-white shrink-0"
-                  style={{ backgroundColor: color }}
+                  key={entry.id || entry.name}
+                  className="flex items-center gap-3 p-3 rounded-lg border border-border/50 bg-secondary/20 hover:bg-secondary/40 transition-colors"
                 >
-                  {initials}
-                </div>
+                  {/* Avatar */}
+                  <div
+                    className="w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold text-white shrink-0 shadow-xs"
+                    style={{ backgroundColor: color }}
+                  >
+                    {initials}
+                  </div>
 
-                {/* Name + role */}
-                <div className="flex-1 min-w-0">
-                  <p className="text-sm font-medium">{dName}</p>
-                  <p className="text-xs text-muted-foreground">{entry.member.role}</p>
-                </div>
+                  {/* Name + role */}
+                  <div className="flex-1 min-w-0">
+                    <p className="text-sm font-medium truncate">{dName}</p>
+                    <p className="text-xs text-muted-foreground capitalize">
+                      {entry.role.replace(/_/g, " ")}
+                    </p>
+                  </div>
 
-                {/* Stats */}
-                <div className="flex items-center gap-4 shrink-0">
-                  <div className="text-center">
-                    <p className="text-sm font-bold" style={{ color: "#22c55e" }}>
-                      {entry.won}
-                    </p>
-                    <p className="text-[10px] text-muted-foreground">Won</p>
-                  </div>
-                  <div className="text-center">
-                    <p className="text-sm font-bold text-primary">{entry.pipeline}</p>
-                    <p className="text-[10px] text-muted-foreground">Active</p>
-                  </div>
-                  <div className="text-center hidden sm:block">
-                    <p className="text-sm font-bold" style={{ color: rankColors[idx] ?? "#ffffff" }}>
-                      ₹{(entry.revenue / 1000).toFixed(0)}K
-                    </p>
-                    <p className="text-[10px] text-muted-foreground">Revenue</p>
+                  {/* Stats */}
+                  <div className="flex items-center gap-4 shrink-0">
+                    <div className="text-center min-w-[36px]">
+                      <p className="text-sm font-bold text-green-500 tabular-nums">
+                        {entry.won}
+                      </p>
+                      <p className="text-[10px] text-muted-foreground">Won</p>
+                    </div>
+                    <div className="text-center min-w-[36px]">
+                      <p className="text-sm font-bold text-primary tabular-nums">
+                        {entry.pipeline}
+                      </p>
+                      <p className="text-[10px] text-muted-foreground">Active</p>
+                    </div>
+                    <div className="text-center min-w-[48px] hidden sm:block">
+                      <p className="text-sm font-bold text-zinc-200 tabular-nums">
+                        ₹{(entry.revenue / 1000).toFixed(0)}K
+                      </p>
+                      <p className="text-[10px] text-muted-foreground">Revenue</p>
+                    </div>
                   </div>
                 </div>
-              </div>
-            );
-          })}
-        </div>
+              );
+            })}
+          </div>
+        )}
       </CardContent>
     </Card>
   );
