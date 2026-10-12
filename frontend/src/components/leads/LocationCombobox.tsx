@@ -28,6 +28,20 @@ import {
   LocationSearchResult 
 } from "@/lib/location-data";
 
+export const QUICK_LOCATION_TAGS = [
+  { name: "Mumbai", formatted: "Mumbai, Maharashtra, India", flag: "🇮🇳" },
+  { name: "Thane", formatted: "Thane, Maharashtra, India", flag: "🇮🇳" },
+  { name: "Navi Mumbai", formatted: "Navi Mumbai, Maharashtra, India", flag: "🇮🇳" },
+  { name: "Pune", formatted: "Pune, Maharashtra, India", flag: "🇮🇳" },
+  { name: "Delhi NCR", formatted: "Delhi, Delhi NCR, India", flag: "🇮🇳" },
+  { name: "Bengaluru", formatted: "Bengaluru, Karnataka, India", flag: "🇮🇳" },
+  { name: "Hyderabad", formatted: "Hyderabad, Telangana, India", flag: "🇮🇳" },
+  { name: "Ahmedabad", formatted: "Ahmedabad, Gujarat, India", flag: "🇮🇳" },
+  { name: "Dubai", formatted: "Dubai, United Arab Emirates", flag: "🇦🇪" },
+  { name: "London", formatted: "Greater London, United Kingdom", flag: "🇬🇧" },
+  { name: "USA", formatted: "United States", flag: "🇺🇸" },
+];
+
 interface LocationComboboxProps {
   value?: string;
   onChange: (value: string) => void;
@@ -158,19 +172,19 @@ export function LocationCombobox({
   };
 
   return (
-    <div ref={containerRef} className={cn("relative w-full", open ? "z-[100]" : "z-auto")}>
-      {/* Trigger Button */}
-      <button
-        type="button"
-        disabled={disabled}
-        onClick={handleOpen}
-        className={cn(
-          "flex h-10 w-full items-center justify-between gap-2 rounded-xl border border-white/20 bg-white/[0.05] px-3.5 py-2 text-sm shadow-inner transition-all hover:border-white/35 hover:bg-white/[0.08] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/40 disabled:cursor-not-allowed disabled:opacity-50 text-white text-left backdrop-blur-md",
-          !value && "text-zinc-400",
-          open && "border-primary/60 bg-white/[0.09]",
-          className
-        )}
-      >
+    <div className={cn("w-full space-y-2", className)}>
+      <div ref={containerRef} className={cn("relative w-full", open ? "z-[100]" : "z-auto")}>
+        {/* Trigger Button */}
+        <button
+          type="button"
+          disabled={disabled}
+          onClick={handleOpen}
+          className={cn(
+            "flex h-10 w-full items-center justify-between gap-2 rounded-xl border border-white/20 bg-white/[0.05] px-3.5 py-2 text-sm shadow-inner transition-all hover:border-white/35 hover:bg-white/[0.08] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/40 disabled:cursor-not-allowed disabled:opacity-50 text-white text-left backdrop-blur-md",
+            !value && "text-zinc-400",
+            open && "border-primary/60 bg-white/[0.09]"
+          )}
+        >
         <div className="flex items-center gap-2.5 truncate">
           <MapPin className={cn("h-4 w-4 shrink-0", value ? "text-primary" : "text-zinc-400")} />
           <span className="truncate">{value || placeholder}</span>
@@ -303,6 +317,35 @@ export function LocationCombobox({
                     <Search className="h-3 w-3" />
                     <span>Search</span>
                   </Button>
+                </div>
+
+                {/* Quick Filter Tags within search popup */}
+                <div className="flex items-center gap-1.5 overflow-x-auto scrollbar-none pt-2 pb-0.5">
+                  <span className="text-[10px] font-semibold uppercase tracking-wider text-zinc-400 shrink-0 flex items-center gap-1">
+                    <Compass className="h-3 w-3 text-primary" /> Filter Tags:
+                  </span>
+                  {QUICK_LOCATION_TAGS.map((tag) => {
+                    const isSelected = searchQuery.toLowerCase() === tag.name.toLowerCase();
+                    return (
+                      <button
+                        key={`search-tag-${tag.name}`}
+                        type="button"
+                        onClick={() => {
+                          setSearchQuery(tag.name);
+                          searchInputRef.current?.focus();
+                        }}
+                        className={cn(
+                          "px-2 py-0.5 text-xs rounded-lg border transition-all shrink-0 flex items-center gap-1 active:scale-95",
+                          isSelected
+                            ? "bg-primary text-white border-primary shadow-xs font-semibold"
+                            : "bg-white/[0.05] border-white/10 text-zinc-300 hover:bg-white/10 hover:text-white"
+                        )}
+                      >
+                        <span>{tag.flag}</span>
+                        <span>{tag.name}</span>
+                      </button>
+                    );
+                  })}
                 </div>
               </div>
 
@@ -713,6 +756,36 @@ export function LocationCombobox({
           </div>
         </div>
       )}
+      </div>
+
+      {/* Quick Location Tags */}
+      <div className="flex flex-wrap items-center gap-1.5 pt-0.5">
+        <span className="text-[10px] text-zinc-400 font-medium mr-0.5 flex items-center gap-1 shrink-0">
+          <Navigation className="h-2.5 w-2.5 text-primary" />
+          Quick Tags:
+        </span>
+        {QUICK_LOCATION_TAGS.map((tag) => {
+          const isSelected = value?.toLowerCase().includes(tag.name.toLowerCase());
+          return (
+            <button
+              key={`quick-loc-${tag.name}`}
+              type="button"
+              disabled={disabled}
+              onClick={() => handleSelectLocation(tag.formatted)}
+              className={cn(
+                "px-2 py-0.5 rounded-lg text-[11px] font-medium transition-all border flex items-center gap-1 active:scale-95",
+                isSelected
+                  ? "bg-primary/25 border-primary text-primary font-semibold shadow-xs"
+                  : "bg-white/[0.04] border-white/10 text-zinc-300 hover:bg-white/[0.08] hover:text-white hover:border-white/25"
+              )}
+            >
+              <span>{tag.flag}</span>
+              <span>{tag.name}</span>
+            </button>
+          );
+        })}
+      </div>
     </div>
   );
 }
+
