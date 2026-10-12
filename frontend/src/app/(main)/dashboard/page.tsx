@@ -4,7 +4,6 @@ import { useState } from "react";
 import { PipelineSummary } from "@/components/dashboard/PipelineSummary";
 import { NewLeadsStats } from "@/components/dashboard/NewLeadsStats";
 import { LeadsBySource } from "@/components/dashboard/LeadsBySource";
-import { ConversionRate } from "@/components/dashboard/ConversionRate";
 import { PipelineValue } from "@/components/dashboard/PipelineValue";
 import { FollowUpsSummary } from "@/components/dashboard/FollowUps";
 import { TeamLeaderboard } from "@/components/dashboard/TeamLeaderboard";
@@ -46,11 +45,8 @@ export default function DashboardPage() {
         />
       </div>
 
-      {/* Row 1 — KPI stats: New Leads + Conversion Rate */}
-      <div className="grid gap-4 sm:grid-cols-2">
-        <NewLeadsStats leads={leads} />
-        <ConversionRate leads={leads} dateFilter={dateFilter} customRange={customRange} />
-      </div>
+      {/* Row 1 — KPI stats: New Leads */}
+      <NewLeadsStats leads={leads} />
 
       {/* Row 2 — Pipeline Summary + Leads by Source */}
       <div className="grid gap-4 lg:grid-cols-2">
