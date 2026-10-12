@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@/lib/supabase/server';
-import { getLeadsForExport, toCsv } from '@/../../backend/src/queries/export';
+import { getLeadsForExport, toCsv } from '@/lib/export';
 
 /**
  * GET /api/export/leads — CSV Export

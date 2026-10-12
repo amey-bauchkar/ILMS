@@ -88,7 +88,7 @@ export function TagManager({ tags, onChange, readOnly = false }: TagManagerProps
 
       {/* Add tag input */}
       {!readOnly && (
-        <div className={cn("relative transition-all", showSuggestions ? "z-50" : "z-10")}>
+        <div className="w-full space-y-2">
           <div className="flex gap-2">
             <input
               placeholder="Add a tag (e.g. VIP, Hot-Lead)..."
@@ -119,9 +119,9 @@ export function TagManager({ tags, onChange, readOnly = false }: TagManagerProps
             </Button>
           </div>
 
-          {/* Inline suggestions */}
+          {/* Non-floating in-flow suggestions list */}
           {showSuggestions && (filteredSuggestions.length > 0 || showCreateOption) && (
-            <div className="absolute top-[calc(100%+6px)] left-0 w-full z-[100] bg-[#161824] border border-white/20 rounded-xl shadow-[0_20px_50px_rgba(0,0,0,0.85)] ring-1 ring-black/60 max-h-48 overflow-y-auto p-1.5 text-white">
+            <div className="w-full bg-[#141520] border border-white/15 rounded-xl max-h-48 overflow-y-auto p-1.5 text-white shadow-inner">
               {loading && (
                 <div className="flex items-center gap-2 px-3 py-2 text-xs text-zinc-400">
                   <Loader2 className="h-3.5 w-3.5 animate-spin text-primary" />
