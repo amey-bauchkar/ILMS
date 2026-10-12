@@ -4,11 +4,8 @@ import { useState } from "react";
 import { PipelineSummary } from "@/components/dashboard/PipelineSummary";
 import { NewLeadsStats } from "@/components/dashboard/NewLeadsStats";
 import { LeadsBySource } from "@/components/dashboard/LeadsBySource";
-import { PipelineValue } from "@/components/dashboard/PipelineValue";
-import { FollowUpsSummary } from "@/components/dashboard/FollowUps";
 import { TeamLeaderboard } from "@/components/dashboard/TeamLeaderboard";
 import { RecentActivityFeed } from "@/components/dashboard/RecentActivityFeed";
-import { WonVsLostTrend } from "@/components/dashboard/WonVsLostTrend";
 import { DashboardDateFilter } from "@/components/dashboard/DashboardDateFilter";
 import { type DateFilter, type CustomDateRange } from "@/lib/utils";
 import { useDashboardData } from "@/hooks/use-data";
@@ -54,16 +51,7 @@ export default function DashboardPage() {
         <LeadsBySource leads={leads} dateFilter={dateFilter} customRange={customRange} />
       </div>
 
-      {/* Row 3 — Pipeline Value (Stacked Bar) + Won vs Lost Trend */}
-      <div className="grid gap-4 lg:grid-cols-2">
-        <PipelineValue leads={leads} dateFilter={dateFilter} customRange={customRange} />
-        <WonVsLostTrend leads={leads} />
-      </div>
-
-      {/* Row 4 — Today's Follow-ups + Overdue Follow-ups (clickable rows) */}
-      <FollowUpsSummary leads={leads} />
-
-      {/* Row 5 — Team Leaderboard + Recent Activity (15-20 entries) */}
+      {/* Row 3 — Team Leaderboard + Recent Activity (15-20 entries) */}
       <div className="grid gap-4 lg:grid-cols-2">
         <TeamLeaderboard leads={leads} dateFilter={dateFilter} customRange={customRange} />
         <RecentActivityFeed leads={leads} activities={activities} dateFilter={dateFilter} customRange={customRange} />
