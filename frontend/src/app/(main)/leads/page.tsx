@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { useRouter } from "next/navigation";
 import LeadsTable from "@/components/leads/LeadsTable";
 import { Button } from "@/components/ui/button";
 import { Plus } from "lucide-react";
@@ -8,6 +9,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from 
 import { LeadForm } from "@/components/leads/LeadForm";
 
 export default function LeadsPage() {
+  const router = useRouter();
   const [dialogOpen, setDialogOpen] = useState(false);
 
   return (
@@ -37,8 +39,7 @@ export default function LeadsPage() {
               </DialogHeader>
               <LeadForm onSuccess={() => {
                 setDialogOpen(false);
-                // LeadsTable will auto-refresh via useLeads hook
-                window.location.reload();
+                router.refresh();
               }} />
             </DialogContent>
           </Dialog>

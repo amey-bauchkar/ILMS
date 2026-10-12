@@ -75,28 +75,28 @@ async function resolveTagIds(
   supabase: Awaited<ReturnType<typeof createClient>>,
   tagNamesOrIds: string[]
 ): Promise<string[]> {
-  const resolvedTagIds: string[] = [];
+  if (!tagNamesOrIds || tagNamesOrIds.length === 0) return [];
 
-  for (const tagNameOrId of tagNamesOrIds) {
-    const isUUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(tagNameOrId);
+  const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+  const uuids = tagNamesOrIds.filter((t) => uuidRegex.test(t));
+  const names = tagNamesOrIds.filter((t) => !uuidRegex.test(t));
 
-    if (isUUID) {
-      resolvedTagIds.push(tagNameOrId);
-    } else {
-      // Strictly look up existing tag by name (only admins can create tags via Settings)
-      const { data: existingTag } = await supabase
-        .from('tags')
-        .select('id')
-        .eq('name', tagNameOrId)
-        .single();
+  const resolvedTagIds: string[] = [...uuids];
 
-      if (existingTag) {
-        resolvedTagIds.push(existingTag.id);
+  if (names.length > 0) {
+    const { data: matchedTags } = await supabase
+      .from('tags')
+      .select('id, name')
+      .in('name', names);
+
+    if (matchedTags) {
+      for (const t of matchedTags) {
+        resolvedTagIds.push(t.id);
       }
     }
   }
 
-  return resolvedTagIds;
+  return Array.from(new Set(resolvedTagIds));
 }
 
 // ============================================================

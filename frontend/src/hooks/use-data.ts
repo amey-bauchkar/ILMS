@@ -118,20 +118,25 @@ export function useStatuses() {
 
   useEffect(() => {
     async function fetch() {
-      const supabase = createClient();
-      const { data } = await supabase
-        .from("statuses")
-        .select("*")
-        .eq("is_active", true)
-        .order("display_order", { ascending: true });
+      try {
+        const supabase = createClient();
+        const { data } = await supabase
+          .from("statuses")
+          .select("*")
+          .eq("is_active", true)
+          .order("display_order", { ascending: true });
 
-      const resolved = (data || []).map((s: Status) => ({
-        ...s,
-        color: resolveStatusColor(s.name, s.color),
-      }));
+        const resolved = (data || []).map((s: Status) => ({
+          ...s,
+          color: resolveStatusColor(s.name, s.color),
+        }));
 
-      setStatuses(resolved);
-      setLoading(false);
+        setStatuses(resolved);
+      } catch (err) {
+        console.error("Failed to load statuses:", err);
+      } finally {
+        setLoading(false);
+      }
     }
     fetch();
   }, []);
@@ -149,15 +154,20 @@ export function useTeamMembers() {
 
   useEffect(() => {
     async function fetch() {
-      const supabase = createClient();
-      const { data } = await supabase
-        .from("users")
-        .select("*")
-        .eq("is_active", true)
-        .order("name", { ascending: true });
+      try {
+        const supabase = createClient();
+        const { data } = await supabase
+          .from("users")
+          .select("*")
+          .eq("is_active", true)
+          .order("name", { ascending: true });
 
-      setMembers(data || []);
-      setLoading(false);
+        setMembers(data || []);
+      } catch (err) {
+        console.error("Failed to load team members:", err);
+      } finally {
+        setLoading(false);
+      }
     }
     fetch();
   }, []);
@@ -175,15 +185,20 @@ export function useTags() {
 
   useEffect(() => {
     async function fetch() {
-      const supabase = createClient();
-      const { data } = await supabase
-        .from("tags")
-        .select("*")
-        .eq("is_active", true)
-        .order("name", { ascending: true });
+      try {
+        const supabase = createClient();
+        const { data } = await supabase
+          .from("tags")
+          .select("*")
+          .eq("is_active", true)
+          .order("name", { ascending: true });
 
-      setTags(data || []);
-      setLoading(false);
+        setTags(data || []);
+      } catch (err) {
+        console.error("Failed to load tags:", err);
+      } finally {
+        setLoading(false);
+      }
     }
     fetch();
   }, []);

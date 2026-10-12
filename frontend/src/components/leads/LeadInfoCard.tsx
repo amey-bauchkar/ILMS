@@ -118,7 +118,7 @@ export function LeadInfoCard({ lead }: LeadInfoCardProps) {
               }} 
               onSuccess={() => {
                 setIsEditOpen(false);
-                window.location.reload();
+                router.refresh();
               }}
             />
           </DialogContent>
