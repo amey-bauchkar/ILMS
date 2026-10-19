@@ -107,6 +107,7 @@ export function LeadsBySource({ leads, dateFilter = "month", customRange }: Lead
               outerRadius={85}
               paddingAngle={2}
               dataKey="value"
+              isAnimationActive={false}
             >
               {data.map((entry) => (
                 <Cell
@@ -119,7 +120,7 @@ export function LeadsBySource({ leads, dateFilter = "month", customRange }: Lead
             <Legend
               iconType="circle"
               iconSize={8}
-              wrapperStyle={{ fontSize: "11px", color: "#a3a3a3" }}
+              wrapperStyle={{ fontSize: "11px", color: "#334155", fontWeight: 600 }}
             />
           </PieChart>
         </ResponsiveContainer>

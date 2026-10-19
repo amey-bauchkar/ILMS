@@ -56,7 +56,7 @@ export function AddNoteInline({ leadId }: { leadId: string }) {
             type="submit"
             size="sm" 
             disabled={!note.trim() || isSubmitting}
-            className="h-8"
+            className="h-8 px-3 bg-[#c8f237] hover:bg-[#bde82f] text-[#111318] font-bold rounded-lg shadow-xs"
           >
             {isSubmitting ? "Saving..." : "Save Note"}
           </Button>

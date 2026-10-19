@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import Link from "next/link";
 import { formatDistanceToNow, format, isBefore, startOfDay } from "date-fns";
 import {
@@ -16,6 +16,7 @@ import { useLeads, useStatuses, useTeamMembers, priorityColors, type EnrichedLea
 import { useUser } from "@/components/providers/user-provider";
 import { Download, Loader2, Pencil, Trash2, User } from "lucide-react";
 import { avatarColor } from "@/lib/avatar-colors";
+import { getInitials } from "@/lib/utils";
 import LeadsFilterBar, { LeadFilters, emptyFilters } from "./LeadsFilterBar";
 import LeadsMobileCard from "./LeadsMobileCard";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
@@ -137,6 +138,7 @@ export default function LeadsTable() {
     const [editingLead, setEditingLead] = useState<EnrichedLead | null>(null);
     const [deletingLead, setDeletingLead] = useState<EnrichedLead | null>(null);
     const [isDeleting, setIsDeleting] = useState(false);
+
 
     const handleDeleteLead = async () => {
         if (!deletingLead) return;
@@ -269,7 +271,7 @@ export default function LeadsTable() {
                             ({viewCounts[v.key]})
                         </span>
                         {view === v.key && (
-                            <span className="absolute left-0 right-0 -bottom-px h-[2px] bg-primary rounded-full" />
+                            <span className="absolute left-0 right-0 -bottom-px h-[2.5px] bg-[#c8f237] rounded-full" />
                         )}
                     </button>
                 ))}
@@ -279,10 +281,10 @@ export default function LeadsTable() {
                     <Button 
                         variant="outline" 
                         size="sm" 
-                        className="mb-2 hidden sm:flex" 
+                        className="mb-2 hidden sm:flex rounded-full bg-white dark:bg-[#151821] border border-black/[0.08] dark:border-white/10 text-[#111318] dark:text-white hover:border-[#c8f237] hover:bg-[#c8f237]/10 shadow-xs transition-all active:scale-95 font-semibold" 
                         onClick={() => window.location.href = "/api/export/leads"}
                     >
-                        <Download className="w-4 h-4 mr-2" />
+                        <Download className="w-4 h-4 mr-2 text-[#74a800]" />
                         Export CSV
                     </Button>
                 )}
@@ -310,13 +312,14 @@ export default function LeadsTable() {
             </div>
 
             {/* Desktop / tablet view */}
-            <div className="hidden md:block overflow-x-auto rounded-xl border border-border bg-card shadow-xs">
+            <div className="hidden md:block overflow-x-auto rounded-[28px] bg-white dark:bg-[#151821] border border-black/[0.06] dark:border-white/10 shadow-[0_4px_24px_rgba(0,0,0,0.03)]">
                 <Table>
                     <TableHeader>
-                        <TableRow className="border-b border-border hover:bg-transparent">
+                        <TableRow className="border-b border-border/70 hover:bg-transparent bg-muted/20">
                             <SortableHead label="Lead Name" sortField="name" />
                             <SortableHead label="Status" sortField="status" />
                             <SortableHead label="Priority" sortField="priority" />
+                            <SortableHead label="Estimated Deal Value" sortField="dealValue" />
                             <SortableHead label="Owner" sortField="ownerName" />
                             <SortableHead label="Next Follow-up" sortField="nextFollowUpDate" />
                             <SortableHead label="Last Contacted Date" sortField="lastContactedAt" />
@@ -331,7 +334,7 @@ export default function LeadsTable() {
                     <TableBody>
                         {paginated.length === 0 ? (
                             <TableRow>
-                                <TableCell colSpan={8} className="text-center py-16">
+                                <TableCell colSpan={9} className="text-center py-16">
                                     <p className="text-muted-foreground text-sm font-medium">No leads found.</p>
                                     <p className="text-muted-foreground/70 text-xs mt-1">Try adjusting your filters.</p>
                                 </TableCell>
@@ -341,23 +344,18 @@ export default function LeadsTable() {
                                 const isOverdue =
                                     lead.nextFollowUpDate &&
                                     isBefore(new Date(lead.nextFollowUpDate), startOfDay(new Date()));
-                                const initials = lead.owner.name
-                                    .split(" ")
-                                    .map((p) => p[0])
-                                    .slice(0, 2)
-                                    .join("")
-                                    .toUpperCase();
+                                const initials = getInitials(lead.owner.name, "U");
                                 const ownerColor = avatarColor(lead.owner.name);
 
                                 return (
                                     <TableRow
                                         key={lead.id}
-                                        className="border-b border-border/70 hover:bg-muted/40 transition-colors"
+                                        className="border-b border-border/70 hover:bg-[#c8f237]/[0.05] transition-colors"
                                     >
                                         <TableCell className="font-semibold py-3.5">
                                             <Link
                                                 href={`/leads/${lead.id}`}
-                                                className="text-foreground font-semibold hover:text-primary transition-colors inline-block"
+                                                className="text-[#111318] dark:text-zinc-100 font-semibold hover:text-primary transition-colors inline-block"
                                             >
                                                 {lead.name}
                                             </Link>
@@ -368,6 +366,15 @@ export default function LeadsTable() {
                                         <TableCell>
                                             <DotBadge color={priorityColors[lead.priority]} label={lead.priority} />
                                         </TableCell>
+                                        <TableCell className="tabular-nums whitespace-nowrap">
+                                            {typeof lead.dealValue === "number" && lead.dealValue > 0 ? (
+                                                <span className="font-semibold text-emerald-600 dark:text-emerald-400">
+                                                    ₹{lead.dealValue.toLocaleString("en-IN")}
+                                                </span>
+                                            ) : (
+                                                <span className="text-muted-foreground/50 text-xs font-normal">—</span>
+                                            )}
+                                        </TableCell>
                                         <TableCell>
                                             <div className="flex items-center gap-2">
                                                 <div
@@ -376,7 +383,7 @@ export default function LeadsTable() {
                                                 >
                                                     {initials}
                                                 </div>
-                                                <span className="text-foreground font-medium text-sm">{lead.owner.name}</span>
+                                                <span className="text-[#111318] dark:text-zinc-100 font-medium text-sm">{lead.owner.name}</span>
                                             </div>
                                         </TableCell>
                                         <TableCell
@@ -399,7 +406,7 @@ export default function LeadsTable() {
                                                 <Button
                                                     variant="outline"
                                                     size="sm"
-                                                    className="h-7 px-2 gap-1 text-xs font-semibold border-primary/30 bg-primary/10 text-primary hover:bg-primary hover:text-white transition-all rounded-lg shadow-2xs"
+                                                    className="h-7 px-2.5 gap-1 text-xs font-bold border border-[#c8f237]/70 bg-[#c8f237]/25 text-[#111318] hover:bg-[#c8f237] transition-all rounded-lg shadow-2xs"
                                                     onClick={(e) => {
                                                         e.preventDefault();
                                                         e.stopPropagation();
@@ -437,10 +444,10 @@ export default function LeadsTable() {
 
             {/* Edit Lead Modal */}
             <Dialog open={!!editingLead} onOpenChange={(open) => { if (!open) setEditingLead(null); }}>
-                <DialogContent className="w-[calc(100vw-1.25rem)] sm:w-full sm:max-w-[840px] max-h-[92vh] overflow-y-auto overflow-x-hidden bg-[#101117]/95 border border-white/15 backdrop-blur-2xl p-3.5 sm:p-7 text-white shadow-[0_25px_70px_rgba(0,0,0,0.8),inset_0_1px_0_0_rgba(255,255,255,0.1)] rounded-2xl sm:rounded-3xl [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
-                    <DialogHeader className="mb-4 sm:mb-6 pb-3 sm:pb-4 border-b border-white/10">
-                        <DialogTitle className="text-lg sm:text-xl font-bold tracking-tight text-white flex items-center gap-2.5 sm:gap-3">
-                            <div className="h-8 w-8 sm:h-9 sm:w-9 rounded-xl bg-primary/20 border border-primary/30 flex items-center justify-center text-primary shadow-xs shrink-0">
+                <DialogContent className="w-[calc(100vw-1.25rem)] sm:w-full sm:max-w-[840px] max-h-[92vh] overflow-y-auto overflow-x-hidden bg-white dark:bg-[#101117] border border-black/[0.08] dark:border-white/15 p-3.5 sm:p-7 text-[#111318] dark:text-white shadow-[0_25px_70px_rgba(0,0,0,0.18)] dark:shadow-[0_25px_70px_rgba(0,0,0,0.8)] rounded-2xl sm:rounded-3xl [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
+                    <DialogHeader className="mb-4 sm:mb-6 pb-3 sm:pb-4 border-b border-black/[0.08] dark:border-white/10">
+                        <DialogTitle className="text-lg sm:text-xl font-bold tracking-tight text-[#111318] dark:text-white flex items-center gap-2.5 sm:gap-3">
+                            <div className="h-8 w-8 sm:h-9 sm:w-9 rounded-xl bg-[#c8f237] border border-black/10 flex items-center justify-center text-[#111318] shadow-xs shrink-0 font-bold">
                                 <User className="h-4 w-4 sm:h-5 sm:w-5" />
                             </div>
                             <span className="truncate">Edit Lead &mdash; {editingLead?.name}</span>
@@ -481,11 +488,11 @@ export default function LeadsTable() {
 
             {/* Delete Lead Confirmation Modal */}
             <Dialog open={!!deletingLead} onOpenChange={(open) => { if (!open) setDeletingLead(null); }}>
-                <DialogContent className="sm:max-w-[425px] w-[95vw] p-5 sm:p-6 rounded-2xl">
+                <DialogContent className="sm:max-w-[425px] w-[95vw] p-5 sm:p-6 rounded-2xl bg-white dark:bg-[#101117] border border-black/[0.08] dark:border-white/15 text-[#111318] dark:text-white">
                     <DialogHeader>
-                        <DialogTitle>Delete Lead</DialogTitle>
-                        <DialogDescription>
-                            Are you sure you want to delete <span className="font-semibold text-white">{deletingLead?.name}</span>? This action cannot be undone and will remove all associated activities and notes.
+                        <DialogTitle className="text-[#111318] dark:text-white">Delete Lead</DialogTitle>
+                        <DialogDescription className="text-zinc-600 dark:text-zinc-400">
+                            Are you sure you want to delete <span className="font-semibold text-[#111318] dark:text-white">{deletingLead?.name}</span>? This action cannot be undone and will remove all associated activities and notes.
                         </DialogDescription>
                     </DialogHeader>
                     <DialogFooter className="mt-4 flex gap-2 sm:justify-end">

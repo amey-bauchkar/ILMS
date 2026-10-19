@@ -9,11 +9,14 @@ export default function MainLayout({
 }) {
   return (
     <UserProvider>
-      <div className="flex h-screen overflow-hidden bg-background">
-        <Sidebar />
-        <div className="flex-1 flex flex-col min-w-0 h-screen">
-          <Topbar />
-          <main className="flex-1 overflow-y-auto overflow-x-hidden p-4 md:p-6">
+      <div className="min-h-screen w-full bg-[#edf0f4] dark:bg-[#0d0f14] text-[#111318] dark:text-[#f8fafc] flex flex-col p-3 sm:p-5 lg:p-6 gap-3 sm:gap-4 font-sans select-none overflow-x-hidden transition-colors duration-200">
+        {/* Top Navigation Bar */}
+        <Topbar />
+
+        {/* Main Workspace: Left Slim Floating Rail + Main Content Area */}
+        <div className="flex-1 flex gap-3 sm:gap-5 min-w-0">
+          <Sidebar />
+          <main className="flex-1 min-w-0 overflow-y-auto overflow-x-hidden">
             {children}
           </main>
         </div>

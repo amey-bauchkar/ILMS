@@ -1,9 +1,8 @@
 "use client";
 
-import { useState } from "react";
-import { PipelineSummary } from "@/components/dashboard/PipelineSummary";
-import { NewLeadsStats } from "@/components/dashboard/NewLeadsStats";
-import { LeadsBySource } from "@/components/dashboard/LeadsBySource";
+import { Suspense, useState } from "react";
+import { useSearchParams } from "next/navigation";
+import { StudioAnalyticsDashboard } from "@/components/dashboard/StudioAnalyticsDashboard";
 import { TeamLeaderboard } from "@/components/dashboard/TeamLeaderboard";
 import { RecentActivityFeed } from "@/components/dashboard/RecentActivityFeed";
 import { DashboardDateFilter } from "@/components/dashboard/DashboardDateFilter";
@@ -11,51 +10,78 @@ import { type DateFilter, type CustomDateRange } from "@/lib/utils";
 import { useDashboardData } from "@/hooks/use-data";
 import { Loader2 } from "lucide-react";
 
-export default function DashboardPage() {
+function DashboardContent() {
+  const searchParams = useSearchParams();
+  const currentTab = searchParams.get("tab") || "dashboard";
   const [dateFilter, setDateFilter] = useState<DateFilter>("month");
   const [customRange, setCustomRange] = useState<CustomDateRange>();
-  const { leads, activities, loading } = useDashboardData();
+  const { leads = [], activities = [], loading } = useDashboardData();
 
-  if (loading) {
+  // Analytics Deep Dive Tab
+  if (currentTab === "analytics") {
+    if (loading) {
+      return (
+        <div className="flex h-[60vh] items-center justify-center">
+          <div className="p-5 rounded-2xl bg-white shadow-lg border border-black/[0.05] flex items-center gap-3">
+            <Loader2 className="h-5 w-5 animate-spin text-[#181b20]" />
+            <span className="text-sm text-[#7d8592] font-medium">Loading analytics...</span>
+          </div>
+        </div>
+      );
+    }
+
+    return <StudioAnalyticsDashboard leads={leads} activities={activities} title="Analytics" />;
+  }
+
+  // Pulse & Activity Tab
+  if (currentTab === "pulse") {
+    if (loading) {
+      return (
+        <div className="flex h-[60vh] items-center justify-center">
+          <div className="p-5 rounded-2xl bg-white dark:bg-[#151821] shadow-lg border border-black/[0.05] dark:border-white/10 flex items-center gap-3">
+            <Loader2 className="h-5 w-5 animate-spin text-[#181b20] dark:text-[#c8f237]" />
+            <span className="text-sm text-[#7d8592] dark:text-zinc-300 font-medium">Loading pulse activity...</span>
+          </div>
+        </div>
+      );
+    }
+
     return (
-      <div className="flex h-[50vh] items-center justify-center">
-        <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
+      <div className="space-y-6 max-w-[1560px] mx-auto pb-12 animate-in fade-in duration-300">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-black/[0.06] dark:border-white/10 pb-4">
+          <div>
+            <h2 className="text-2xl font-bold tracking-tight text-[#111318] dark:text-white">Team Members & Activity</h2>
+            <p className="text-xs text-[#7d8592] dark:text-zinc-400">Real-time sales reps activity and audit events</p>
+          </div>
+          <DashboardDateFilter 
+            value={dateFilter} 
+            onChange={setDateFilter} 
+            customRange={customRange}
+            onCustomRangeChange={setCustomRange}
+          />
+        </div>
+        <div className="grid gap-6 lg:grid-cols-2">
+          <TeamLeaderboard leads={leads} dateFilter={dateFilter} customRange={customRange} />
+          <RecentActivityFeed leads={leads} activities={activities} dateFilter={dateFilter} customRange={customRange} />
+        </div>
       </div>
     );
   }
 
+  // Default & Analytics: Unified Executive Studio Dashboard matching the approved reference design
   return (
-    <div className="space-y-6">
-      {/* Page header */}
-      <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4 border-b border-border pb-4">
-        <div className="flex flex-col gap-1">
-          <h2 className="text-2xl sm:text-3xl font-bold tracking-tight">Dashboard Overview</h2>
-          <p className="text-muted-foreground text-sm sm:text-base">
-            Welcome back to Foremark CRM. Here&apos;s what&apos;s happening today.
-          </p>
-        </div>
-        <DashboardDateFilter 
-          value={dateFilter} 
-          onChange={setDateFilter} 
-          customRange={customRange}
-          onCustomRangeChange={setCustomRange}
-        />
-      </div>
+    <StudioAnalyticsDashboard 
+      leads={leads} 
+      activities={activities} 
+      title={currentTab === "analytics" ? "Analytics" : "Dashboard"} 
+    />
+  );
+}
 
-      {/* Row 1 — KPI stats: New Leads */}
-      <NewLeadsStats leads={leads} />
-
-      {/* Row 2 — Pipeline Summary + Leads by Source */}
-      <div className="grid gap-4 lg:grid-cols-2">
-        <PipelineSummary leads={leads} dateFilter={dateFilter} customRange={customRange} />
-        <LeadsBySource leads={leads} dateFilter={dateFilter} customRange={customRange} />
-      </div>
-
-      {/* Row 3 — Team Leaderboard + Recent Activity (15-20 entries) */}
-      <div className="grid gap-4 lg:grid-cols-2">
-        <TeamLeaderboard leads={leads} dateFilter={dateFilter} customRange={customRange} />
-        <RecentActivityFeed leads={leads} activities={activities} dateFilter={dateFilter} customRange={customRange} />
-      </div>
-    </div>
+export default function DashboardPage() {
+  return (
+    <Suspense fallback={null}>
+      <DashboardContent />
+    </Suspense>
   );
 }

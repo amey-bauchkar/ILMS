@@ -5,6 +5,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { EnrichedLead } from "@/hooks/use-data";
 import { AlertTriangle, Clock, Phone } from "lucide-react";
 import { avatarColor } from "@/lib/avatar-colors";
+import { getInitials } from "@/lib/utils";
 
 function getToday() {
   const d = new Date();
@@ -19,7 +20,7 @@ function daysOverdue(dateStr: string) {
 }
 
 function LeadRow({ lead, badge }: { lead: EnrichedLead; badge?: React.ReactNode }) {
-  const initials = lead.name.split(" ").map((n) => n[0]).join("").slice(0, 2).toUpperCase();
+  const initials = getInitials(lead.name, "LD");
   const color = avatarColor(lead.name);
 
   return (

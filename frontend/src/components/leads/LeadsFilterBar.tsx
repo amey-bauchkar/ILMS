@@ -74,19 +74,26 @@ function MultiSelectDropdown({
 
     return (
         <Popover>
-            <PopoverTrigger render={<Button variant="outline" size="sm" />}>
+            <PopoverTrigger
+                className={cn(
+                    "px-3.5 py-1.5 text-xs font-medium rounded-full transition-all border flex items-center gap-1 active:scale-95 shadow-xs cursor-pointer",
+                    selected.length > 0
+                        ? "bg-[#c8f237] border-[#b4dc2e] text-[#111318] font-bold shadow-xs"
+                        : "bg-white dark:bg-[#151821] border-black/[0.08] dark:border-white/10 text-zinc-700 dark:text-zinc-300 hover:text-[#111318] dark:hover:text-white hover:bg-[#c8f237]/15 hover:border-[#c8f237]/50"
+                )}
+            >
                 {label} {selected.length > 0 ? `(${selected.length})` : ""}
             </PopoverTrigger>
-            <PopoverContent align="start" className="w-60 p-2 shadow-xl border-border bg-popover rounded-xl">
+            <PopoverContent align="start" className="w-60 p-2 shadow-2xl border border-black/[0.08] dark:border-white/10 bg-white dark:bg-[#151821] text-[#111318] dark:text-white rounded-2xl">
                 {options.length > 5 && (
                     <div className="relative mb-2">
-                        <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-muted-foreground pointer-events-none" />
+                        <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-zinc-400 pointer-events-none" />
                         <input
                             type="text"
                             value={search}
                             onChange={(e) => setSearch(e.target.value)}
                             placeholder={`Search ${label.toLowerCase()}...`}
-                            className="w-full bg-secondary/40 border border-input rounded-md pl-8 pr-2 py-1 text-xs text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-primary"
+                            className="w-full bg-zinc-100 dark:bg-zinc-800 border border-black/[0.08] dark:border-white/10 rounded-lg pl-8 pr-2 py-1 text-xs text-[#111318] dark:text-white placeholder:text-zinc-400 dark:placeholder:text-zinc-500 focus:outline-none focus:ring-1 focus:ring-[#c8f237]"
                         />
                     </div>
                 )}
@@ -95,7 +102,7 @@ function MultiSelectDropdown({
                         filteredOptions.map((opt) => (
                             <label
                                 key={opt.value}
-                                className="flex items-center gap-2 px-2 py-1.5 rounded-md hover:bg-accent cursor-pointer text-sm transition-colors"
+                                className="flex items-center gap-2 px-2 py-1.5 rounded-md hover:bg-zinc-100 dark:hover:bg-zinc-800 cursor-pointer text-sm transition-colors text-zinc-800 dark:text-zinc-200"
                             >
                                 <Checkbox
                                     checked={selected.includes(opt.value)}
@@ -164,12 +171,12 @@ export default function LeadsFilterBar({
 
     return (
         <div className="flex flex-col gap-3 mb-4">
-            <div className="flex flex-wrap items-center gap-2">
+            <div className="flex flex-wrap items-center gap-2.5">
                 <Input
                     placeholder="Search by name, company, phone, or email..."
                     value={filters.search}
                     onChange={(e) => onChange({ ...filters, search: e.target.value })}
-                    className="w-full sm:w-72 sm:max-w-xs"
+                    className="w-full sm:w-72 sm:max-w-xs rounded-full bg-white dark:bg-[#151821] border border-black/[0.08] dark:border-white/10 text-[#111318] dark:text-white placeholder:text-zinc-400 dark:placeholder:text-zinc-500 shadow-xs focus:border-[#c8f237] focus:ring-1 focus:ring-[#c8f237]"
                 />
 
                 <div className="flex flex-wrap items-center gap-2 w-full sm:w-auto">
@@ -209,9 +216,13 @@ export default function LeadsFilterBar({
                     />
 
                     {hasActiveFilters && (
-                        <Button size="sm" variant="ghost" onClick={() => onChange(emptyFilters)}>
+                        <button
+                            type="button"
+                            onClick={() => onChange(emptyFilters)}
+                            className="text-xs text-zinc-500 dark:text-zinc-400 hover:text-black dark:hover:text-white font-medium px-2.5 py-1 rounded-full hover:bg-black/[0.04] dark:hover:bg-white/5 transition-colors"
+                        >
                             Clear All
-                        </Button>
+                        </button>
                     )}
                 </div>
 
@@ -221,14 +232,14 @@ export default function LeadsFilterBar({
                 <div className="flex items-center gap-2 ml-auto sm:ml-0">
                     {/* Saved Views Dropdown */}
                     <DropdownMenu>
-                        <DropdownMenuTrigger className={cn(buttonVariants({ variant: "outline", size: "sm" }), "gap-2")}>
-                            <Bookmark className="w-4 h-4" />
+                        <DropdownMenuTrigger className="px-3.5 py-1.5 text-xs font-semibold rounded-full transition-all border border-black/[0.08] dark:border-white/10 bg-white dark:bg-[#151821] text-zinc-700 dark:text-zinc-300 hover:text-[#111318] dark:hover:text-white hover:border-[#c8f237] hover:bg-[#c8f237]/10 shadow-xs flex items-center gap-1.5 cursor-pointer">
+                            <Bookmark className="w-3.5 h-3.5 text-[#74a800]" />
                             <span>My Views</span>
                         </DropdownMenuTrigger>
-                        <DropdownMenuContent align="end" className="w-56">
+                        <DropdownMenuContent align="end" className="w-56 bg-white dark:bg-[#151821] border border-black/[0.08] dark:border-white/10 rounded-2xl shadow-2xl p-1.5 text-[#111318] dark:text-white">
                             <DropdownMenuGroup>
-                                <DropdownMenuLabel>Saved Views</DropdownMenuLabel>
-                                <DropdownMenuSeparator />
+                                <DropdownMenuLabel className="text-xs font-bold text-[#111318] dark:text-white">Saved Views</DropdownMenuLabel>
+                                <DropdownMenuSeparator className="dark:bg-white/10" />
                                 {views.length === 0 ? (
                                     <div className="p-2 text-xs text-muted-foreground">No saved views.</div>
                                 ) : (
@@ -236,7 +247,7 @@ export default function LeadsFilterBar({
                                         <DropdownMenuItem 
                                             key={v.id} 
                                             onClick={() => handleApplyView(v.filters)}
-                                            className="flex justify-between items-center"
+                                            className="flex justify-between items-center text-xs font-medium cursor-pointer rounded-lg hover:bg-zinc-100 dark:hover:bg-zinc-800 text-zinc-800 dark:text-zinc-200"
                                         >
                                             <span>{v.name}</span>
                                             <X 
@@ -257,21 +268,21 @@ export default function LeadsFilterBar({
                     {/* Save Current View */}
                     {hasActiveFilters && (
                         <Popover open={isSavingView} onOpenChange={setIsSavingView}>
-                            <PopoverTrigger className={cn(buttonVariants({ variant: "outline", size: "sm" }), "gap-2 text-primary")}>
-                                <Save className="w-4 h-4" />
+                            <PopoverTrigger className="px-3.5 py-1.5 text-xs font-bold rounded-full bg-[#c8f237] hover:bg-[#bde82f] text-[#111318] shadow-xs flex items-center gap-1.5 cursor-pointer transition-all active:scale-95">
+                                <Save className="w-3.5 h-3.5" />
                                 <span>Save View</span>
                             </PopoverTrigger>
-                            <PopoverContent align="end" className="w-64 p-3">
+                            <PopoverContent align="end" className="w-64 p-3 bg-white dark:bg-[#151821] border border-black/[0.08] dark:border-white/10 shadow-2xl rounded-2xl text-[#111318] dark:text-white">
                                 <div className="flex flex-col gap-2">
-                                    <span className="text-sm font-medium">Save current filters</span>
+                                    <span className="text-xs font-bold text-[#111318] dark:text-white">Save current filters</span>
                                     <Input 
                                         placeholder="View Name" 
                                         value={newViewName} 
                                         onChange={(e) => setNewViewName(e.target.value)}
-                                        className="h-8 text-sm"
+                                        className="h-8 text-xs bg-zinc-100 dark:bg-zinc-800 border border-black/[0.08] dark:border-white/10 rounded-lg text-[#111318] dark:text-white placeholder:text-zinc-400 dark:placeholder:text-zinc-500"
                                         onKeyDown={(e) => e.key === 'Enter' && handleSaveView()}
                                     />
-                                    <Button size="sm" onClick={handleSaveView}>Save</Button>
+                                    <Button size="sm" onClick={handleSaveView} className="bg-[#c8f237] hover:bg-[#bde82f] text-[#111318] font-bold rounded-lg text-xs">Save</Button>
                                 </div>
                             </PopoverContent>
                         </Popover>

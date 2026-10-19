@@ -11,9 +11,9 @@ export function ThemeSettings() {
 
   const isDarkMode = resolvedTheme === "dark";
 
-  const handleToggle = () => {
+  const handleToggle = (e?: React.MouseEvent) => {
     const nextTheme: Theme = isDarkMode ? "light" : "dark";
-    setTheme(nextTheme);
+    toggleTheme(e);
     toast.success(
       nextTheme === "dark"
         ? "Switched to Deep Dark Theme"

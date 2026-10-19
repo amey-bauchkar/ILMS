@@ -53,7 +53,7 @@ function DialogContent({
       <DialogPrimitive.Popup
         data-slot="dialog-content"
         className={cn(
-          "fixed top-1/2 left-1/2 z-50 flex flex-col w-[calc(100vw-1.25rem)] sm:w-full max-w-[calc(100vw-1.25rem)] sm:max-w-sm -translate-x-1/2 -translate-y-1/2 gap-4 rounded-2xl bg-[#101117]/95 border border-white/15 backdrop-blur-2xl p-4 sm:p-6 text-sm text-foreground shadow-[0_25px_70px_rgba(0,0,0,0.8),inset_0_1px_0_0_rgba(255,255,255,0.1)] duration-150 outline-none overflow-x-hidden box-border data-open:animate-in data-open:fade-in-0 data-open:zoom-in-95 data-closed:animate-out data-closed:fade-out-0 data-closed:zoom-out-95",
+          "fixed top-1/2 left-1/2 z-50 flex flex-col w-[calc(100vw-1.25rem)] sm:w-full max-w-[calc(100vw-1.25rem)] sm:max-w-sm -translate-x-1/2 -translate-y-1/2 gap-4 rounded-2xl bg-white dark:bg-[#101117]/95 border border-black/10 dark:border-white/15 p-4 sm:p-6 text-sm text-[#111318] dark:text-foreground shadow-[0_25px_70px_rgba(0,0,0,0.18)] dark:shadow-[0_25px_70px_rgba(0,0,0,0.8)] duration-150 outline-none overflow-x-hidden box-border data-open:animate-in data-open:fade-in-0 data-open:zoom-in-95 data-closed:animate-out data-closed:fade-out-0 data-closed:zoom-out-95",
           className
         )}
         {...props}
@@ -65,13 +65,12 @@ function DialogContent({
             render={
               <Button
                 variant="ghost"
-                className="absolute top-2 right-2"
+                className="absolute top-3 right-3 text-zinc-500 hover:text-[#111318] dark:hover:text-white hover:bg-black/5 dark:hover:bg-white/10 rounded-full h-8 w-8 p-0"
                 size="icon-sm"
               />
             }
           >
-            <XIcon
-            />
+            <XIcon className="h-4 w-4" />
             <span className="sr-only">Close</span>
           </DialogPrimitive.Close>
         )}

@@ -79,3 +79,21 @@ export function resolveStatusColor(statusName?: string | null, rawColor?: string
   return DEFAULT_STATUS_COLORS[statusName] || rawColor || "#FF5A1F";
 }
 
+/**
+ * Safely extracts up to 2 uppercase alphanumeric initials from any name string,
+ * ignoring parentheses, brackets, symbols, and extra spaces.
+ * E.g.: "Admin (Master)" -> "AM", "Admin" -> "AD", "John Doe" -> "JD"
+ */
+export function getInitials(name?: string | null, fallback = "FM"): string {
+  if (!name || !name.trim()) return fallback;
+  
+  // Strip out anything that is not alphanumeric or whitespace
+  const clean = name.replace(/[^a-zA-Z0-9\s]/g, " ").trim();
+  const words = clean.split(/\s+/).filter(Boolean);
+  
+  if (words.length === 0) return fallback;
+  if (words.length === 1) {
+    return words[0].slice(0, 2).toUpperCase();
+  }
+  return (words[0][0] + words[1][0]).toUpperCase();
+}

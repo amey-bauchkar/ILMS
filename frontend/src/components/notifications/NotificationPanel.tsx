@@ -32,6 +32,7 @@ import {
 import { requestNotificationPermission } from "@/lib/notification-sound";
 import { toast } from "sonner";
 import { avatarColor } from "@/lib/avatar-colors";
+import { getInitials } from "@/lib/utils";
 import { priorityColors } from "@/hooks/use-data";
 
 export function NotificationPanel() {
@@ -227,12 +228,7 @@ function NotificationCard({
 }) {
   const isUrgent = item.urgency === "due_now" || item.urgency === "upcoming_30";
   const isOverdue = item.urgency === "overdue";
-  const ownerInitials = item.ownerName
-    .split(" ")
-    .map((n) => n[0])
-    .join("")
-    .slice(0, 2)
-    .toUpperCase();
+  const ownerInitials = getInitials(item.ownerName, "U");
   const ownerColor = avatarColor(item.ownerName);
 
   return (

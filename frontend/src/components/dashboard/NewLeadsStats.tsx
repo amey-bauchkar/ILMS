@@ -1,8 +1,8 @@
 "use client";
 
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { EnrichedLead } from "@/hooks/use-data";
-import { Users, TrendingUp } from "lucide-react";
+import { Users, TrendingUp, Flame, Calendar, Sparkles } from "lucide-react";
+import { cn } from "@/lib/utils";
 
 function isWithinDays(dateStr: string, days: number): boolean {
   const date = new Date(dateStr);
@@ -16,47 +16,97 @@ export function NewLeadsStats({ leads }: { leads: EnrichedLead[] }) {
   const today = leads.filter((l) => isWithinDays(l.createdAt, 1)).length;
   const week = leads.filter((l) => isWithinDays(l.createdAt, 7)).length;
   const month = leads.filter((l) => isWithinDays(l.createdAt, 30)).length;
+  const total = leads.length;
 
-  const stats = [
-    { label: "Today", value: today, color: "#e87811" },
-    { label: "This Week", value: week, color: "#3b82f6" },
-    { label: "This Month", value: month, color: "#22c55e" },
+  const cards = [
+    {
+      title: "Today's Leads",
+      value: today,
+      subtext: "Captured today",
+      color: "#e87811",
+      bgColor: "rgba(232, 120, 17, 0.12)",
+      borderColor: "rgba(232, 120, 17, 0.25)",
+      icon: Flame,
+    },
+    {
+      title: "This Week",
+      value: week,
+      subtext: "Past 7 days",
+      color: "#3b82f6",
+      bgColor: "rgba(59, 130, 246, 0.12)",
+      borderColor: "rgba(59, 130, 246, 0.25)",
+      icon: Calendar,
+    },
+    {
+      title: "This Month",
+      value: month,
+      subtext: "Past 30 days",
+      color: "#22c55e",
+      bgColor: "rgba(34, 197, 94, 0.12)",
+      borderColor: "rgba(34, 197, 94, 0.25)",
+      icon: TrendingUp,
+    },
+    {
+      title: "Total Leads",
+      value: total,
+      subtext: "All-time pipeline",
+      color: "#a855f7",
+      bgColor: "rgba(168, 85, 247, 0.12)",
+      borderColor: "rgba(168, 85, 247, 0.25)",
+      icon: Users,
+    },
   ];
 
   return (
-    <Card>
-      <CardHeader>
-        <div className="flex items-center gap-2">
-          <div className="p-1.5 bg-primary/10 rounded-md">
-            <Users className="h-4 w-4 text-primary" />
-          </div>
-          <CardTitle>New Leads</CardTitle>
-        </div>
-      </CardHeader>
-      <CardContent>
-        <div className="grid grid-cols-3 gap-4">
-          {stats.map((stat) => (
+    <div className="grid grid-cols-2 lg:grid-cols-4 gap-3.5 sm:gap-4 w-full">
+      {cards.map((c) => {
+        const Icon = c.icon;
+        return (
+          <div
+            key={c.title}
+            className="group bg-white border border-black/[0.08] shadow-[0_4px_20px_rgba(0,0,0,0.03)] hover:shadow-[0_8px_30px_rgba(0,0,0,0.06)] rounded-[24px] p-4 sm:p-5 flex flex-col justify-between relative overflow-hidden cursor-default transition-all duration-300"
+          >
+            {/* Ambient Corner Glow */}
             <div
-              key={stat.label}
-              className="flex flex-col items-center gap-1 p-3 rounded-lg bg-secondary/40 border border-border/50"
-            >
-              <span
-                className="text-2xl font-bold tabular-nums"
-                style={{ color: stat.color }}
-              >
-                {stat.value}
+              className="absolute -right-8 -top-8 w-24 h-24 rounded-full blur-2xl pointer-events-none transition-opacity duration-300 opacity-20 group-hover:opacity-40"
+              style={{ backgroundColor: c.color }}
+            />
+
+            {/* Top row: Label & Icon squircle */}
+            <div className="flex items-center justify-between mb-3 relative z-10">
+              <span className="text-xs sm:text-sm font-semibold text-[#111318]">
+                {c.title}
               </span>
-              <span className="text-xs text-muted-foreground text-center">{stat.label}</span>
+              <div
+                className="w-8 h-8 rounded-xl flex items-center justify-center transition-transform group-hover:scale-110 shadow-sm"
+                style={{
+                  backgroundColor: c.bgColor,
+                  border: `1px solid ${c.borderColor}`,
+                  color: c.color,
+                }}
+              >
+                <Icon className="w-4 h-4" />
+              </div>
             </div>
-          ))}
-        </div>
-        <div className="mt-4 flex items-center gap-1.5 text-xs text-muted-foreground">
-          <TrendingUp className="h-3 w-3 text-green-500" />
-          <span>
-            <span className="text-foreground font-medium">{leads.length}</span> total leads in system
-          </span>
-        </div>
-      </CardContent>
-    </Card>
+
+            {/* Middle: Big metric number */}
+            <div className="relative z-10 my-1">
+              <div className="text-3xl sm:text-4xl font-black text-[#111318] tracking-tight tabular-nums">
+                {c.value}
+              </div>
+            </div>
+
+            {/* Bottom: Subtitle with micro indicator */}
+            <div className="mt-2.5 flex items-center gap-1.5 text-[11px] font-medium text-zinc-500 relative z-10">
+              <span
+                className="w-1.5 h-1.5 rounded-full"
+                style={{ backgroundColor: c.color }}
+              />
+              <span className="truncate">{c.subtext}</span>
+            </div>
+          </div>
+        );
+      })}
+    </div>
   );
 }

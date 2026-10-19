@@ -10,6 +10,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { updateProfile } from "@/actions/profile";
 import { toast } from "sonner";
 import { Loader2 } from "lucide-react";
+import { getInitials } from "@/lib/utils";
 
 export function ProfileSettings({ profile }: { profile: User }) {
   const router = useRouter();
@@ -21,11 +22,7 @@ export function ProfileSettings({ profile }: { profile: User }) {
 
   const hasChanges = name.trim() !== profile.name || avatarUrl !== (profile.avatar_url || null);
 
-  const cleanName = (name || profile.name || "").replace(/[^a-zA-Z0-9\s]/g, "").trim();
-  const words = cleanName.split(/\s+/).filter(Boolean);
-  const initials = words.length > 1
-    ? (words[0][0] + words[1][0]).toUpperCase()
-    : cleanName.substring(0, 2).toUpperCase() || "U";
+  const initials = getInitials(name || profile.name, "U");
 
   const getRoleDisplay = (role: string) => {
     switch (role) {

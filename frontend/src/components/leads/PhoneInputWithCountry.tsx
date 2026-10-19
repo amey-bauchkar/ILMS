@@ -169,19 +169,19 @@ export function PhoneInputWithCountry({
         disabled={disabled}
         onClick={() => setOpen((prev) => !prev)}
         className={cn(
-          "flex h-10 items-center gap-1.5 rounded-l-xl border border-r-0 border-white/20 bg-white/[0.06] px-2.5 sm:px-3 py-2 text-sm font-medium transition-all hover:bg-white/[0.1] hover:border-white/30 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/40 disabled:cursor-not-allowed disabled:opacity-50 text-white shrink-0 select-none backdrop-blur-md shadow-inner",
-          open && "bg-white/[0.12] border-primary/60"
+          "flex h-10 items-center gap-1.5 rounded-l-xl border border-r-0 border-black/[0.12] dark:border-white/20 bg-[#f8fafc] dark:bg-white/[0.06] px-2.5 sm:px-3 py-2 text-sm font-medium transition-all hover:bg-[#edf2f7] dark:hover:bg-white/[0.1] hover:border-black/25 dark:hover:border-white/30 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-[#111318] disabled:cursor-not-allowed disabled:opacity-50 text-[#111318] dark:text-white shrink-0 select-none shadow-xs",
+          open && "bg-white dark:bg-white/[0.12] border-black/30 dark:border-primary/60"
         )}
         title={`Country: ${selectedCountry.name} (${selectedCountry.dialCode})`}
       >
         <span className="text-base leading-none">{selectedCountry.flag}</span>
-        <span className="text-xs font-semibold text-white tracking-tight">
+        <span className="text-xs font-bold text-[#111318] dark:text-white tracking-tight">
           {selectedCountry.dialCode}
         </span>
         <ChevronDown
           className={cn(
-            "h-3.5 w-3.5 text-zinc-400 transition-transform duration-200 ml-0.5",
-            open && "rotate-180 text-white"
+            "h-3.5 w-3.5 text-zinc-500 transition-transform duration-200 ml-0.5",
+            open && "rotate-180 text-[#111318] dark:text-white"
           )}
         />
       </button>
@@ -195,7 +195,7 @@ export function PhoneInputWithCountry({
           value={value}
           onChange={handleInputChange}
           placeholder={selectedCountry.placeholder || `${selectedCountry.dialCode} 9876543210`}
-          className="flex h-10 w-full min-w-0 rounded-r-xl border border-white/20 bg-white/[0.05] px-3 py-2 text-sm shadow-inner transition-all hover:border-white/35 focus:border-primary focus:bg-white/[0.08] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/25 disabled:cursor-not-allowed disabled:opacity-50 text-white placeholder:text-zinc-500 backdrop-blur-md"
+          className="flex h-10 w-full min-w-0 rounded-r-xl border border-black/[0.12] dark:border-white/20 bg-white dark:bg-white/[0.05] px-3 py-2 text-sm shadow-xs transition-all hover:border-black/25 dark:hover:border-white/35 focus:border-[#111318] dark:focus:border-primary focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-[#111318] dark:focus-visible:ring-primary/25 disabled:cursor-not-allowed disabled:opacity-50 text-[#111318] dark:text-white placeholder:text-zinc-400 dark:placeholder:text-zinc-500"
         />
 
         {value && (
@@ -203,7 +203,7 @@ export function PhoneInputWithCountry({
             type="button"
             disabled={disabled}
             onClick={() => onChange("")}
-            className="absolute right-2.5 top-1/2 -translate-y-1/2 p-1 rounded-full text-zinc-400 hover:text-white hover:bg-white/10 transition-colors"
+            className="absolute right-2.5 top-1/2 -translate-y-1/2 p-1 rounded-full text-zinc-400 hover:text-[#111318] dark:hover:text-white hover:bg-black/5 dark:hover:bg-white/10 transition-colors"
             title="Clear phone number"
           >
             <X className="h-3.5 w-3.5" />
@@ -214,11 +214,11 @@ export function PhoneInputWithCountry({
       {/* Country Code Dropdown Popover */}
       {open && (
         <div
-          className="absolute top-[calc(100%+6px)] left-0 w-[300px] sm:w-[340px] max-w-[calc(100vw-2rem)] z-[150] rounded-2xl border border-white/20 bg-[#121319] shadow-[0_25px_60px_rgba(0,0,0,0.95)] overflow-hidden animate-in fade-in-0 zoom-in-95 duration-100 text-white"
+          className="absolute top-[calc(100%+6px)] left-0 w-[300px] sm:w-[340px] max-w-[calc(100vw-2rem)] z-[150] rounded-2xl border border-black/10 dark:border-white/20 bg-white dark:bg-[#121319] shadow-[0_20px_50px_rgba(0,0,0,0.18)] dark:shadow-[0_25px_60px_rgba(0,0,0,0.95)] overflow-hidden animate-in fade-in-0 zoom-in-95 duration-100 text-[#111318] dark:text-white"
           style={{ transformOrigin: "top left" }}
         >
           {/* Search Box */}
-          <div className="p-2.5 border-b border-white/10 bg-white/[0.02] relative">
+          <div className="p-2.5 border-b border-black/[0.08] dark:border-white/10 bg-[#f8fafc] dark:bg-white/[0.02] relative">
             <Search className="absolute left-4.5 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-zinc-400 pointer-events-none" />
             <input
               ref={searchInputRef}
@@ -226,13 +226,13 @@ export function PhoneInputWithCountry({
               value={search}
               onChange={(e) => setSearch(e.target.value)}
               placeholder="Search country or code (e.g. India, +1, UAE)..."
-              className="w-full bg-white/[0.05] border border-white/15 rounded-xl pl-8.5 pr-7 py-2 text-xs text-white placeholder:text-zinc-500 focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary/40 shadow-inner"
+              className="w-full bg-white dark:bg-white/[0.05] border border-black/[0.12] dark:border-white/15 rounded-xl pl-8.5 pr-7 py-2 text-xs text-[#111318] dark:text-white placeholder:text-zinc-400 dark:placeholder:text-zinc-500 focus:outline-none focus:border-[#111318] dark:focus:border-primary shadow-xs"
             />
             {search && (
               <button
                 type="button"
                 onClick={() => setSearch("")}
-                className="absolute right-4.5 top-1/2 -translate-y-1/2 p-1 rounded-full text-zinc-400 hover:text-white"
+                className="absolute right-4.5 top-1/2 -translate-y-1/2 p-1 rounded-full text-zinc-400 hover:text-[#111318] dark:hover:text-white"
               >
                 <X className="h-3 w-3" />
               </button>
@@ -241,8 +241,8 @@ export function PhoneInputWithCountry({
 
           {/* Quick Popular Country Pills */}
           {!search.trim() && (
-            <div className="p-2.5 border-b border-white/10 bg-white/[0.01]">
-              <p className="text-[10px] font-semibold uppercase tracking-wider text-zinc-400 mb-1.5 px-1">
+            <div className="p-2.5 border-b border-black/[0.08] dark:border-white/10 bg-white dark:bg-white/[0.01]">
+              <p className="text-[10px] font-bold uppercase tracking-wider text-zinc-500 mb-1.5 px-1">
                 Popular Countries
               </p>
               <div className="flex flex-wrap gap-1.5">
@@ -259,8 +259,8 @@ export function PhoneInputWithCountry({
                         className={cn(
                           "px-2.5 py-1 rounded-lg text-[11px] border transition-all flex items-center gap-1.5",
                           isCurrent
-                            ? "bg-primary/20 border-primary text-primary font-semibold shadow-xs"
-                            : "bg-white/[0.04] border-white/10 hover:border-white/25 hover:bg-white/[0.08] text-zinc-300"
+                            ? "bg-[#c8f237] border-black/10 text-[#111318] font-bold shadow-xs"
+                            : "bg-[#f8fafc] dark:bg-white/[0.04] border-black/[0.08] dark:border-white/10 hover:border-black/20 hover:bg-[#edf2f7] dark:hover:bg-white/[0.08] text-zinc-700 dark:text-zinc-300 font-medium"
                         )}
                       >
                         <span>{info.flag}</span>
@@ -288,8 +288,8 @@ export function PhoneInputWithCountry({
                     className={cn(
                       "w-full flex items-center justify-between px-2.5 py-1.5 rounded-xl text-xs text-left transition-colors",
                       isSelected
-                        ? "bg-primary/20 text-primary font-medium border border-primary/30"
-                        : "text-zinc-300 hover:bg-white/[0.08] hover:text-white"
+                        ? "bg-[#c8f237]/25 text-[#111318] font-bold border border-[#a3e635]"
+                        : "text-zinc-700 dark:text-zinc-300 hover:bg-black/[0.05] dark:hover:bg-white/[0.08] hover:text-[#111318] dark:hover:text-white"
                     )}
                   >
                     <div className="flex items-center gap-2 truncate">
@@ -299,10 +299,10 @@ export function PhoneInputWithCountry({
                       </span>
                     </div>
                     <div className="flex items-center gap-1.5 shrink-0 ml-2">
-                      <span className="font-mono text-zinc-400 font-semibold text-[11px]">
+                      <span className="font-mono text-zinc-500 font-semibold text-[11px]">
                         {country.dialCode}
                       </span>
-                      {isSelected && <Check className="h-3.5 w-3.5 text-primary shrink-0" />}
+                      {isSelected && <Check className="h-3.5 w-3.5 text-[#15803d] shrink-0" />}
                     </div>
                   </button>
                 );

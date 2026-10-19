@@ -46,31 +46,26 @@ export type LeadSourceOption = (typeof LEAD_SOURCES)[number];
 
 export const leadFormSchema = z.object({
   name: z.string().min(2, "Name must be at least 2 characters"),
-  company: z.string().nullable().optional(),
+  company: z.string().nullish(),
   phone: z.string().min(6, "Enter a valid phone number"),
-  email: z.union([z.literal(""), z.string().email("Enter a valid email")]).nullable().optional(),
+  email: z.string().email("Enter a valid email").or(z.literal("")).nullish(),
   source: z.string().min(1, "Select a source"),
   status: z.string().min(1, "Select a status"),
   priority: z.enum(["Hot", "Warm", "Cold", "Dead"]),
   ownerId: z.string().min(1, "Select an owner"),
-  dealValue: z.union([z.number().min(0), z.nan()]).nullable().optional(),
-  createdAt: z.string().nullable().optional(),
-  createdAtTime: z.string().nullable().optional(),
-  lastContactedAt: z.string().nullable().optional(),
-  lastContactedAtTime: z.string().nullable().optional(),
-  location: z.string().nullable().optional(),
-  nextFollowUpDate: z.string().nullable().optional(),
-  nextFollowUpTime: z.string().nullable().optional(),
+  dealValue: z.union([z.number().min(0, "Deal value cannot be negative"), z.string(), z.nan()]).nullish(),
+  createdAt: z.string().nullish(),
+  createdAtTime: z.string().nullish(),
+  lastContactedAt: z.string().nullish(),
+  lastContactedAtTime: z.string().nullish(),
+  location: z.string().nullish(),
+  nextFollowUpDate: z.string().nullish(),
+  nextFollowUpTime: z.string().nullish(),
   tags: z.array(z.string()).optional(),
   notes: z.string().max(2000).optional(),
-  sourceLink: z.string().nullable().optional(),
-  
-  // Conditional fields for "Lost" status
-  lostReason: z.union([
-    z.enum(["Budget", "Timing", "Went with competitor", "Not a fit", "No response", "Other"]),
-    z.literal(""),
-  ]).nullable().optional(),
-  lostReasonDetails: z.string().nullable().optional(),
+  sourceLink: z.string().nullish(),
+  lostReason: z.string().nullish(),
+  lostReasonDetails: z.string().nullish(),
 });
 
 export type LeadFormData = z.infer<typeof leadFormSchema>;

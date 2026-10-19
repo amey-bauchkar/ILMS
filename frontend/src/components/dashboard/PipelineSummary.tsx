@@ -75,17 +75,17 @@ export function PipelineSummary({ leads, dateFilter = "month", customRange }: Pi
       <CardContent>
         <ResponsiveContainer width="100%" height={220}>
           <BarChart data={data} layout="vertical" margin={{ top: 0, right: 16, left: 8, bottom: 0 }}>
-            <XAxis type="number" tick={{ fontSize: 11, fill: "#a3a3a3" }} tickLine={false} axisLine={false} />
+            <XAxis type="number" tick={{ fontSize: 11, fill: "#475569", fontWeight: 500 }} tickLine={false} axisLine={false} />
             <YAxis
               type="category"
               dataKey="name"
-              tick={{ fontSize: 11, fill: "#a3a3a3" }}
+              tick={{ fontSize: 11, fill: "#334155", fontWeight: 600 }}
               tickLine={false}
               axisLine={false}
               width={110}
             />
-            <Tooltip content={<CustomTooltip />} cursor={{ fill: "rgba(255,255,255,0.04)" }} />
-            <Bar dataKey="count" radius={[0, 4, 4, 0]} maxBarSize={20}>
+            <Tooltip content={<CustomTooltip />} cursor={{ fill: "rgba(0,0,0,0.04)" }} />
+            <Bar dataKey="count" radius={[0, 4, 4, 0]} maxBarSize={20} isAnimationActive={false}>
               {data.map((entry) => (
                 <Cell key={entry.name} fill={entry.color} />
               ))}

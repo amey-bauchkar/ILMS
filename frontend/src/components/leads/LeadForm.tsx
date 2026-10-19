@@ -215,11 +215,42 @@ export function LeadForm({ initialData, onSuccess }: LeadFormProps) {
   const isLostStatus = selectedStatus?.name === "Lost";
 
   const onInvalid = (errors: any) => {
-    console.error("Form validation errors:", errors);
-    const firstKey = Object.keys(errors)[0];
-    const firstErr = errors[firstKey];
-    if (firstErr?.message) {
-      toast.error(`${firstKey}: ${firstErr.message}`);
+    console.warn("Form validation errors:", errors);
+
+    const fieldLabels: Record<string, string> = {
+      name: "Full Name",
+      phone: "Phone Number",
+      email: "Email Address",
+      source: "Lead Source",
+      status: "Pipeline Stage",
+      priority: "Priority Tier",
+      ownerId: "Assigned Owner",
+      dealValue: "Estimated Deal Value",
+      location: "Location",
+      nextFollowUpDate: "Follow-up Date",
+      lostReason: "Lost Reason",
+    };
+
+    // Extract first error message from possibly nested error objects
+    const extractErrorMessage = (obj: any): { key: string; message: string } | null => {
+      if (!obj || typeof obj !== "object") return null;
+      for (const [key, val] of Object.entries(obj)) {
+        if (key === "ref") continue;
+        if (val && typeof val === "object") {
+          if ("message" in val && typeof (val as any).message === "string") {
+            return { key, message: (val as any).message };
+          }
+          const nested = extractErrorMessage(val);
+          if (nested) return nested;
+        }
+      }
+      return null;
+    };
+
+    const firstFound = extractErrorMessage(errors);
+    if (firstFound?.message) {
+      const label = fieldLabels[firstFound.key] || firstFound.key;
+      toast.error(`${label}: ${firstFound.message}`);
     } else {
       toast.error("Please fill in all required fields correctly.");
     }
@@ -258,7 +289,11 @@ export function LeadForm({ initialData, onSuccess }: LeadFormProps) {
         }
       }
 
-      const cleanDealValue = typeof data.dealValue === "number" && !isNaN(data.dealValue) ? data.dealValue : undefined;
+      const cleanDealValue = typeof data.dealValue === "number" && !isNaN(data.dealValue)
+        ? data.dealValue
+        : typeof data.dealValue === "string" && data.dealValue.trim() !== "" && !isNaN(Number(data.dealValue.replace(/,/g, "")))
+        ? Number(data.dealValue.replace(/,/g, ""))
+        : undefined;
 
       if (initialData?.id) {
         // Update existing lead
@@ -384,18 +419,18 @@ export function LeadForm({ initialData, onSuccess }: LeadFormProps) {
       <form onSubmit={form.handleSubmit(onSubmit, onInvalid)} className="space-y-5 w-full max-w-full min-w-0">
         
         {/* Section 1: Contact Details */}
-        <div className="relative z-30 rounded-2xl border border-white/10 bg-gradient-to-b from-[#181a24]/90 to-[#12141c]/80 backdrop-blur-xl p-3.5 sm:p-5 space-y-4 shadow-sm hover:border-white/20 transition-all duration-300 w-full min-w-0">
-          <div className="flex items-center justify-between gap-2 pb-3 border-b border-white/[0.08]">
+        <div className="relative z-30 rounded-2xl border border-black/[0.08] dark:border-white/10 bg-[#f8fafc] dark:bg-white/[0.03] p-3.5 sm:p-5 space-y-4 shadow-xs hover:border-black/15 dark:hover:border-white/20 transition-all duration-300 w-full min-w-0">
+          <div className="flex items-center justify-between gap-2 pb-3 border-b border-black/[0.06] dark:border-white/[0.08]">
             <div className="flex items-center gap-2.5 min-w-0 flex-1">
-              <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-lg bg-primary/15 text-primary border border-primary/25 text-xs font-bold shadow-xs">
+              <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-[#c8f237] text-[#111318] border border-black/10 text-xs font-bold shadow-xs">
                 01
               </div>
               <div className="min-w-0 flex-1">
-                <h3 className="text-xs font-bold uppercase tracking-wider text-zinc-100 truncate">Contact Information</h3>
-                <p className="text-[11px] text-zinc-400 truncate hidden xs:block">Primary prospect contact and organization identity</p>
+                <h3 className="text-xs font-bold uppercase tracking-wider text-[#111318] dark:text-zinc-100 truncate">Contact Information</h3>
+                <p className="text-[11px] text-zinc-500 dark:text-zinc-400 truncate hidden xs:block">Primary prospect contact and organization identity</p>
               </div>
             </div>
-            <span className="hidden sm:inline-block shrink-0 text-[10px] font-semibold text-primary uppercase tracking-wider bg-primary/10 px-2 py-0.5 rounded-md border border-primary/20">
+            <span className="shrink-0 text-[10px] font-bold text-[#111318] uppercase tracking-wider bg-[#c8f237] px-3 py-0.5 rounded-full border border-black/10 shadow-xs">
               Core Identity
             </span>
           </div>
@@ -406,15 +441,15 @@ export function LeadForm({ initialData, onSuccess }: LeadFormProps) {
               name="name"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel className="text-xs font-medium text-zinc-300 flex items-center justify-between">
-                    <span>Full Name <span className="text-primary font-bold">*</span></span>
+                  <FormLabel className="text-xs font-semibold text-[#111318] dark:text-zinc-300 flex items-center justify-between">
+                    <span>Full Name <span className="text-[#16a34a] font-bold">*</span></span>
                   </FormLabel>
                   <FormControl>
                     <div className="relative">
                       <User className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-zinc-400 pointer-events-none" />
                       <Input 
                         placeholder="e.g. Yash Vardhan" 
-                        className="h-10 pl-10 rounded-xl border border-white/20 bg-white/[0.05] px-3.5 py-2 text-sm text-white placeholder:text-zinc-500 shadow-inner backdrop-blur-md transition-all hover:border-white/35 hover:bg-white/[0.08] focus-visible:border-primary focus-visible:bg-white/[0.09] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/25" 
+                        className="h-10 pl-10 pr-3.5 py-2 rounded-xl border border-black/[0.12] dark:border-white/20 bg-white dark:bg-white/[0.05] text-sm text-[#111318] dark:text-white placeholder:text-zinc-400 dark:placeholder:text-zinc-500 shadow-xs transition-all hover:border-black/25 dark:hover:border-white/35 focus-visible:border-[#111318] dark:focus-visible:border-primary focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-[#111318]" 
                         {...field} 
                       />
                     </div>
@@ -428,7 +463,7 @@ export function LeadForm({ initialData, onSuccess }: LeadFormProps) {
               name="company"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel className="text-xs font-medium text-zinc-300">
+                  <FormLabel className="text-xs font-semibold text-[#111318] dark:text-zinc-300">
                     Company / Organization
                   </FormLabel>
                   <FormControl>
@@ -436,7 +471,7 @@ export function LeadForm({ initialData, onSuccess }: LeadFormProps) {
                       <Building2 className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-zinc-400 pointer-events-none" />
                       <Input 
                         placeholder="e.g. Foremark Technologies" 
-                        className="h-10 pl-10 rounded-xl border border-white/20 bg-white/[0.05] px-3.5 py-2 text-sm text-white placeholder:text-zinc-500 shadow-inner backdrop-blur-md transition-all hover:border-white/35 hover:bg-white/[0.08] focus-visible:border-primary focus-visible:bg-white/[0.09] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/25" 
+                        className="h-10 pl-10 pr-3.5 py-2 rounded-xl border border-black/[0.12] dark:border-white/20 bg-white dark:bg-white/[0.05] text-sm text-[#111318] dark:text-white placeholder:text-zinc-400 dark:placeholder:text-zinc-500 shadow-xs transition-all hover:border-black/25 dark:hover:border-white/35 focus-visible:border-[#111318] dark:focus-visible:border-primary focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-[#111318]" 
                         {...field} 
                         value={field.value || ""} 
                       />
@@ -454,8 +489,8 @@ export function LeadForm({ initialData, onSuccess }: LeadFormProps) {
               name="phone"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel className="text-xs font-medium text-zinc-300">
-                    Phone Number <span className="text-primary font-bold">*</span>
+                  <FormLabel className="text-xs font-semibold text-[#111318] dark:text-zinc-300">
+                    Phone Number <span className="text-[#16a34a] font-bold">*</span>
                   </FormLabel>
                   <FormControl>
                     <PhoneInputWithCountry
@@ -474,14 +509,14 @@ export function LeadForm({ initialData, onSuccess }: LeadFormProps) {
               name="email"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel className="text-xs font-medium text-zinc-300">Email Address</FormLabel>
+                  <FormLabel className="text-xs font-semibold text-[#111318] dark:text-zinc-300">Email Address</FormLabel>
                   <FormControl>
                     <div className="relative">
                       <Mail className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-zinc-400 pointer-events-none" />
                       <Input 
                         type="email" 
                         placeholder="contact@company.com" 
-                        className="h-10 pl-10 rounded-xl border border-white/20 bg-white/[0.05] px-3.5 py-2 text-sm text-white placeholder:text-zinc-500 shadow-inner backdrop-blur-md transition-all hover:border-white/35 hover:bg-white/[0.08] focus-visible:border-primary focus-visible:bg-white/[0.09] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/25" 
+                        className="h-10 pl-10 pr-3.5 py-2 rounded-xl border border-black/[0.12] dark:border-white/20 bg-white dark:bg-white/[0.05] text-sm text-[#111318] dark:text-white placeholder:text-zinc-400 dark:placeholder:text-zinc-500 shadow-xs transition-all hover:border-black/25 dark:hover:border-white/35 focus-visible:border-[#111318] dark:focus-visible:border-primary focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-[#111318]" 
                         {...field} 
                         value={field.value || ""} 
                       />
@@ -495,18 +530,18 @@ export function LeadForm({ initialData, onSuccess }: LeadFormProps) {
         </div>
 
         {/* Section 2: Pipeline & Ownership */}
-        <div className="relative z-20 rounded-2xl border border-white/10 bg-gradient-to-b from-[#181a24]/90 to-[#12141c]/80 backdrop-blur-xl p-3.5 sm:p-5 space-y-4 shadow-sm hover:border-white/20 transition-all duration-300 w-full min-w-0">
-          <div className="flex items-center justify-between gap-2 pb-3 border-b border-white/[0.08]">
+        <div className="relative z-20 rounded-2xl border border-black/[0.08] dark:border-white/10 bg-[#f8fafc] dark:bg-white/[0.03] p-3.5 sm:p-5 space-y-4 shadow-xs hover:border-black/15 dark:hover:border-white/20 transition-all duration-300 w-full min-w-0">
+          <div className="flex items-center justify-between gap-2 pb-3 border-b border-black/[0.06] dark:border-white/[0.08]">
             <div className="flex items-center gap-2.5 min-w-0 flex-1">
-              <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-lg bg-blue-500/15 text-blue-400 border border-blue-500/25 text-xs font-bold shadow-xs">
+              <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-[#c8f237] text-[#111318] border border-black/10 text-xs font-bold shadow-xs">
                 02
               </div>
               <div className="min-w-0 flex-1">
-                <h3 className="text-xs font-bold uppercase tracking-wider text-zinc-100 truncate">Pipeline & Assignment</h3>
-                <p className="text-[11px] text-zinc-400 truncate hidden xs:block">Lead attribution, current stage, priority & account owner</p>
+                <h3 className="text-xs font-bold uppercase tracking-wider text-[#111318] dark:text-zinc-100 truncate">Pipeline & Assignment</h3>
+                <p className="text-[11px] text-zinc-500 dark:text-zinc-400 truncate hidden xs:block">Lead attribution, current stage, priority & account owner</p>
               </div>
             </div>
-            <span className="hidden sm:inline-block shrink-0 text-[10px] font-medium text-zinc-400 uppercase tracking-wider bg-white/[0.04] px-2 py-0.5 rounded-md border border-white/5">
+            <span className="shrink-0 text-[10px] font-bold text-[#111318] uppercase tracking-wider bg-[#c8f237] px-3 py-0.5 rounded-full border border-black/10 shadow-xs">
               Sales Routing
             </span>
           </div>
@@ -517,8 +552,8 @@ export function LeadForm({ initialData, onSuccess }: LeadFormProps) {
               name="source"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel className="text-xs font-medium text-zinc-300">
-                    Lead Source <span className="text-primary font-bold">*</span>
+                  <FormLabel className="text-xs font-semibold text-[#111318] dark:text-zinc-300">
+                    Lead Source <span className="text-[#16a34a] font-bold">*</span>
                   </FormLabel>
                   <FormControl>
                     <SourceCombobox
@@ -539,17 +574,17 @@ export function LeadForm({ initialData, onSuccess }: LeadFormProps) {
                 const currentStatus = statuses.find((s) => s.id === field.value);
                 return (
                   <FormItem>
-                    <FormLabel className="text-xs font-medium text-zinc-300">
-                      Pipeline Stage <span className="text-primary font-bold">*</span>
+                    <FormLabel className="text-xs font-semibold text-[#111318] dark:text-zinc-300">
+                      Pipeline Stage <span className="text-[#16a34a] font-bold">*</span>
                     </FormLabel>
                     <Select onValueChange={field.onChange} value={field.value}>
                       <FormControl>
-                        <SelectTrigger className="h-10 w-full rounded-xl border border-white/20 bg-white/[0.05] px-3.5 py-2 text-sm text-white shadow-inner backdrop-blur-md transition-all hover:border-white/35 hover:bg-white/[0.08] focus:border-primary focus:bg-white/[0.09] focus:outline-none focus:ring-2 focus:ring-primary/25 flex items-center justify-between">
+                        <SelectTrigger className="h-10 w-full rounded-xl border border-black/[0.12] dark:border-white/20 bg-white dark:bg-white/[0.05] px-3.5 py-2 text-sm text-[#111318] dark:text-white shadow-xs transition-all hover:border-black/25 dark:hover:border-white/35 focus:border-[#111318] focus:ring-1 focus:ring-[#111318] flex items-center justify-between">
                           <SelectValue placeholder="Select stage">
                             {currentStatus ? (
                               <span className="flex items-center gap-2">
                                 <span className="w-2.5 h-2.5 rounded-full shrink-0 shadow-xs" style={{ backgroundColor: currentStatus.color }} />
-                                <span className="font-medium">{currentStatus.name}</span>
+                                <span className="font-semibold">{currentStatus.name}</span>
                               </span>
                             ) : (
                               "Select stage"
@@ -557,12 +592,12 @@ export function LeadForm({ initialData, onSuccess }: LeadFormProps) {
                           </SelectValue>
                         </SelectTrigger>
                       </FormControl>
-                      <SelectContent className="rounded-2xl border border-white/20 bg-[#121319] shadow-[0_25px_60px_rgba(0,0,0,0.95)] text-white p-1 z-[130]">
+                      <SelectContent className="rounded-2xl border border-black/10 dark:border-white/20 bg-white dark:bg-[#121319] shadow-[0_20px_50px_rgba(0,0,0,0.18)] dark:shadow-[0_25px_60px_rgba(0,0,0,0.95)] text-[#111318] dark:text-white p-1 z-[130]">
                         {statuses.map((s) => (
-                          <SelectItem key={s.id} value={s.id} className="rounded-xl text-zinc-300 hover:text-white hover:bg-white/[0.08] focus:bg-white/[0.1] focus:text-white cursor-pointer px-3 py-2 text-xs sm:text-sm">
+                          <SelectItem key={s.id} value={s.id} className="rounded-xl text-zinc-700 dark:text-zinc-300 hover:text-[#111318] dark:hover:text-white hover:bg-black/[0.05] dark:hover:bg-white/[0.08] focus:bg-black/[0.05] focus:text-[#111318] cursor-pointer px-3 py-2 text-xs sm:text-sm">
                             <span className="flex items-center gap-2">
                               <span className="w-2.5 h-2.5 rounded-full shrink-0 shadow-xs" style={{ backgroundColor: s.color }} />
-                              <span>{s.name}</span>
+                              <span className="font-medium">{s.name}</span>
                             </span>
                           </SelectItem>
                         ))}
@@ -581,36 +616,36 @@ export function LeadForm({ initialData, onSuccess }: LeadFormProps) {
               name="priority"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel className="text-xs font-medium text-zinc-300">
-                    Priority Tier <span className="text-primary font-bold">*</span>
+                  <FormLabel className="text-xs font-semibold text-[#111318] dark:text-zinc-300">
+                    Priority Tier <span className="text-[#16a34a] font-bold">*</span>
                   </FormLabel>
                   <Select onValueChange={field.onChange} value={field.value}>
                     <FormControl>
-                      <SelectTrigger className="h-10 w-full rounded-xl border border-white/20 bg-white/[0.05] px-3.5 py-2 text-sm text-white shadow-inner backdrop-blur-md transition-all hover:border-white/35 hover:bg-white/[0.08] focus:border-primary focus:bg-white/[0.09] focus:outline-none focus:ring-2 focus:ring-primary/25 flex items-center justify-between">
+                      <SelectTrigger className="h-10 w-full rounded-xl border border-black/[0.12] dark:border-white/20 bg-white dark:bg-white/[0.05] px-3.5 py-2 text-sm text-[#111318] dark:text-white shadow-xs transition-all hover:border-black/25 dark:hover:border-white/35 focus:border-[#111318] focus:ring-1 focus:ring-[#111318] flex items-center justify-between">
                         <SelectValue placeholder="Select priority" />
                       </SelectTrigger>
                     </FormControl>
-                    <SelectContent className="rounded-2xl border border-white/20 bg-[#121319] shadow-[0_25px_60px_rgba(0,0,0,0.95)] text-white p-1 z-[130]">
-                      <SelectItem value="Hot" className="rounded-xl text-zinc-300 hover:text-white hover:bg-white/[0.08] focus:bg-white/[0.1] focus:text-white cursor-pointer px-3 py-2 text-xs sm:text-sm">
-                        <span className="flex items-center gap-2 font-medium text-red-400">
+                    <SelectContent className="rounded-2xl border border-black/10 dark:border-white/20 bg-white dark:bg-[#121319] shadow-[0_20px_50px_rgba(0,0,0,0.18)] dark:shadow-[0_25px_60px_rgba(0,0,0,0.95)] text-[#111318] dark:text-white p-1 z-[130]">
+                      <SelectItem value="Hot" className="rounded-xl text-zinc-700 dark:text-zinc-300 hover:text-[#111318] dark:hover:text-white hover:bg-black/[0.05] dark:hover:bg-white/[0.08] focus:bg-black/[0.05] focus:text-[#111318] cursor-pointer px-3 py-2 text-xs sm:text-sm">
+                        <span className="flex items-center gap-2 font-semibold text-red-600 dark:text-red-400">
                           <span className="w-2.5 h-2.5 rounded-full bg-red-500 shadow-xs" />
                           <span>Hot 🔥</span>
                         </span>
                       </SelectItem>
-                      <SelectItem value="Warm" className="rounded-xl text-zinc-300 hover:text-white hover:bg-white/[0.08] focus:bg-white/[0.1] focus:text-white cursor-pointer px-3 py-2 text-xs sm:text-sm">
-                        <span className="flex items-center gap-2 font-medium text-orange-400">
+                      <SelectItem value="Warm" className="rounded-xl text-zinc-700 dark:text-zinc-300 hover:text-[#111318] dark:hover:text-white hover:bg-black/[0.05] dark:hover:bg-white/[0.08] focus:bg-black/[0.05] focus:text-[#111318] cursor-pointer px-3 py-2 text-xs sm:text-sm">
+                        <span className="flex items-center gap-2 font-semibold text-orange-600 dark:text-orange-400">
                           <span className="w-2.5 h-2.5 rounded-full bg-orange-500 shadow-xs" />
                           <span>Warm ☀️</span>
                         </span>
                       </SelectItem>
-                      <SelectItem value="Cold" className="rounded-xl text-zinc-300 hover:text-white hover:bg-white/[0.08] focus:bg-white/[0.1] focus:text-white cursor-pointer px-3 py-2 text-xs sm:text-sm">
-                        <span className="flex items-center gap-2 font-medium text-blue-400">
+                      <SelectItem value="Cold" className="rounded-xl text-zinc-700 dark:text-zinc-300 hover:text-[#111318] dark:hover:text-white hover:bg-black/[0.05] dark:hover:bg-white/[0.08] focus:bg-black/[0.05] focus:text-[#111318] cursor-pointer px-3 py-2 text-xs sm:text-sm">
+                        <span className="flex items-center gap-2 font-semibold text-blue-600 dark:text-blue-400">
                           <span className="w-2.5 h-2.5 rounded-full bg-blue-500 shadow-xs" />
                           <span>Cold ❄️</span>
                         </span>
                       </SelectItem>
-                      <SelectItem value="Dead" className="rounded-xl text-zinc-300 hover:text-white hover:bg-white/[0.08] focus:bg-white/[0.1] focus:text-white cursor-pointer px-3 py-2 text-xs sm:text-sm">
-                        <span className="flex items-center gap-2 font-medium text-zinc-400">
+                      <SelectItem value="Dead" className="rounded-xl text-zinc-700 dark:text-zinc-300 hover:text-[#111318] dark:hover:text-white hover:bg-black/[0.05] dark:hover:bg-white/[0.08] focus:bg-black/[0.05] focus:text-[#111318] cursor-pointer px-3 py-2 text-xs sm:text-sm">
+                        <span className="flex items-center gap-2 font-semibold text-zinc-500 dark:text-zinc-400">
                           <span className="w-2.5 h-2.5 rounded-full bg-zinc-500 shadow-xs" />
                           <span>Dead ☠️</span>
                         </span>
@@ -629,25 +664,25 @@ export function LeadForm({ initialData, onSuccess }: LeadFormProps) {
                 const currentOwner = members.find((m) => m.id === field.value);
                 return (
                   <FormItem>
-                    <FormLabel className="text-xs font-medium text-zinc-300">
-                      Assigned Owner <span className="text-primary font-bold">*</span>
+                    <FormLabel className="text-xs font-semibold text-[#111318] dark:text-zinc-300">
+                      Assigned Owner <span className="text-[#16a34a] font-bold">*</span>
                     </FormLabel>
                     <Select onValueChange={field.onChange} value={field.value}>
                       <FormControl>
-                        <SelectTrigger className="h-10 w-full rounded-xl border border-white/20 bg-white/[0.05] px-3.5 py-2 text-sm text-white shadow-inner backdrop-blur-md transition-all hover:border-white/35 hover:bg-white/[0.08] focus:border-primary focus:bg-white/[0.09] focus:outline-none focus:ring-2 focus:ring-primary/25 flex items-center justify-between">
+                        <SelectTrigger className="h-10 w-full rounded-xl border border-black/[0.12] dark:border-white/20 bg-white dark:bg-white/[0.05] px-3.5 py-2 text-sm text-[#111318] dark:text-white shadow-xs transition-all hover:border-black/25 dark:hover:border-white/35 focus:border-[#111318] focus:ring-1 focus:ring-[#111318] flex items-center justify-between">
                           <SelectValue placeholder="Select owner">
                             {currentOwner?.name || (members.length > 0 ? "Select owner" : "Loading...")}
                           </SelectValue>
                         </SelectTrigger>
                       </FormControl>
-                      <SelectContent className="rounded-2xl border border-white/20 bg-[#121319] shadow-[0_25px_60px_rgba(0,0,0,0.95)] text-white p-1 z-[130]">
+                      <SelectContent className="rounded-2xl border border-black/10 dark:border-white/20 bg-white dark:bg-[#121319] shadow-[0_20px_50px_rgba(0,0,0,0.18)] dark:shadow-[0_25px_60px_rgba(0,0,0,0.95)] text-[#111318] dark:text-white p-1 z-[130]">
                         {members.map((member) => (
-                          <SelectItem key={member.id} value={member.id} className="rounded-xl text-zinc-300 hover:text-white hover:bg-white/[0.08] focus:bg-white/[0.1] focus:text-white cursor-pointer px-3 py-2 text-xs sm:text-sm">
+                          <SelectItem key={member.id} value={member.id} className="rounded-xl text-zinc-700 dark:text-zinc-300 hover:text-[#111318] dark:hover:text-white hover:bg-black/[0.05] dark:hover:bg-white/[0.08] focus:bg-black/[0.05] focus:text-[#111318] cursor-pointer px-3 py-2 text-xs sm:text-sm">
                             <span className="flex items-center gap-2">
-                              <span className="w-5 h-5 rounded-full bg-primary/20 text-primary text-[10px] font-bold flex items-center justify-center">
+                              <span className="w-5 h-5 rounded-full bg-[#c8f237] text-[#111318] text-[10px] font-bold flex items-center justify-center">
                                 {member.name.charAt(0).toUpperCase()}
                               </span>
-                              <span>{member.name}</span>
+                              <span className="font-medium">{member.name}</span>
                             </span>
                           </SelectItem>
                         ))}
@@ -666,7 +701,7 @@ export function LeadForm({ initialData, onSuccess }: LeadFormProps) {
               name="location"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel className="text-xs font-medium text-zinc-300">Geography / Location</FormLabel>
+                  <FormLabel className="text-xs font-semibold text-[#111318] dark:text-zinc-300">Geography / Location</FormLabel>
                   <FormControl>
                     <LocationCombobox
                       value={field.value || ""}
@@ -682,8 +717,8 @@ export function LeadForm({ initialData, onSuccess }: LeadFormProps) {
 
           {/* Conditional Lost Reason */}
           {isLostStatus && (
-            <div className="rounded-2xl border border-destructive/30 bg-destructive/10 backdrop-blur-md p-4 space-y-3 mt-3 shadow-inner">
-              <div className="flex items-center gap-2 text-destructive font-semibold text-xs tracking-wider uppercase">
+            <div className="rounded-2xl border border-red-200 dark:border-destructive/30 bg-red-50/80 dark:bg-destructive/10 p-4 space-y-3 mt-3 shadow-xs">
+              <div className="flex items-center gap-2 text-red-700 dark:text-destructive font-bold text-xs tracking-wider uppercase">
                 <AlertTriangle className="w-4 h-4" />
                 Lost Lead Context
               </div>
@@ -693,20 +728,20 @@ export function LeadForm({ initialData, onSuccess }: LeadFormProps) {
                   name="lostReason"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel className="text-xs font-medium text-zinc-300">Reason for Loss</FormLabel>
+                      <FormLabel className="text-xs font-semibold text-[#111318] dark:text-zinc-300">Reason for Loss</FormLabel>
                       <Select onValueChange={field.onChange} value={field.value}>
                         <FormControl>
-                          <SelectTrigger className="h-10 w-full rounded-xl border border-white/20 bg-white/[0.05] px-3.5 py-2 text-sm text-white shadow-inner">
+                          <SelectTrigger className="h-10 w-full rounded-xl border border-red-200 dark:border-white/20 bg-white dark:bg-white/[0.05] px-3.5 py-2 text-sm text-[#111318] dark:text-white shadow-xs">
                             <SelectValue placeholder="Select a reason" />
                           </SelectTrigger>
                         </FormControl>
-                        <SelectContent className="rounded-2xl border border-white/20 bg-[#121319] shadow-[0_25px_60px_rgba(0,0,0,0.95)] text-white p-1 z-[130]">
-                          <SelectItem value="Budget" className="rounded-xl text-zinc-300 hover:text-white hover:bg-white/[0.08]">Budget Constraint</SelectItem>
-                          <SelectItem value="Timing" className="rounded-xl text-zinc-300 hover:text-white hover:bg-white/[0.08]">Timing / Deferred</SelectItem>
-                          <SelectItem value="Went with competitor" className="rounded-xl text-zinc-300 hover:text-white hover:bg-white/[0.08]">Went with Competitor</SelectItem>
-                          <SelectItem value="Not a fit" className="rounded-xl text-zinc-300 hover:text-white hover:bg-white/[0.08]">Not a Fit</SelectItem>
-                          <SelectItem value="No response" className="rounded-xl text-zinc-300 hover:text-white hover:bg-white/[0.08]">No Response / Ghosted</SelectItem>
-                          <SelectItem value="Other" className="rounded-xl text-zinc-300 hover:text-white hover:bg-white/[0.08]">Other</SelectItem>
+                        <SelectContent className="rounded-2xl border border-black/10 dark:border-white/20 bg-white dark:bg-[#121319] shadow-[0_20px_50px_rgba(0,0,0,0.18)] dark:shadow-[0_25px_60px_rgba(0,0,0,0.95)] text-[#111318] dark:text-white p-1 z-[130]">
+                          <SelectItem value="Budget" className="rounded-xl text-zinc-700 dark:text-zinc-300 hover:text-[#111318] dark:hover:text-white hover:bg-black/[0.05]">Budget Constraint</SelectItem>
+                          <SelectItem value="Timing" className="rounded-xl text-zinc-700 dark:text-zinc-300 hover:text-[#111318] dark:hover:text-white hover:bg-black/[0.05]">Timing / Deferred</SelectItem>
+                          <SelectItem value="Went with competitor" className="rounded-xl text-zinc-700 dark:text-zinc-300 hover:text-[#111318] dark:hover:text-white hover:bg-black/[0.05]">Went with Competitor</SelectItem>
+                          <SelectItem value="Not a fit" className="rounded-xl text-zinc-700 dark:text-zinc-300 hover:text-[#111318] dark:hover:text-white hover:bg-black/[0.05]">Not a Fit</SelectItem>
+                          <SelectItem value="No response" className="rounded-xl text-zinc-700 dark:text-zinc-300 hover:text-[#111318] dark:hover:text-white hover:bg-black/[0.05]">No Response / Ghosted</SelectItem>
+                          <SelectItem value="Other" className="rounded-xl text-zinc-700 dark:text-zinc-300 hover:text-[#111318] dark:hover:text-white hover:bg-black/[0.05]">Other</SelectItem>
                         </SelectContent>
                       </Select>
                       <FormMessage />
@@ -718,10 +753,10 @@ export function LeadForm({ initialData, onSuccess }: LeadFormProps) {
                   name="lostReasonDetails"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel className="text-xs font-medium text-zinc-300">Specific Details</FormLabel>
+                      <FormLabel className="text-xs font-semibold text-[#111318] dark:text-zinc-300">Specific Details</FormLabel>
                       <FormControl>
                         <Input 
-                          className="h-10 rounded-xl border border-white/20 bg-white/[0.05] px-3.5 py-2 text-sm text-white placeholder:text-zinc-500 shadow-inner" 
+                          className="h-10 rounded-xl border border-red-200 dark:border-white/20 bg-white dark:bg-white/[0.05] px-3.5 py-2 text-sm text-[#111318] dark:text-white placeholder:text-zinc-400 shadow-xs" 
                           placeholder="Provide details on why the opportunity was lost..." 
                           {...field} 
                           value={field.value || ""} 
@@ -737,30 +772,31 @@ export function LeadForm({ initialData, onSuccess }: LeadFormProps) {
         </div>
 
         {/* Section 3: Activity Timelines & Schedule */}
-        <div className="relative z-10 rounded-2xl border border-white/10 bg-gradient-to-b from-[#181a24]/90 to-[#12141c]/80 backdrop-blur-xl p-3.5 sm:p-5 space-y-4 shadow-sm hover:border-white/20 transition-all duration-300 w-full min-w-0">
-          <div className="flex items-center justify-between gap-2 pb-3 border-b border-white/[0.08]">
+        <div className="relative z-10 rounded-2xl border border-black/[0.08] dark:border-white/10 bg-[#f8fafc] dark:bg-white/[0.03] p-3.5 sm:p-5 space-y-4 shadow-xs hover:border-black/15 dark:hover:border-white/20 transition-all duration-300 w-full min-w-0">
+          <div className="flex items-center justify-between gap-2 pb-3 border-b border-black/[0.06] dark:border-white/[0.08]">
             <div className="flex items-center gap-2.5 min-w-0 flex-1">
-              <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-lg bg-emerald-500/15 text-emerald-400 border border-emerald-500/25 text-xs font-bold shadow-xs">
+              <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-[#c8f237] text-[#111318] border border-black/10 text-xs font-bold shadow-xs">
                 03
               </div>
               <div className="min-w-0 flex-1">
-                <h3 className="text-xs font-bold uppercase tracking-wider text-zinc-100 truncate">Activity & Follow-Up</h3>
-                <p className="text-[11px] text-zinc-400 truncate hidden xs:block">Creation record, last engagement & scheduled follow-up</p>
+                <h3 className="text-xs font-bold uppercase tracking-wider text-[#111318] dark:text-zinc-100 truncate">Activity & Follow-Up</h3>
+                <p className="text-[11px] text-zinc-500 dark:text-zinc-400 truncate hidden xs:block">Creation record, last engagement & scheduled follow-up</p>
               </div>
             </div>
-            <span className="hidden sm:inline-block shrink-0 text-[10px] font-medium text-emerald-400 uppercase tracking-wider bg-emerald-500/10 px-2 py-0.5 rounded-md border border-emerald-500/20">
+            <span className="shrink-0 text-[10px] font-bold text-[#111318] uppercase tracking-wider bg-[#c8f237] px-3 py-0.5 rounded-full border border-black/10 shadow-xs">
               Timelines
             </span>
           </div>
 
           <div className="grid sm:grid-cols-3 gap-4 min-w-0">
             {/* Creation Date & Time */}
-            <div className="space-y-2 p-3.5 rounded-xl border border-white/10 bg-white/[0.02] shadow-inner min-w-0">
-              <span className="text-xs font-medium text-zinc-300 flex items-center gap-1.5">
-                <Clock className="w-3.5 h-3.5 text-primary shrink-0" /> Creation Timestamp
+            <div className="space-y-2 p-3.5 rounded-xl border border-black/[0.08] dark:border-white/10 bg-white dark:bg-white/[0.02] shadow-xs min-w-0">
+              <span className="text-xs font-semibold text-[#111318] dark:text-zinc-300 flex items-center gap-1.5">
+                <Clock className="w-3.5 h-3.5 text-[#15803d] shrink-0" /> Creation Timestamp
               </span>
-              <div className="grid grid-cols-1 sm:grid-cols-5 gap-1.5 pt-1 min-w-0">
-                <div className="sm:col-span-3 min-w-0">
+              <div className="space-y-2 pt-0.5 min-w-0">
+                <div className="space-y-1 min-w-0">
+                  <span className="text-[10px] font-bold uppercase tracking-wider text-zinc-500 dark:text-zinc-400">Date</span>
                   <FormField
                     control={form.control}
                     name="createdAt"
@@ -769,7 +805,7 @@ export function LeadForm({ initialData, onSuccess }: LeadFormProps) {
                         <FormControl>
                           <Input 
                             type="date" 
-                            className="h-9.5 w-full min-w-0 rounded-lg border border-white/20 bg-white/[0.05] px-2.5 py-1 text-xs text-white shadow-inner transition-all hover:border-white/35 focus:border-primary" 
+                            className="h-9.5 w-full min-w-0 rounded-lg border border-black/[0.12] dark:border-white/20 bg-[#f8fafc] dark:bg-white/[0.05] px-3 py-1.5 text-sm font-medium text-[#111318] dark:text-white shadow-xs transition-all hover:border-black/25 focus:border-[#111318] focus:bg-white [color-scheme:light]" 
                             {...field} 
                             value={field.value || ""} 
                           />
@@ -779,7 +815,8 @@ export function LeadForm({ initialData, onSuccess }: LeadFormProps) {
                     )}
                   />
                 </div>
-                <div className="sm:col-span-2 min-w-0">
+                <div className="space-y-1 min-w-0">
+                  <span className="text-[10px] font-bold uppercase tracking-wider text-zinc-500 dark:text-zinc-400">Time</span>
                   <FormField
                     control={form.control}
                     name="createdAtTime"
@@ -788,7 +825,7 @@ export function LeadForm({ initialData, onSuccess }: LeadFormProps) {
                         <FormControl>
                           <Input 
                             type="time" 
-                            className="h-9.5 w-full min-w-0 rounded-lg border border-white/20 bg-white/[0.05] px-2.5 py-1 text-xs text-white shadow-inner transition-all hover:border-white/35 focus:border-primary" 
+                            className="h-9.5 w-full min-w-0 rounded-lg border border-black/[0.12] dark:border-white/20 bg-[#f8fafc] dark:bg-white/[0.05] px-3 py-1.5 text-sm font-medium text-[#111318] dark:text-white shadow-xs transition-all hover:border-black/25 focus:border-[#111318] focus:bg-white [color-scheme:light]" 
                             {...field} 
                             value={field.value || ""} 
                           />
@@ -802,12 +839,13 @@ export function LeadForm({ initialData, onSuccess }: LeadFormProps) {
             </div>
 
             {/* Last Contacted Date & Time */}
-            <div className="space-y-2 p-3.5 rounded-xl border border-white/10 bg-white/[0.02] shadow-inner min-w-0">
-              <span className="text-xs font-medium text-zinc-300 flex items-center gap-1.5">
-                <Phone className="w-3.5 h-3.5 text-blue-400 shrink-0" /> Last Contacted
+            <div className="space-y-2 p-3.5 rounded-xl border border-black/[0.08] dark:border-white/10 bg-white dark:bg-white/[0.02] shadow-xs min-w-0">
+              <span className="text-xs font-semibold text-[#111318] dark:text-zinc-300 flex items-center gap-1.5">
+                <Phone className="w-3.5 h-3.5 text-blue-600 dark:text-blue-400 shrink-0" /> Last Contacted
               </span>
-              <div className="grid grid-cols-1 sm:grid-cols-5 gap-1.5 pt-1 min-w-0">
-                <div className="sm:col-span-3 min-w-0">
+              <div className="space-y-2 pt-0.5 min-w-0">
+                <div className="space-y-1 min-w-0">
+                  <span className="text-[10px] font-bold uppercase tracking-wider text-zinc-500 dark:text-zinc-400">Date</span>
                   <FormField
                     control={form.control}
                     name="lastContactedAt"
@@ -816,7 +854,7 @@ export function LeadForm({ initialData, onSuccess }: LeadFormProps) {
                         <FormControl>
                           <Input 
                             type="date" 
-                            className="h-9.5 w-full min-w-0 rounded-lg border border-white/20 bg-white/[0.05] px-2.5 py-1 text-xs text-white shadow-inner transition-all hover:border-white/35 focus:border-primary" 
+                            className="h-9.5 w-full min-w-0 rounded-lg border border-black/[0.12] dark:border-white/20 bg-[#f8fafc] dark:bg-white/[0.05] px-3 py-1.5 text-sm font-medium text-[#111318] dark:text-white shadow-xs transition-all hover:border-black/25 focus:border-[#111318] focus:bg-white [color-scheme:light]" 
                             {...field} 
                             value={field.value || ""} 
                           />
@@ -826,7 +864,8 @@ export function LeadForm({ initialData, onSuccess }: LeadFormProps) {
                     )}
                   />
                 </div>
-                <div className="sm:col-span-2 min-w-0">
+                <div className="space-y-1 min-w-0">
+                  <span className="text-[10px] font-bold uppercase tracking-wider text-zinc-500 dark:text-zinc-400">Time</span>
                   <FormField
                     control={form.control}
                     name="lastContactedAtTime"
@@ -835,7 +874,7 @@ export function LeadForm({ initialData, onSuccess }: LeadFormProps) {
                         <FormControl>
                           <Input 
                             type="time" 
-                            className="h-9.5 w-full min-w-0 rounded-lg border border-white/20 bg-white/[0.05] px-2.5 py-1 text-xs text-white shadow-inner transition-all hover:border-white/35 focus:border-primary" 
+                            className="h-9.5 w-full min-w-0 rounded-lg border border-black/[0.12] dark:border-white/20 bg-[#f8fafc] dark:bg-white/[0.05] px-3 py-1.5 text-sm font-medium text-[#111318] dark:text-white shadow-xs transition-all hover:border-black/25 focus:border-[#111318] focus:bg-white [color-scheme:light]" 
                             {...field} 
                             value={field.value || ""} 
                           />
@@ -849,12 +888,13 @@ export function LeadForm({ initialData, onSuccess }: LeadFormProps) {
             </div>
 
             {/* Next Follow-up Date & Time */}
-            <div className="space-y-2 p-3.5 rounded-xl border border-white/10 bg-white/[0.02] shadow-inner min-w-0">
-              <span className="text-xs font-medium text-zinc-300 flex items-center gap-1.5">
-                <Sparkles className="w-3.5 h-3.5 text-amber-400 shrink-0" /> Next Follow-up
+            <div className="space-y-2 p-3.5 rounded-xl border border-black/[0.08] dark:border-white/10 bg-white dark:bg-white/[0.02] shadow-xs min-w-0">
+              <span className="text-xs font-semibold text-[#111318] dark:text-zinc-300 flex items-center gap-1.5">
+                <Sparkles className="w-3.5 h-3.5 text-amber-500 shrink-0" /> Next Follow-up
               </span>
-              <div className="grid grid-cols-1 sm:grid-cols-5 gap-1.5 pt-1 min-w-0">
-                <div className="sm:col-span-3 min-w-0">
+              <div className="space-y-2 pt-0.5 min-w-0">
+                <div className="space-y-1 min-w-0">
+                  <span className="text-[10px] font-bold uppercase tracking-wider text-zinc-500 dark:text-zinc-400">Date</span>
                   <FormField
                     control={form.control}
                     name="nextFollowUpDate"
@@ -863,7 +903,7 @@ export function LeadForm({ initialData, onSuccess }: LeadFormProps) {
                         <FormControl>
                           <Input 
                             type="date" 
-                            className="h-9.5 w-full min-w-0 rounded-lg border border-white/20 bg-white/[0.05] px-2.5 py-1 text-xs text-white shadow-inner transition-all hover:border-white/35 focus:border-primary" 
+                            className="h-9.5 w-full min-w-0 rounded-lg border border-black/[0.12] dark:border-white/20 bg-[#f8fafc] dark:bg-white/[0.05] px-3 py-1.5 text-sm font-medium text-[#111318] dark:text-white shadow-xs transition-all hover:border-black/25 focus:border-[#111318] focus:bg-white [color-scheme:light]" 
                             {...field} 
                             value={field.value || ""} 
                           />
@@ -873,7 +913,8 @@ export function LeadForm({ initialData, onSuccess }: LeadFormProps) {
                     )}
                   />
                 </div>
-                <div className="sm:col-span-2 min-w-0">
+                <div className="space-y-1 min-w-0">
+                  <span className="text-[10px] font-bold uppercase tracking-wider text-zinc-500 dark:text-zinc-400">Time</span>
                   <FormField
                     control={form.control}
                     name="nextFollowUpTime"
@@ -882,7 +923,7 @@ export function LeadForm({ initialData, onSuccess }: LeadFormProps) {
                         <FormControl>
                           <Input 
                             type="time" 
-                            className="h-9.5 w-full min-w-0 rounded-lg border border-white/20 bg-white/[0.05] px-2.5 py-1 text-xs text-white shadow-inner transition-all hover:border-white/35 focus:border-primary" 
+                            className="h-9.5 w-full min-w-0 rounded-lg border border-black/[0.12] dark:border-white/20 bg-[#f8fafc] dark:bg-white/[0.05] px-3 py-1.5 text-sm font-medium text-[#111318] dark:text-white shadow-xs transition-all hover:border-black/25 focus:border-[#111318] focus:bg-white [color-scheme:light]" 
                             {...field} 
                             value={field.value || "10:00"} 
                           />
@@ -898,18 +939,18 @@ export function LeadForm({ initialData, onSuccess }: LeadFormProps) {
         </div>
 
         {/* Section 4: Deal Value & Reference Links */}
-        <div className="relative z-[5] rounded-2xl border border-white/10 bg-gradient-to-b from-[#181a24]/90 to-[#12141c]/80 backdrop-blur-xl p-3.5 sm:p-5 space-y-4 shadow-sm hover:border-white/20 transition-all duration-300 w-full min-w-0">
-          <div className="flex items-center justify-between gap-2 pb-3 border-b border-white/[0.08]">
+        <div className="relative z-[5] rounded-2xl border border-black/[0.08] dark:border-white/10 bg-[#f8fafc] dark:bg-white/[0.03] p-3.5 sm:p-5 space-y-4 shadow-xs hover:border-black/15 dark:hover:border-white/20 transition-all duration-300 w-full min-w-0">
+          <div className="flex items-center justify-between gap-2 pb-3 border-b border-black/[0.06] dark:border-white/[0.08]">
             <div className="flex items-center gap-2.5 min-w-0 flex-1">
-              <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-lg bg-amber-500/15 text-amber-400 border border-amber-500/25 text-xs font-bold shadow-xs">
+              <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-[#c8f237] text-[#111318] border border-black/10 text-xs font-bold shadow-xs">
                 04
               </div>
               <div className="min-w-0 flex-1">
-                <h3 className="text-xs font-bold uppercase tracking-wider text-zinc-100 truncate">Financials & Reference</h3>
-                <p className="text-[11px] text-zinc-400 truncate hidden xs:block">Estimated deal valuation and origin channel URL</p>
+                <h3 className="text-xs font-bold uppercase tracking-wider text-[#111318] dark:text-zinc-100 truncate">Financials & Reference</h3>
+                <p className="text-[11px] text-zinc-500 dark:text-zinc-400 truncate hidden xs:block">Estimated deal valuation and origin channel URL</p>
               </div>
             </div>
-            <span className="hidden sm:inline-block shrink-0 text-[10px] font-medium text-amber-400 uppercase tracking-wider bg-amber-500/10 px-2 py-0.5 rounded-md border border-amber-500/20">
+            <span className="shrink-0 text-[10px] font-bold text-[#111318] uppercase tracking-wider bg-[#c8f237] px-3 py-0.5 rounded-full border border-black/10 shadow-xs">
               Commercial
             </span>
           </div>
@@ -920,17 +961,20 @@ export function LeadForm({ initialData, onSuccess }: LeadFormProps) {
               name="dealValue"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel className="text-xs font-medium text-zinc-300">Estimated Deal Value (INR)</FormLabel>
+                  <FormLabel className="text-xs font-semibold text-[#111318] dark:text-zinc-300">Estimated Deal Value (INR)</FormLabel>
                   <FormControl>
                     <div className="relative">
-                      <span className="absolute left-3.5 top-1/2 -translate-y-1/2 text-sm text-zinc-400 font-semibold pointer-events-none">₹</span>
+                      <span className="absolute left-3.5 top-1/2 -translate-y-1/2 text-sm text-zinc-500 font-bold pointer-events-none">₹</span>
                       <Input 
                         type="number" 
                         placeholder="50,000" 
-                        className="h-10 rounded-xl border border-white/20 bg-white/[0.05] pl-9 pr-3.5 py-2 text-sm text-white placeholder:text-zinc-500 shadow-inner backdrop-blur-md transition-all hover:border-white/35 hover:bg-white/[0.08] focus-visible:border-primary focus-visible:bg-white/[0.09] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/25" 
+                        className="h-10 rounded-xl border border-black/[0.12] dark:border-white/20 bg-white dark:bg-white/[0.05] pl-9 pr-3.5 py-2 text-sm text-[#111318] dark:text-white placeholder:text-zinc-400 shadow-xs transition-all hover:border-black/25 focus-visible:border-[#111318] focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-[#111318]" 
                         {...field} 
-                        value={field.value || ""} 
-                        onChange={(e) => field.onChange(e.target.valueAsNumber || undefined)}
+                        value={field.value !== undefined && field.value !== null ? field.value : ""} 
+                        onChange={(e) => {
+                          const val = e.target.value;
+                          field.onChange(val === "" ? undefined : Number(val));
+                        }}
                       />
                     </div>
                   </FormControl>
@@ -944,7 +988,7 @@ export function LeadForm({ initialData, onSuccess }: LeadFormProps) {
               name="sourceLink"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel className="text-xs font-medium text-zinc-300 flex items-center justify-between">
+                  <FormLabel className="text-xs font-semibold text-[#111318] dark:text-zinc-300 flex items-center justify-between">
                     <span>Source Reference Link</span>
                     <span className="text-[11px] text-zinc-500 font-normal">Optional</span>
                   </FormLabel>
@@ -954,7 +998,7 @@ export function LeadForm({ initialData, onSuccess }: LeadFormProps) {
                       <Input 
                         type="text" 
                         placeholder={sourcePlaceholderMap[source] || "https://..."} 
-                        className="h-10 rounded-xl border border-white/20 bg-white/[0.05] pl-10 pr-3.5 py-2 text-sm text-white placeholder:text-zinc-500 shadow-inner backdrop-blur-md transition-all hover:border-white/35 hover:bg-white/[0.08] focus-visible:border-primary focus-visible:bg-white/[0.09] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/25" 
+                        className="h-10 rounded-xl border border-black/[0.12] dark:border-white/20 bg-white dark:bg-white/[0.05] pl-10 pr-3.5 py-2 text-sm text-[#111318] dark:text-white placeholder:text-zinc-400 shadow-xs transition-all hover:border-black/25 focus-visible:border-[#111318] focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-[#111318]" 
                         {...field} 
                         value={field.value || ""} 
                       />
@@ -968,18 +1012,18 @@ export function LeadForm({ initialData, onSuccess }: LeadFormProps) {
         </div>
 
         {/* Section 5: Categorization & Notes */}
-        <div className="relative z-[1] rounded-2xl border border-white/10 bg-gradient-to-b from-[#181a24]/90 to-[#12141c]/80 backdrop-blur-xl p-3.5 sm:p-5 space-y-4 shadow-sm hover:border-white/20 transition-all duration-300 w-full min-w-0">
-          <div className="flex items-center justify-between gap-2 pb-3 border-b border-white/[0.08]">
+        <div className="relative z-[1] rounded-2xl border border-black/[0.08] dark:border-white/10 bg-[#f8fafc] dark:bg-white/[0.03] p-3.5 sm:p-5 space-y-4 shadow-xs hover:border-black/15 dark:hover:border-white/20 transition-all duration-300 w-full min-w-0">
+          <div className="flex items-center justify-between gap-2 pb-3 border-b border-black/[0.06] dark:border-white/[0.08]">
             <div className="flex items-center gap-2.5 min-w-0 flex-1">
-              <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-lg bg-purple-500/15 text-purple-400 border border-purple-500/25 text-xs font-bold shadow-xs">
+              <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-[#c8f237] text-[#111318] border border-black/10 text-xs font-bold shadow-xs">
                 05
               </div>
               <div className="min-w-0 flex-1">
-                <h3 className="text-xs font-bold uppercase tracking-wider text-zinc-100 truncate">Tags & Collaboration Notes</h3>
-                <p className="text-[11px] text-zinc-400 truncate hidden xs:block">Contextual tags and internal communication logs</p>
+                <h3 className="text-xs font-bold uppercase tracking-wider text-[#111318] dark:text-zinc-100 truncate">Tags & Collaboration Notes</h3>
+                <p className="text-[11px] text-zinc-500 dark:text-zinc-400 truncate hidden xs:block">Contextual tags and internal communication logs</p>
               </div>
             </div>
-            <span className="hidden sm:inline-block shrink-0 text-[10px] font-medium text-purple-400 uppercase tracking-wider bg-purple-500/10 px-2 py-0.5 rounded-md border border-purple-500/20">
+            <span className="shrink-0 text-[10px] font-bold text-[#111318] uppercase tracking-wider bg-[#c8f237] px-3 py-0.5 rounded-full border border-black/10 shadow-xs">
               Context
             </span>
           </div>
@@ -989,9 +1033,9 @@ export function LeadForm({ initialData, onSuccess }: LeadFormProps) {
             name="tags"
             render={({ field }) => (
               <FormItem className="relative z-30">
-                <FormLabel className="text-xs font-medium text-zinc-300">Lead Tags</FormLabel>
+                <FormLabel className="text-xs font-semibold text-[#111318] dark:text-zinc-300">Lead Tags</FormLabel>
                 <FormControl>
-                  <div className="bg-white/[0.03] p-3.5 rounded-xl border border-white/15 shadow-inner">
+                  <div className="bg-white dark:bg-white/[0.03] p-3.5 rounded-xl border border-black/[0.08] dark:border-white/15 shadow-xs">
                     <TagManager 
                       tags={field.value || []} 
                       onChange={field.onChange} 
@@ -1008,11 +1052,11 @@ export function LeadForm({ initialData, onSuccess }: LeadFormProps) {
             name="notes"
             render={({ field }) => (
               <FormItem className="relative z-10">
-                <FormLabel className="text-xs font-medium text-zinc-300">Discussion Notes & Background</FormLabel>
+                <FormLabel className="text-xs font-semibold text-[#111318] dark:text-zinc-300">Discussion Notes & Background</FormLabel>
                 <FormControl>
                   <Textarea
                     placeholder="Document conversation summaries, requirements, next steps, or specific client requests..."
-                    className="min-h-[100px] resize-y rounded-xl border border-white/20 bg-white/[0.05] p-3 text-sm text-white placeholder:text-zinc-500 shadow-inner backdrop-blur-md transition-all hover:border-white/35 hover:bg-white/[0.08] focus-visible:border-primary focus-visible:bg-white/[0.09] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/25"
+                    className="min-h-[100px] resize-y rounded-xl border border-black/[0.12] dark:border-white/20 bg-white dark:bg-white/[0.05] p-3 text-sm text-[#111318] dark:text-white placeholder:text-zinc-400 shadow-xs transition-all hover:border-black/25 focus-visible:border-[#111318] focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-[#111318]"
                     {...field}
                     value={field.value || ""}
                   />
@@ -1024,14 +1068,14 @@ export function LeadForm({ initialData, onSuccess }: LeadFormProps) {
         </div>
 
         {/* Form Actions (Positioned at the end of the form) */}
-        <div className="pt-4 flex flex-col sm:flex-row items-center justify-between gap-3 w-full border-t border-white/10">
+        <div className="pt-4 flex flex-col sm:flex-row items-center justify-between gap-3 w-full border-t border-black/[0.08] dark:border-white/10">
           <div className="flex items-center gap-2 w-full sm:w-auto">
             {initialData?.id && (
               <Button
                 type="button"
                 variant="ghost"
                 size="sm"
-                className="text-red-400 hover:text-red-300 hover:bg-red-500/10 border border-red-500/20 gap-1.5 h-10 px-3.5 rounded-xl transition-all w-full sm:w-auto"
+                className="text-red-600 hover:text-red-700 hover:bg-red-50 dark:hover:bg-red-500/10 border border-red-200 dark:border-red-500/20 gap-1.5 h-10 px-3.5 rounded-xl transition-all w-full sm:w-auto font-medium"
                 onClick={() => setShowDeleteConfirm(true)}
                 disabled={saving || isDeleting}
               >
@@ -1042,16 +1086,16 @@ export function LeadForm({ initialData, onSuccess }: LeadFormProps) {
           </div>
 
           <div className="flex items-center gap-3 w-full sm:w-auto justify-end">
-            <span className="hidden sm:flex items-center gap-1.5 text-[11px] text-zinc-400 font-mono">
-              <kbd className="px-1.5 py-0.5 rounded bg-white/[0.08] border border-white/15 text-zinc-300 text-[10px]">⌘ / Ctrl</kbd>
-              <kbd className="px-1.5 py-0.5 rounded bg-white/[0.08] border border-white/15 text-zinc-300 text-[10px]">Enter</kbd>
+            <span className="hidden sm:flex items-center gap-1.5 text-[11px] text-zinc-500 font-mono">
+              <kbd className="px-1.5 py-0.5 rounded bg-black/[0.05] dark:bg-white/[0.08] border border-black/10 dark:border-white/15 text-zinc-700 dark:text-zinc-300 text-[10px]">⌘ / Ctrl</kbd>
+              <kbd className="px-1.5 py-0.5 rounded bg-black/[0.05] dark:bg-white/[0.08] border border-black/10 dark:border-white/15 text-zinc-700 dark:text-zinc-300 text-[10px]">Enter</kbd>
               <span>to submit</span>
             </span>
 
             <Button 
               type="submit" 
               size="lg" 
-              className="w-full sm:w-auto sm:min-w-[170px] font-semibold text-white bg-gradient-to-r from-[#FF5A1F] via-[#FF6D2C] to-[#FF8542] hover:from-[#e04e18] hover:to-[#FF5A1F] border border-white/20 shadow-[0_4px_20px_rgba(255,90,31,0.4)] hover:shadow-[0_6px_28px_rgba(255,90,31,0.6)] transition-all h-10.5 px-6 rounded-xl active:scale-[0.98]" 
+              className="w-full sm:w-auto sm:min-w-[170px] font-bold text-[#111318] bg-[#c8f237] hover:bg-[#b8e528] border border-black/10 shadow-[0_4px_16px_rgba(200,242,55,0.4)] hover:shadow-[0_6px_24px_rgba(200,242,55,0.6)] transition-all h-10.5 px-6 rounded-xl active:scale-[0.98]" 
               disabled={saving || isDeleting}
             >
               {saving ? (
@@ -1066,11 +1110,11 @@ export function LeadForm({ initialData, onSuccess }: LeadFormProps) {
         {/* Delete Lead Confirmation Modal */}
         {initialData?.id && (
           <Dialog open={showDeleteConfirm} onOpenChange={setShowDeleteConfirm}>
-            <DialogContent className="sm:max-w-[425px]">
+            <DialogContent className="sm:max-w-[425px] bg-white dark:bg-[#101117] border border-black/[0.08] dark:border-white/15 text-[#111318] dark:text-white">
               <DialogHeader>
-                <DialogTitle>Delete Lead</DialogTitle>
-                <DialogDescription>
-                  Are you sure you want to delete <span className="font-semibold text-white">{initialData?.name}</span>? This action cannot be undone and will remove all associated activities and notes.
+                <DialogTitle className="text-[#111318] dark:text-white">Delete Lead</DialogTitle>
+                <DialogDescription className="text-zinc-600 dark:text-zinc-400">
+                  Are you sure you want to delete <span className="font-semibold text-[#111318] dark:text-white">{initialData?.name}</span>? This action cannot be undone and will remove all associated activities and notes.
                 </DialogDescription>
               </DialogHeader>
               <DialogFooter className="mt-4 flex gap-2 sm:justify-end">
@@ -1079,7 +1123,7 @@ export function LeadForm({ initialData, onSuccess }: LeadFormProps) {
                   variant="outline"
                   onClick={() => setShowDeleteConfirm(false)}
                   disabled={isDeleting}
-                  className="rounded-xl border-white/20 bg-white/[0.05] hover:bg-white/[0.1] text-white"
+                  className="rounded-xl border-black/10 dark:border-white/20 bg-zinc-100 dark:bg-white/[0.05] hover:bg-zinc-200 dark:hover:bg-white/[0.1] text-[#111318] dark:text-white font-medium"
                 >
                   Cancel
                 </Button>
@@ -1088,7 +1132,7 @@ export function LeadForm({ initialData, onSuccess }: LeadFormProps) {
                   variant="destructive"
                   onClick={handleDeleteLead}
                   disabled={isDeleting}
-                  className="bg-red-600 hover:bg-red-700 text-white rounded-xl shadow-lg shadow-red-600/20"
+                  className="bg-red-600 hover:bg-red-700 text-white rounded-xl shadow-lg shadow-red-600/20 font-medium"
                 >
                   {isDeleting ? (
                     <>

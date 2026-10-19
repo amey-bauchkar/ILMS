@@ -95,9 +95,9 @@ function ConfirmDialog({
 
   return (
     <Dialog open={open} onOpenChange={(v) => !v && onCancel()}>
-      <DialogContent className="sm:max-w-[420px] w-[92vw] bg-[#161822] border-white/10 text-zinc-100 shadow-2xl">
+      <DialogContent className="sm:max-w-[420px] w-[92vw] bg-white border border-black/[0.08] text-[#111318] shadow-2xl rounded-2xl">
         <DialogHeader>
-          <DialogTitle className="text-lg font-bold text-white flex items-center gap-2">
+          <DialogTitle className="text-lg font-bold text-[#111318] flex items-center gap-2">
             {isWon && <Trophy className="h-5 w-5 text-emerald-400" />}
             {isLost && <XCircle className="h-5 w-5 text-rose-500" />}
             {isOnHold && <PauseCircle className="h-5 w-5 text-amber-400" />}
@@ -300,11 +300,11 @@ export function StatusPipeline({
                   className={cn(
                     "flex flex-col items-center gap-2 px-3 py-2.5 rounded-xl transition-all group focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary",
                     state === "current" &&
-                      "bg-white/[0.08] border border-white/20 shadow-md cursor-default",
+                      "bg-black/[0.04] border border-black/10 shadow-xs cursor-default",
                     state === "completed" &&
-                      "hover:bg-white/[0.06] cursor-pointer",
+                      "hover:bg-black/[0.03] cursor-pointer",
                     state === "future" &&
-                      "hover:bg-white/[0.06] cursor-pointer"
+                      "hover:bg-black/[0.03] cursor-pointer"
                   )}
                 >
                   {/* Circle Indicator */}
@@ -314,7 +314,7 @@ export function StatusPipeline({
                       state === "completed" && "shadow-md",
                       state === "current" && "ring-4 border-2 shadow-lg",
                       state === "future" &&
-                        "border-2 border-white/20 bg-zinc-900/80 group-hover:border-white/50 group-hover:bg-zinc-800"
+                        "border-2 border-black/10 bg-zinc-100 group-hover:border-black/20 group-hover:bg-zinc-200"
                     )}
                     style={{
                       backgroundColor:
@@ -354,11 +354,11 @@ export function StatusPipeline({
                     className={cn(
                       "text-[11px] sm:text-xs leading-tight text-center max-w-[85px] transition-colors",
                       state === "current" &&
-                        "font-bold text-white drop-shadow-sm",
+                        "font-bold text-[#111318]",
                       state === "completed" &&
-                        "font-semibold text-zinc-100 group-hover:text-white",
+                        "font-semibold text-zinc-700 group-hover:text-black",
                       state === "future" &&
-                        "font-medium text-zinc-300 group-hover:text-white"
+                        "font-medium text-zinc-500 group-hover:text-zinc-900"
                     )}
                   >
                     {status}
@@ -377,7 +377,7 @@ export function StatusPipeline({
                           linearPipelineNames
                         ) !== "future"
                           ? color
-                          : "rgba(255, 255, 255, 0.15)",
+                          : "rgba(0, 0, 0, 0.08)",
                     }}
                     aria-hidden="true"
                   />
@@ -388,7 +388,7 @@ export function StatusPipeline({
 
           {/* Sleek Vertical Divider */}
           <div
-            className="h-10 w-px bg-white/20 mx-3 shrink-0"
+            className="h-10 w-px bg-black/10 mx-3 shrink-0"
             aria-hidden="true"
           />
 
@@ -415,8 +415,8 @@ export function StatusPipeline({
                   className={cn(
                     "flex items-center gap-2 px-3 py-2 rounded-xl border text-xs font-semibold transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary",
                     isActive
-                      ? "bg-white/[0.12] border-2 shadow-md cursor-default text-white"
-                      : "border-white/20 bg-zinc-900/80 hover:bg-zinc-800 hover:border-white/40 text-zinc-300 hover:text-white cursor-pointer"
+                      ? "bg-zinc-100 border-2 shadow-sm cursor-default text-[#111318]"
+                      : "border-black/10 bg-zinc-50 hover:bg-zinc-100 text-zinc-700 hover:text-black cursor-pointer"
                   )}
                   style={{
                     borderColor: isActive ? color : undefined,
@@ -436,7 +436,7 @@ export function StatusPipeline({
       </div>
 
       {/* Bottom Status Info Banner */}
-      <div className="flex flex-wrap items-center justify-between gap-3 pt-2 border-t border-white/[0.08] text-xs">
+      <div className="flex flex-wrap items-center justify-between gap-3 pt-2 border-t border-black/[0.06] text-xs">
         <div className="flex items-center gap-2.5">
           <span className="text-zinc-400 font-medium">Current Status:</span>
           <div

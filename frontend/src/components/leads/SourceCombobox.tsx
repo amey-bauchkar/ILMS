@@ -207,17 +207,17 @@ export function SourceCombobox({
         disabled={disabled}
         onClick={() => setOpen((prev) => !prev)}
         className={cn(
-          "flex h-10 w-full items-center justify-between gap-2 rounded-xl border border-white/20 bg-white/[0.05] px-3.5 py-2 text-sm shadow-inner transition-all hover:border-white/35 hover:bg-white/[0.08] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/40 disabled:cursor-not-allowed disabled:opacity-50 text-white text-left backdrop-blur-md",
+          "flex h-10 w-full items-center justify-between gap-2 rounded-xl border border-black/[0.12] dark:border-white/20 bg-white dark:bg-white/[0.05] px-3.5 py-2 text-sm shadow-xs transition-all hover:border-black/25 dark:hover:border-white/35 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-[#111318] dark:focus-visible:ring-primary/40 disabled:cursor-not-allowed disabled:opacity-50 text-[#111318] dark:text-white text-left",
           !value && "text-zinc-400",
-          open && "border-primary/60 bg-white/[0.09]",
+          open && "border-[#111318] dark:border-primary/60",
           className
         )}
       >
         <span className="truncate">{displayValue}</span>
         <ChevronDown
           className={cn(
-            "h-4 w-4 shrink-0 text-zinc-400 transition-transform duration-200",
-            open && "rotate-180 text-white"
+            "h-4 w-4 shrink-0 text-zinc-500 transition-transform duration-200",
+            open && "rotate-180 text-[#111318] dark:text-white"
           )}
         />
       </button>
@@ -225,11 +225,11 @@ export function SourceCombobox({
       {/* Downward Dropdown Menu */}
       {open && (
         <div
-          className="absolute top-[calc(100%+6px)] left-0 w-full max-w-full z-[100] rounded-2xl border border-white/20 bg-[#121319] shadow-[0_25px_60px_rgba(0,0,0,0.95)] overflow-hidden animate-in fade-in-0 zoom-in-95 duration-100 text-white"
+          className="absolute top-[calc(100%+6px)] left-0 w-full max-w-full z-[100] rounded-2xl border border-black/10 dark:border-white/20 bg-white dark:bg-[#121319] shadow-[0_20px_50px_rgba(0,0,0,0.18)] dark:shadow-[0_25px_60px_rgba(0,0,0,0.95)] overflow-hidden animate-in fade-in-0 zoom-in-95 duration-100 text-[#111318] dark:text-white"
           style={{ transformOrigin: "top center" }}
         >
           {/* Search Input Box */}
-          <div className="relative border-b border-white/10 p-2.5 bg-white/[0.02]">
+          <div className="relative border-b border-black/[0.08] dark:border-white/10 p-2.5 bg-[#f8fafc] dark:bg-white/[0.02]">
             <Search className="absolute left-4.5 top-1/2 -translate-y-1/2 h-4 w-4 text-zinc-400 pointer-events-none" />
             <input
               ref={inputRef}
@@ -238,13 +238,13 @@ export function SourceCombobox({
               onChange={(e) => setSearch(e.target.value)}
               onKeyDown={handleKeyDown}
               placeholder="Type to search (e.g. Just dial, GMB)..."
-              className="w-full bg-white/[0.05] border border-white/15 rounded-xl pl-8.5 pr-8 py-2 text-sm text-white placeholder:text-zinc-500 focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary/40 shadow-inner"
+              className="w-full bg-white dark:bg-white/[0.05] border border-black/[0.12] dark:border-white/15 rounded-xl pl-8.5 pr-8 py-2 text-sm text-[#111318] dark:text-white placeholder:text-zinc-400 dark:placeholder:text-zinc-500 focus:outline-none focus:border-[#111318] dark:focus:border-primary shadow-xs"
             />
             {search && (
               <button
                 type="button"
                 onClick={() => setSearch("")}
-                className="absolute right-4.5 top-1/2 -translate-y-1/2 p-1 rounded-full text-zinc-400 hover:text-white"
+                className="absolute right-4.5 top-1/2 -translate-y-1/2 p-1 rounded-full text-zinc-400 hover:text-[#111318] dark:hover:text-white"
               >
                 <X className="h-3.5 w-3.5" />
               </button>
@@ -256,7 +256,7 @@ export function SourceCombobox({
             {filteredCategories.length > 0 ? (
               filteredCategories.map((group) => (
                 <div key={group.category} className="space-y-1">
-                  <div className="px-2.5 py-1 text-[11px] font-semibold uppercase tracking-wider text-zinc-400">
+                  <div className="px-2.5 py-1 text-[11px] font-bold uppercase tracking-wider text-zinc-500">
                     {group.category}
                   </div>
                   <div className="space-y-0.5">
@@ -270,13 +270,13 @@ export function SourceCombobox({
                           className={cn(
                             "w-full flex items-center justify-between px-3 py-2 rounded-xl text-xs sm:text-sm text-left transition-colors",
                             isSelected
-                              ? "bg-primary/20 text-primary font-medium border border-primary/30"
-                              : "text-zinc-300 hover:bg-white/[0.08] hover:text-white"
+                              ? "bg-[#c8f237]/25 text-[#111318] font-bold border border-[#a3e635]"
+                              : "text-zinc-700 dark:text-zinc-300 hover:bg-black/[0.05] dark:hover:bg-white/[0.08] hover:text-[#111318] dark:hover:text-white"
                           )}
                         >
                           <span className="truncate">{source}</span>
                           {isSelected && (
-                            <Check className="h-4 w-4 text-primary shrink-0 ml-2" />
+                            <Check className="h-4 w-4 text-[#15803d] shrink-0 ml-2" />
                           )}
                         </button>
                       );
@@ -286,8 +286,8 @@ export function SourceCombobox({
               ))
             ) : (
               <div className="p-4 text-center space-y-2">
-                <p className="text-xs text-zinc-400">
-                  No standard source matching <span className="font-medium text-white">&quot;{search}&quot;</span>
+                <p className="text-xs text-zinc-600 dark:text-zinc-400">
+                  No standard source matching <span className="font-semibold text-[#111318] dark:text-white">&quot;{search}&quot;</span>
                 </p>
                 {search.trim() && (
                   <Button
@@ -295,7 +295,7 @@ export function SourceCombobox({
                     variant="outline"
                     size="sm"
                     onClick={() => handleSelect(search.trim())}
-                    className="w-full gap-1.5 text-xs border-dashed border-primary/40 hover:border-primary text-primary bg-white/[0.04] hover:bg-white/[0.08] rounded-xl"
+                    className="w-full gap-1.5 text-xs border-dashed border-[#15803d]/40 dark:border-primary/40 hover:border-[#15803d] text-[#15803d] dark:text-primary bg-black/[0.02] dark:bg-white/[0.04] hover:bg-black/[0.05] dark:hover:bg-white/[0.08] rounded-xl font-medium"
                   >
                     <Plus className="h-3.5 w-3.5" />
                     Use &quot;{search.trim()}&quot; as source
@@ -307,8 +307,8 @@ export function SourceCombobox({
 
           {/* Quick Footer */}
           {search.trim() && allFilteredSources.length > 0 && (
-            <div className="p-2.5 border-t border-white/10 bg-white/[0.02] text-[11px] text-zinc-400 text-center">
-              Press <kbd className="px-1.5 py-0.5 rounded bg-white/[0.08] border border-white/15 text-white font-mono text-[10px]">Enter ↵</kbd> to select <span className="text-white font-medium">{allFilteredSources[0]}</span>
+            <div className="p-2.5 border-t border-black/[0.08] dark:border-white/10 bg-[#f8fafc] dark:bg-white/[0.02] text-[11px] text-zinc-600 dark:text-zinc-400 text-center">
+              Press <kbd className="px-1.5 py-0.5 rounded bg-black/5 dark:bg-white/[0.08] border border-black/10 dark:border-white/15 text-[#111318] dark:text-white font-mono text-[10px]">Enter ↵</kbd> to select <span className="text-[#111318] dark:text-white font-semibold">{allFilteredSources[0]}</span>
             </div>
           )}
         </div>

@@ -62,7 +62,7 @@ export function LeadInfoCard({ lead }: LeadInfoCardProps) {
               variant="outline" 
               size="sm" 
               onClick={() => setIsEditOpen(true)}
-              className="h-8 px-2 sm:px-2.5 gap-1.5 text-xs font-semibold border-primary/40 bg-primary/10 text-primary hover:bg-primary hover:text-white transition-all rounded-lg shadow-xs"
+              className="h-8 px-2.5 gap-1.5 text-xs font-bold border border-[#c8f237]/60 bg-[#c8f237]/25 text-[#111318] hover:bg-[#c8f237] transition-all rounded-lg shadow-xs"
               title="Edit Lead"
             >
               <Pencil className="h-3.5 w-3.5" />
@@ -84,10 +84,10 @@ export function LeadInfoCard({ lead }: LeadInfoCardProps) {
 
         {/* Centered Edit Lead Dialog Modal */}
         <Dialog open={isEditOpen} onOpenChange={setIsEditOpen}>
-          <DialogContent className="w-[calc(100vw-1.25rem)] sm:w-full sm:max-w-[840px] max-h-[92vh] overflow-y-auto overflow-x-hidden bg-[#101117]/95 border border-white/15 backdrop-blur-2xl p-3.5 sm:p-7 text-white shadow-[0_25px_70px_rgba(0,0,0,0.8),inset_0_1px_0_0_rgba(255,255,255,0.1)] rounded-2xl sm:rounded-3xl [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
-            <DialogHeader className="mb-4 sm:mb-6 pb-3 sm:pb-4 border-b border-white/10">
-              <DialogTitle className="text-lg sm:text-xl font-bold tracking-tight text-white flex items-center gap-2.5 sm:gap-3">
-                <div className="h-8 w-8 sm:h-9 sm:w-9 rounded-xl bg-primary/20 border border-primary/30 flex items-center justify-center text-primary shadow-xs shrink-0">
+          <DialogContent className="w-[calc(100vw-1.25rem)] sm:w-full sm:max-w-[840px] max-h-[92vh] overflow-y-auto overflow-x-hidden bg-white dark:bg-[#101117] border border-black/[0.08] dark:border-white/15 p-3.5 sm:p-7 text-[#111318] dark:text-white shadow-[0_25px_70px_rgba(0,0,0,0.18)] dark:shadow-[0_25px_70px_rgba(0,0,0,0.8)] rounded-2xl sm:rounded-3xl [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
+            <DialogHeader className="mb-4 sm:mb-6 pb-3 sm:pb-4 border-b border-black/[0.08] dark:border-white/10">
+              <DialogTitle className="text-lg sm:text-xl font-bold tracking-tight text-[#111318] dark:text-white flex items-center gap-2.5 sm:gap-3">
+                <div className="h-8 w-8 sm:h-9 sm:w-9 rounded-xl bg-[#c8f237] border border-black/10 flex items-center justify-center text-[#111318] shadow-xs shrink-0 font-bold">
                   <Pencil className="h-4 w-4" />
                 </div>
                 <span className="truncate">Edit Lead &mdash; {lead.name}</span>
@@ -189,7 +189,7 @@ export function LeadInfoCard({ lead }: LeadInfoCardProps) {
             type="button"
             variant="default"
             onClick={() => setIsEditOpen(true)}
-            className="w-full flex items-center justify-center gap-2 h-10 font-medium rounded-xl bg-primary hover:bg-primary/90 text-white shadow-xs"
+            className="w-full flex items-center justify-center gap-2 h-10 font-bold rounded-xl bg-[#c8f237] hover:bg-[#bde82f] text-[#111318] shadow-xs"
           >
             <Pencil className="h-4 w-4" />
             <span>Edit Lead</span>
@@ -201,9 +201,9 @@ export function LeadInfoCard({ lead }: LeadInfoCardProps) {
             trigger={
               <Button
                 variant="outline"
-                className="w-full flex items-center justify-center gap-2 h-10 font-medium rounded-xl border-border hover:bg-muted"
+                className="w-full flex items-center justify-center gap-2 h-10 font-semibold rounded-xl border border-black/[0.08] bg-white hover:bg-[#c8f237]/10 text-[#111318] shadow-2xs"
               >
-                <PhoneCall className="h-4 w-4 text-emerald-500" />
+                <PhoneCall className="h-4 w-4 text-emerald-600" />
                 <span>Log Call</span>
               </Button>
             }

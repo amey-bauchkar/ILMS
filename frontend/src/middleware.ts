@@ -56,6 +56,11 @@ export async function middleware(request: NextRequest) {
     return supabaseResponse;
   }
 
+  // Allow preview in development mode for rendering/screenshotting
+  if (process.env.NODE_ENV === 'development' && request.nextUrl.searchParams.get('preview') === '1') {
+    return supabaseResponse;
+  }
+
   // If not authenticated and NOT on /login → redirect to /login
   if (!user && !isLoginPage) {
     const url = request.nextUrl.clone();

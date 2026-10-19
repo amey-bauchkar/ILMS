@@ -68,29 +68,30 @@ export default function LoginPage() {
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-background p-4">
-      <div className="w-full max-w-md space-y-8">
+    <div className="min-h-screen flex items-center justify-center p-4 relative overflow-hidden bg-transparent">
+      {/* Ambient glowing spotlight behind login card */}
+      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[550px] h-[550px] rounded-full bg-gradient-to-tr from-[#c8f237]/25 via-emerald-500/15 to-transparent blur-[140px] pointer-events-none -z-10" />
+
+      <div className="w-full max-w-md space-y-6 relative z-10">
         <div className="flex flex-col items-center space-y-2 text-center">
-          <div className="flex items-center justify-center mb-2">
-            <Image src="/logo.png" alt="Foremark Logo" width={48} height={48} className="object-contain" />
+          <div className="w-14 h-14 rounded-2xl bg-white border border-black/[0.06] flex items-center justify-center p-2.5 shadow-sm mb-1">
+            <Image src="/logo.png" alt="Foremark Logo" width={36} height={36} className="object-contain" />
           </div>
-          <h1 className="text-3xl font-bold tracking-tight text-foreground">
-            Foremark ILMS
+          <h1 className="text-3xl font-extrabold tracking-tight text-zinc-900 flex items-center gap-2">
+            <span>Foremark ILMS</span>
+            <span className="px-2 py-0.5 rounded-full bg-[#c8f237] text-[10px] font-bold text-[#111318]">v2.0</span>
           </h1>
-          <p className="text-muted-foreground">
+          <p className="text-zinc-500 text-sm">
             Sign in to manage your internal leads and pipeline
           </p>
         </div>
 
-        <div className="relative group">
-          {/* Subtle Orange Glow behind the card */}
-          <div className="absolute -inset-1 bg-gradient-to-r from-primary/30 to-primary/10 rounded-xl blur opacity-25 group-hover:opacity-40 transition duration-1000 group-hover:duration-200"></div>
-          
-          <Card className="relative border-border bg-card/95 backdrop-blur-sm shadow-2xl">
+        <div className="relative">
+          <Card className="relative rounded-2xl before:rounded-2xl bg-white border border-black/[0.08] shadow-2xl p-2">
             <CardHeader className="space-y-1 pb-6">
               <div className="flex items-center justify-between">
-                <CardTitle className="text-2xl font-bold flex items-center gap-2">
-                  {mode === "admin_reset" && <ShieldCheck className="w-6 h-6 text-primary" />}
+                <CardTitle className="text-2xl font-bold text-zinc-900 flex items-center gap-2">
+                  {mode === "admin_reset" && <ShieldCheck className="w-6 h-6 text-[#74a800]" />}
                   {mode === "login" 
                     ? "Login" 
                     : mode === "signup" 
@@ -102,7 +103,7 @@ export default function LoginPage() {
                     type="button"
                     variant="ghost"
                     size="sm"
-                    className="text-xs text-muted-foreground hover:text-foreground"
+                    className="text-xs text-zinc-500 hover:text-zinc-900"
                     onClick={() => {
                       setMode("login");
                       setError(null);
@@ -114,7 +115,7 @@ export default function LoginPage() {
                   </Button>
                 )}
               </div>
-              <CardDescription>
+              <CardDescription className="text-zinc-500">
                 {mode === "login"
                   ? "Enter your email below to login to your account."
                   : mode === "signup"
@@ -224,44 +225,44 @@ export default function LoginPage() {
                 ) : (
                   <>
                     <div className="space-y-2">
-                      <Label htmlFor="email">Email</Label>
-                      <Input 
-                        id="email" 
-                        name="email" 
-                        type="email" 
-                        placeholder="m@foremark.in" 
-                        required 
-                        className="bg-background" 
-                        disabled={loading}
-                      />
-                    </div>
-                    <div className="space-y-2">
-                      <Label htmlFor="password">Password</Label>
-                      <Input 
-                        id="password" 
-                        name="password" 
-                        type="password" 
-                        placeholder="••••••••"
-                        required 
-                        className="bg-background" 
-                        disabled={loading}
-                        minLength={mode === "signup" ? 8 : undefined}
-                      />
-                      {mode === "signup" && (
-                        <p className="text-xs text-muted-foreground">
-                          Minimum 8 characters
-                        </p>
-                      )}
-                    </div>
-                  </>
-                )}
-              </CardContent>
-              <CardFooter className="flex flex-col gap-3">
-                <Button 
-                  type="submit" 
-                  className="w-full h-11 text-base font-semibold shadow-md shadow-primary/20 hover:shadow-primary/40 transition-all"
-                  disabled={loading}
-                >
+                      <Label htmlFor="email" className="text-xs text-zinc-700 font-semibold">Email Address</Label>
+                       <Input 
+                         id="email" 
+                         name="email" 
+                         type="email" 
+                         placeholder="m@foremark.in" 
+                         required 
+                         className="bg-zinc-50 border-black/10 rounded-xl h-10 text-zinc-900 placeholder:text-zinc-400 focus:border-[#c8f237] focus:ring-2 focus:ring-[#c8f237]/20 transition-all font-medium" 
+                         disabled={loading}
+                       />
+                     </div>
+                     <div className="space-y-2">
+                      <Label htmlFor="password" className="text-xs text-zinc-700 font-semibold">Password</Label>
+                       <Input 
+                         id="password" 
+                         name="password" 
+                         type="password" 
+                         placeholder="••••••••" 
+                         required 
+                         className="bg-zinc-50 border-black/10 rounded-xl h-10 text-zinc-900 placeholder:text-zinc-400 focus:border-[#c8f237] focus:ring-2 focus:ring-[#c8f237]/20 transition-all" 
+                         disabled={loading}
+                         minLength={mode === "signup" ? 8 : undefined}
+                       />
+                       {mode === "signup" && (
+                         <p className="text-xs text-zinc-500">
+                           Minimum 8 characters
+                         </p>
+                       )}
+                     </div>
+                   </>
+                 )}
+               </CardContent>
+               <CardFooter className="flex flex-col gap-3">
+                 <Button 
+                   type="submit" 
+                   className="w-full h-11 text-sm rounded-xl bg-[#c8f237] hover:bg-[#bde82f] shadow-md shadow-[#c8f237]/25 text-[#111318] font-bold active:scale-[0.98] transition-all"
+                   disabled={loading}
+                 >
                   {loading 
                     ? (mode === "login" 
                         ? "Signing in..." 
@@ -279,10 +280,10 @@ export default function LoginPage() {
                   <>
                     <div className="relative w-full my-1">
                       <div className="absolute inset-0 flex items-center">
-                        <span className="w-full border-t border-border" />
+                        <span className="w-full border-t border-black/[0.08]" />
                       </div>
                       <div className="relative flex justify-center text-xs uppercase">
-                        <span className="bg-card px-2 text-muted-foreground">
+                        <span className="bg-white px-2 text-zinc-400 font-medium tracking-wider">
                           {mode === "login" ? "New here?" : "Already have an account?"}
                         </span>
                       </div>
@@ -291,7 +292,7 @@ export default function LoginPage() {
                     <Button 
                       type="button" 
                       variant="outline" 
-                      className="w-full bg-background hover:bg-secondary"
+                      className="w-full rounded-xl bg-zinc-50 border-black/10 text-zinc-700 hover:text-zinc-900 hover:bg-zinc-100 font-medium transition-all"
                       onClick={() => {
                         setMode(mode === "login" ? "signup" : "login");
                         setError(null);
@@ -304,14 +305,14 @@ export default function LoginPage() {
 
                     <button
                       type="button"
-                      className="text-xs text-muted-foreground hover:text-primary transition-colors flex items-center justify-center gap-1.5 pt-1"
+                      className="text-xs text-zinc-500 hover:text-zinc-900 transition-colors flex items-center justify-center gap-1.5 pt-1 font-medium"
                       onClick={() => {
                         setMode("admin_reset");
                         setError(null);
                         setSuccessMsg(null);
                       }}
                     >
-                      <ShieldCheck className="w-3.5 h-3.5 text-primary" />
+                      <ShieldCheck className="w-3.5 h-3.5 text-[#74a800]" />
                       <span>Admin: Update User / Admin Password</span>
                     </button>
                   </>
@@ -319,7 +320,7 @@ export default function LoginPage() {
                   <Button 
                     type="button" 
                     variant="outline" 
-                    className="w-full bg-background hover:bg-secondary"
+                    className="w-full rounded-xl bg-zinc-50 border-black/10 text-zinc-700 hover:text-zinc-900 hover:bg-zinc-100 font-medium transition-all"
                     onClick={() => {
                       setMode("login");
                       setError(null);
@@ -336,10 +337,10 @@ export default function LoginPage() {
         </div>
         
         <div className="text-center">
-          <span className="inline-flex items-center justify-center rounded-full border border-primary/20 bg-primary/10 px-3 py-1 text-xs font-medium text-primary">
+          <span className="inline-flex items-center justify-center rounded-full border border-[#c8f237]/60 bg-[#c8f237]/20 px-3.5 py-1 text-xs font-semibold text-zinc-800 shadow-xs">
             Invite-Only Access
           </span>
-          <p className="text-xs text-muted-foreground mt-2">
+          <p className="text-xs text-zinc-500 mt-2">
             Only pre-approved team members can sign in.
           </p>
         </div>

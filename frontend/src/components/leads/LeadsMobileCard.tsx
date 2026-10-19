@@ -2,6 +2,7 @@ import Link from "next/link";
 import { formatDistanceToNow, format, isBefore, startOfDay } from "date-fns";
 import { priorityColors, type EnrichedLead } from "@/hooks/use-data";
 import { avatarColor } from "@/lib/avatar-colors";
+import { getInitials } from "@/lib/utils";
 import { Pencil, Trash2 } from "lucide-react";
 
 function DotBadge({ color, label }: { color: string; label: string }) {
@@ -26,7 +27,7 @@ export default function LeadsMobileCard({
     onDelete?: (lead: EnrichedLead) => void;
 }) {
     const isOverdue = lead.nextFollowUpDate && isBefore(new Date(lead.nextFollowUpDate), startOfDay(new Date()));
-    const initials = lead.owner.name.split(" ").map((p) => p[0]).slice(0, 2).join("").toUpperCase();
+    const initials = getInitials(lead.owner.name, "U");
     const ownerColor = avatarColor(lead.owner.name);
 
     return (
@@ -35,7 +36,7 @@ export default function LeadsMobileCard({
                 <div className="flex items-start justify-between gap-2 mb-2">
                     <div className="min-w-0 flex-1">
                         <Link href={`/leads/${lead.id}`} className="hover:text-primary transition-colors block">
-                            <h3 className="font-semibold text-foreground hover:text-primary text-base transition-colors truncate">{lead.name}</h3>
+                            <h3 className="font-semibold text-[#111318] dark:text-zinc-100 hover:text-primary text-base transition-colors truncate">{lead.name}</h3>
                         </Link>
                         {lead.company && <p className="text-xs text-muted-foreground truncate mt-0.5">{lead.company}</p>}
                     </div>
@@ -77,11 +78,13 @@ export default function LeadsMobileCard({
                     <span>{lead.source}</span>
                     <div className="flex items-center gap-1.5">
                         <div className="w-4 h-4 rounded-full flex items-center justify-center text-[8px] font-bold text-white shrink-0" style={{ backgroundColor: ownerColor }}>{initials}</div>
-                        <span className="text-foreground font-medium">{lead.owner.name}</span>
+                        <span className="text-[#111318] dark:text-zinc-100 font-medium">{lead.owner.name}</span>
                     </div>
                 </div>
-                {lead.dealValue && (
-                    <p className="text-sm text-foreground font-semibold mt-2 tabular-nums">₹{lead.dealValue.toLocaleString("en-IN")}</p>
+                {typeof lead.dealValue === "number" && lead.dealValue > 0 && (
+                    <p className="text-sm text-emerald-600 dark:text-emerald-400 font-semibold mt-2 tabular-nums">
+                        Estimated Deal Value: ₹{lead.dealValue.toLocaleString("en-IN")}
+                    </p>
                 )}
                 {lead.nextFollowUpDate && (
                     <p className={`text-xs mt-1.5 ${isOverdue ? "text-destructive font-medium" : "text-muted-foreground"}`}>
