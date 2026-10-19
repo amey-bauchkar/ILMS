@@ -3,7 +3,7 @@
 import Image from "next/image";
 import { useState } from "react";
 import { login, signup, adminUpdatePassword } from "@/actions/auth";
-import { KeyRound, ShieldCheck, ArrowLeft, CheckCircle2 } from "lucide-react";
+import { KeyRound, ShieldCheck, ArrowLeft, CheckCircle2, Eye, EyeOff } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -22,6 +22,9 @@ export default function LoginPage() {
   const [successMsg, setSuccessMsg] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const [mode, setMode] = useState<"login" | "signup" | "admin_reset">("login");
+  const [showPassword, setShowPassword] = useState(false);
+  const [showAdminPassword, setShowAdminPassword] = useState(false);
+  const [showNewPassword, setShowNewPassword] = useState(false);
 
   // Read URL query parameters for deactivation or auth error messages
   useState(() => {
@@ -74,23 +77,23 @@ export default function LoginPage() {
 
       <div className="w-full max-w-md space-y-6 relative z-10">
         <div className="flex flex-col items-center space-y-2 text-center">
-          <div className="w-14 h-14 rounded-2xl bg-white border border-black/[0.06] flex items-center justify-center p-2.5 shadow-sm mb-1">
+          <div className="w-14 h-14 rounded-2xl bg-white dark:bg-[#151821] border border-black/[0.06] dark:border-white/10 flex items-center justify-center p-2.5 shadow-sm mb-1">
             <Image src="/logo.png" alt="Foremark Logo" width={36} height={36} className="object-contain" />
           </div>
-          <h1 className="text-3xl font-extrabold tracking-tight text-zinc-900 flex items-center gap-2">
+          <h1 className="text-3xl font-extrabold tracking-tight text-zinc-900 dark:text-white flex items-center gap-2">
             <span>Foremark ILMS</span>
             <span className="px-2 py-0.5 rounded-full bg-[#c8f237] text-[10px] font-bold text-[#111318]">v2.0</span>
           </h1>
-          <p className="text-zinc-500 text-sm">
+          <p className="text-zinc-500 dark:text-zinc-400 text-sm">
             Sign in to manage your internal leads and pipeline
           </p>
         </div>
 
         <div className="relative">
-          <Card className="relative rounded-2xl before:rounded-2xl bg-white border border-black/[0.08] shadow-2xl p-2">
+          <Card className="relative rounded-2xl before:rounded-2xl bg-white dark:bg-[#151821] border border-black/[0.08] dark:border-white/10 shadow-2xl p-2 text-zinc-900 dark:text-white">
             <CardHeader className="space-y-1 pb-6">
               <div className="flex items-center justify-between">
-                <CardTitle className="text-2xl font-bold text-zinc-900 flex items-center gap-2">
+                <CardTitle className="text-2xl font-bold text-zinc-900 dark:text-white flex items-center gap-2">
                   {mode === "admin_reset" && <ShieldCheck className="w-6 h-6 text-[#74a800]" />}
                   {mode === "login" 
                     ? "Login" 
@@ -103,7 +106,7 @@ export default function LoginPage() {
                     type="button"
                     variant="ghost"
                     size="sm"
-                    className="text-xs text-zinc-500 hover:text-zinc-900"
+                    className="text-xs text-zinc-500 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-white"
                     onClick={() => {
                       setMode("login");
                       setError(null);
@@ -115,7 +118,7 @@ export default function LoginPage() {
                   </Button>
                 )}
               </div>
-              <CardDescription className="text-zinc-500">
+              <CardDescription className="text-zinc-500 dark:text-zinc-400">
                 {mode === "login"
                   ? "Enter your email below to login to your account."
                   : mode === "signup"
@@ -151,64 +154,86 @@ export default function LoginPage() {
                         Admin Authorization
                       </div>
                       <div className="space-y-2">
-                        <Label htmlFor="adminEmail" className="text-xs">Admin Email</Label>
+                        <Label htmlFor="adminEmail" className="text-xs text-zinc-700 dark:text-zinc-300 font-semibold">Admin Email</Label>
                         <Input 
                           id="adminEmail" 
                           name="adminEmail" 
                           type="email" 
                           placeholder="admin@foremark.in" 
                           required 
-                          className="bg-background h-9 text-sm" 
+                          className="bg-zinc-50 dark:bg-zinc-900/70 border-black/10 dark:border-white/10 rounded-xl h-10 text-zinc-900 dark:text-white placeholder:text-zinc-400 dark:placeholder:text-zinc-500 text-sm" 
                           disabled={loading}
                         />
                       </div>
                       <div className="space-y-2">
-                        <Label htmlFor="adminPassword" className="text-xs">Admin Password</Label>
-                        <Input 
-                          id="adminPassword" 
-                          name="adminPassword" 
-                          type="password" 
-                          placeholder="••••••••"
-                          required 
-                          className="bg-background h-9 text-sm" 
-                          disabled={loading}
-                        />
+                        <Label htmlFor="adminPassword" className="text-xs text-zinc-700 dark:text-zinc-300 font-semibold">Admin Password</Label>
+                        <div className="relative flex items-center">
+                          <Input 
+                            id="adminPassword" 
+                            name="adminPassword" 
+                            type={showAdminPassword ? "text" : "password"} 
+                            placeholder="••••••••"
+                            required 
+                            className="bg-zinc-50 dark:bg-zinc-900/70 border-black/10 dark:border-white/10 rounded-xl h-10 text-zinc-900 dark:text-white placeholder:text-zinc-400 dark:placeholder:text-zinc-500 text-sm pr-11" 
+                            disabled={loading}
+                          />
+                          <button
+                            type="button"
+                            onClick={() => setShowAdminPassword(!showAdminPassword)}
+                            className="absolute right-3 p-1 text-zinc-400 hover:text-zinc-600 dark:hover:text-white transition-colors cursor-pointer rounded-md focus:outline-none"
+                            tabIndex={-1}
+                            aria-label={showAdminPassword ? "Hide password" : "Show password"}
+                          >
+                            {showAdminPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                          </button>
+                        </div>
                       </div>
                     </div>
 
-                    <div className="rounded-lg border border-border bg-secondary/30 p-3 space-y-3">
+                    <div className="rounded-lg border border-border dark:border-white/10 bg-secondary/30 dark:bg-white/[0.04] p-3 space-y-3">
                       <div className="flex items-center gap-1.5 text-xs font-semibold text-foreground uppercase tracking-wider">
                         <KeyRound className="w-3.5 h-3.5 text-primary" />
                         Target User & New Password
                       </div>
                       <div className="space-y-2">
-                        <Label htmlFor="targetEmail" className="text-xs">Target User Email</Label>
+                        <Label htmlFor="targetEmail" className="text-xs text-zinc-700 dark:text-zinc-300 font-semibold">Target User Email</Label>
                         <Input 
                           id="targetEmail" 
                           name="targetEmail" 
                           type="email" 
                           placeholder="user@foremark.in" 
                           required 
-                          className="bg-background h-9 text-sm" 
+                          className="bg-zinc-50 dark:bg-zinc-900/70 border-black/10 dark:border-white/10 rounded-xl h-10 text-zinc-900 dark:text-white placeholder:text-zinc-400 dark:placeholder:text-zinc-500 text-sm" 
                           disabled={loading}
                         />
                       </div>
                       <div className="space-y-2">
-                        <Label htmlFor="newPassword" className="text-xs">New Password</Label>
-                        <Input 
-                          id="newPassword" 
-                          name="newPassword" 
-                          type="password" 
-                          placeholder="••••••••"
-                          required 
-                          minLength={8}
-                          className="bg-background h-9 text-sm" 
-                          disabled={loading}
-                        />
+                        <Label htmlFor="newPassword" className="text-xs text-zinc-700 dark:text-zinc-300 font-semibold">New Password</Label>
+                        <div className="relative flex items-center">
+                          <Input 
+                            id="newPassword" 
+                            name="newPassword" 
+                            type={showNewPassword ? "text" : "password"} 
+                            placeholder="••••••••"
+                            required 
+                            minLength={8}
+                            className="bg-zinc-50 dark:bg-zinc-900/70 border-black/10 dark:border-white/10 rounded-xl h-10 text-zinc-900 dark:text-white placeholder:text-zinc-400 dark:placeholder:text-zinc-500 text-sm pr-11" 
+                            disabled={loading}
+                          />
+                          <button
+                            type="button"
+                            onClick={() => setShowNewPassword(!showNewPassword)}
+                            className="absolute right-3 p-1 text-zinc-400 hover:text-zinc-600 dark:hover:text-white transition-colors cursor-pointer rounded-md focus:outline-none"
+                            tabIndex={-1}
+                            aria-label={showNewPassword ? "Hide password" : "Show password"}
+                          >
+                            {showNewPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                          </button>
+                        </div>
                         <p className="text-[11px] text-muted-foreground">Minimum 8 characters</p>
                       </div>
                       <div className="space-y-2">
-                        <Label htmlFor="confirmPassword" className="text-xs">Confirm New Password</Label>
+                        <Label htmlFor="confirmPassword" className="text-xs text-zinc-700 dark:text-zinc-300 font-semibold">Confirm New Password</Label>
                         <Input 
                           id="confirmPassword" 
                           name="confirmPassword" 
@@ -216,7 +241,7 @@ export default function LoginPage() {
                           placeholder="••••••••"
                           required 
                           minLength={8}
-                          className="bg-background h-9 text-sm" 
+                          className="bg-zinc-50 dark:bg-zinc-900/70 border-black/10 dark:border-white/10 rounded-xl h-10 text-zinc-900 dark:text-white placeholder:text-zinc-400 dark:placeholder:text-zinc-500 text-sm" 
                           disabled={loading}
                         />
                       </div>
@@ -225,31 +250,46 @@ export default function LoginPage() {
                 ) : (
                   <>
                     <div className="space-y-2">
-                      <Label htmlFor="email" className="text-xs text-zinc-700 font-semibold">Email Address</Label>
+                      <Label htmlFor="email" className="text-xs text-zinc-700 dark:text-zinc-300 font-semibold">Email Address</Label>
                        <Input 
                          id="email" 
                          name="email" 
                          type="email" 
                          placeholder="m@foremark.in" 
                          required 
-                         className="bg-zinc-50 border-black/10 rounded-xl h-10 text-zinc-900 placeholder:text-zinc-400 focus:border-[#c8f237] focus:ring-2 focus:ring-[#c8f237]/20 transition-all font-medium" 
+                         className="bg-zinc-50 dark:bg-zinc-900/70 border-black/10 dark:border-white/10 rounded-xl h-10 text-zinc-900 dark:text-white placeholder:text-zinc-400 dark:placeholder:text-zinc-500 focus:border-[#c8f237] focus:ring-2 focus:ring-[#c8f237]/20 transition-all font-medium" 
                          disabled={loading}
                        />
                      </div>
                      <div className="space-y-2">
-                      <Label htmlFor="password" className="text-xs text-zinc-700 font-semibold">Password</Label>
-                       <Input 
-                         id="password" 
-                         name="password" 
-                         type="password" 
-                         placeholder="••••••••" 
-                         required 
-                         className="bg-zinc-50 border-black/10 rounded-xl h-10 text-zinc-900 placeholder:text-zinc-400 focus:border-[#c8f237] focus:ring-2 focus:ring-[#c8f237]/20 transition-all" 
-                         disabled={loading}
-                         minLength={mode === "signup" ? 8 : undefined}
-                       />
+                      <Label htmlFor="password" className="text-xs text-zinc-700 dark:text-zinc-300 font-semibold">Password</Label>
+                       <div className="relative flex items-center">
+                         <Input 
+                           id="password" 
+                           name="password" 
+                           type={showPassword ? "text" : "password"} 
+                           placeholder="••••••••" 
+                           required 
+                           className="bg-zinc-50 dark:bg-zinc-900/70 border-black/10 dark:border-white/10 rounded-xl h-10 text-zinc-900 dark:text-white placeholder:text-zinc-400 dark:placeholder:text-zinc-500 focus:border-[#c8f237] focus:ring-2 focus:ring-[#c8f237]/20 transition-all pr-11 font-medium" 
+                           disabled={loading}
+                           minLength={mode === "signup" ? 8 : undefined}
+                         />
+                         <button
+                           type="button"
+                           onClick={() => setShowPassword(!showPassword)}
+                           className="absolute right-3 p-1 text-zinc-400 hover:text-zinc-600 dark:hover:text-white transition-colors cursor-pointer rounded-md focus:outline-none focus:ring-1 focus:ring-[#c8f237]"
+                           tabIndex={-1}
+                           aria-label={showPassword ? "Hide password" : "Show password"}
+                         >
+                           {showPassword ? (
+                             <EyeOff className="w-4 h-4" />
+                           ) : (
+                             <Eye className="w-4 h-4" />
+                           )}
+                         </button>
+                       </div>
                        {mode === "signup" && (
-                         <p className="text-xs text-zinc-500">
+                         <p className="text-xs text-zinc-500 dark:text-zinc-400">
                            Minimum 8 characters
                          </p>
                        )}
@@ -260,7 +300,7 @@ export default function LoginPage() {
                <CardFooter className="flex flex-col gap-3">
                  <Button 
                    type="submit" 
-                   className="w-full h-11 text-sm rounded-xl bg-[#c8f237] hover:bg-[#bde82f] shadow-md shadow-[#c8f237]/25 text-[#111318] font-bold active:scale-[0.98] transition-all"
+                   className="w-full h-11 text-sm rounded-xl bg-[#c8f237] hover:bg-[#bde82f] shadow-md shadow-[#c8f237]/25 text-[#111318] font-bold active:scale-[0.98] transition-all cursor-pointer"
                    disabled={loading}
                  >
                   {loading 
@@ -280,10 +320,10 @@ export default function LoginPage() {
                   <>
                     <div className="relative w-full my-1">
                       <div className="absolute inset-0 flex items-center">
-                        <span className="w-full border-t border-black/[0.08]" />
+                        <span className="w-full border-t border-black/[0.08] dark:border-white/10" />
                       </div>
                       <div className="relative flex justify-center text-xs uppercase">
-                        <span className="bg-white px-2 text-zinc-400 font-medium tracking-wider">
+                        <span className="bg-white dark:bg-[#151821] px-2 text-zinc-400 dark:text-zinc-400 font-medium tracking-wider">
                           {mode === "login" ? "New here?" : "Already have an account?"}
                         </span>
                       </div>
@@ -292,7 +332,7 @@ export default function LoginPage() {
                     <Button 
                       type="button" 
                       variant="outline" 
-                      className="w-full rounded-xl bg-zinc-50 border-black/10 text-zinc-700 hover:text-zinc-900 hover:bg-zinc-100 font-medium transition-all"
+                      className="w-full rounded-xl bg-zinc-50 dark:bg-white/[0.06] border border-black/10 dark:border-white/10 text-zinc-700 dark:text-zinc-200 hover:text-zinc-900 dark:hover:text-white hover:bg-zinc-100 dark:hover:bg-white/10 font-medium transition-all cursor-pointer"
                       onClick={() => {
                         setMode(mode === "login" ? "signup" : "login");
                         setError(null);
@@ -305,7 +345,7 @@ export default function LoginPage() {
 
                     <button
                       type="button"
-                      className="text-xs text-zinc-500 hover:text-zinc-900 transition-colors flex items-center justify-center gap-1.5 pt-1 font-medium"
+                      className="text-xs text-zinc-500 hover:text-zinc-900 dark:text-zinc-400 dark:hover:text-white transition-colors flex items-center justify-center gap-1.5 pt-1 font-medium cursor-pointer"
                       onClick={() => {
                         setMode("admin_reset");
                         setError(null);
@@ -320,7 +360,7 @@ export default function LoginPage() {
                   <Button 
                     type="button" 
                     variant="outline" 
-                    className="w-full rounded-xl bg-zinc-50 border-black/10 text-zinc-700 hover:text-zinc-900 hover:bg-zinc-100 font-medium transition-all"
+                    className="w-full rounded-xl bg-zinc-50 dark:bg-white/[0.06] border border-black/10 dark:border-white/10 text-zinc-700 dark:text-zinc-200 hover:text-zinc-900 dark:hover:text-white hover:bg-zinc-100 dark:hover:bg-white/10 font-medium transition-all cursor-pointer"
                     onClick={() => {
                       setMode("login");
                       setError(null);
@@ -337,10 +377,10 @@ export default function LoginPage() {
         </div>
         
         <div className="text-center">
-          <span className="inline-flex items-center justify-center rounded-full border border-[#c8f237]/60 bg-[#c8f237]/20 px-3.5 py-1 text-xs font-semibold text-zinc-800 shadow-xs">
+          <span className="inline-flex items-center justify-center rounded-full border border-[#c8f237]/60 bg-[#c8f237]/20 px-3.5 py-1 text-xs font-semibold text-zinc-800 dark:text-zinc-200 shadow-xs">
             Invite-Only Access
           </span>
-          <p className="text-xs text-zinc-500 mt-2">
+          <p className="text-xs text-zinc-500 dark:text-zinc-400 mt-2">
             Only pre-approved team members can sign in.
           </p>
         </div>
