@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { Suspense, useState, useEffect } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import LeadsTable from "@/components/leads/LeadsTable";
 import { Button } from "@/components/ui/button";
@@ -8,7 +8,7 @@ import { Plus } from "lucide-react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { LeadForm } from "@/components/leads/LeadForm";
 
-export default function LeadsPage() {
+function LeadsContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const [dialogOpen, setDialogOpen] = useState(false);
@@ -62,5 +62,13 @@ export default function LeadsPage() {
 
       <LeadsTable />
     </div>
+  );
+}
+
+export default function LeadsPage() {
+  return (
+    <Suspense fallback={null}>
+      <LeadsContent />
+    </Suspense>
   );
 }
