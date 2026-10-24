@@ -173,6 +173,7 @@ export function WonDealsDashboard({ leads }: WonDealsDashboardProps) {
         const tracker: ProjectTrackerData = {
           leadId: lead.id,
           projectName: `${item.company} Delivery`,
+          projectType: (item as any).projectType || "Corporate Website",
           projectManager: item.projectManager,
           kickoffDate: "2026-10-01",
           targetDeliveryDate: item.targetDeliveryDate,
@@ -1342,6 +1343,9 @@ export function WonDealsDashboard({ leads }: WonDealsDashboardProps) {
                             </span>
                             <span className="text-[11px] text-zinc-500 dark:text-zinc-400 block truncate max-w-[160px]">
                               {p.lead.company || "Direct Client Project"}
+                            </span>
+                            <span className="inline-flex items-center gap-1 text-[10px] font-bold text-[#15803d] dark:text-[#c8f237] mt-0.5">
+                              {p.tracker.projectType || "Corporate Website"}
                             </span>
                           </div>
                         </div>

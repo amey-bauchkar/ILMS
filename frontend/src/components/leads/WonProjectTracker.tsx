@@ -69,6 +69,7 @@ export interface ProjectMilestone {
 export interface ProjectTrackerData {
   leadId: string;
   projectName: string;
+  projectType?: string;
   websitePreset?: "corporate" | "ecommerce" | "landing" | "portfolio" | "saas" | "custom";
   status: "Planning" | "In Progress" | "On Track" | "At Risk" | "Completed";
   progressPercent: number; // 0 - 100
@@ -588,9 +589,12 @@ function getDefaultTrackerData(lead: EnrichedLead): ProjectTrackerData {
     }
   ];
 
+  const initialType = (lead as any).service || "Corporate Website";
+
   return {
     leadId: lead.id,
-    projectName: lead.company ? `${lead.company} - Corporate Website Project` : `${lead.name} - Corporate Website Project`,
+    projectName: lead.company ? `${lead.company} - ${initialType}` : `${lead.name} - ${initialType}`,
+    projectType: initialType,
     websitePreset: "corporate",
     status: "On Track",
     progressPercent: 40, // 2 out of 5 milestones done
@@ -620,11 +624,14 @@ export function loadTracker(lead: EnrichedLead): ProjectTrackerData {
           m.title?.toLowerCase().includes("phase 1: core project")
         );
 
+        const projectType = parsed.projectType || (lead as any).service || "Corporate Website";
+
         if (hasLegacySprints || !Array.isArray(parsed.milestones) || parsed.milestones.length === 0) {
           const freshMilestones = buildMilestonesFromPreset("corporate", lead, true);
           parsed.milestones = freshMilestones;
+          parsed.projectType = projectType;
           parsed.websitePreset = "corporate";
-          parsed.projectName = lead.company ? `${lead.company} - Corporate Website Project` : `${lead.name} - Corporate Website Project`;
+          parsed.projectName = lead.company ? `${lead.company} - ${projectType}` : `${lead.name} - ${projectType}`;
           parsed.progressPercent = 40;
           try {
             localStorage.setItem(`${STORAGE_PREFIX}${lead.id}`, JSON.stringify(parsed));
@@ -632,6 +639,7 @@ export function loadTracker(lead: EnrichedLead): ProjectTrackerData {
           return parsed;
         }
 
+        parsed.projectType = projectType;
         parsed.websitePreset = parsed.websitePreset || "corporate";
         if (!Array.isArray(parsed.dailyLogs)) {
           parsed.dailyLogs = [];
@@ -700,7 +708,6 @@ export function WonProjectTracker({ lead, className }: WonProjectTrackerProps) {
     "m-3": true // Default active milestone expanded
   }));
   const [newStepInputs, setNewStepInputs] = useState<Record<string, string>>({});
-  const [editingScopeMilestoneId, setEditingScopeMilestoneId] = useState<string | null>(null);
 
   // Re-read storage on client mount or if lead id changes
   useEffect(() => {
@@ -742,6 +749,7 @@ export function WonProjectTracker({ lead, className }: WonProjectTrackerProps) {
 
     updateData((prev) => ({
       ...prev,
+      projectType: preset.label,
       websitePreset: presetId as any,
       projectName: lead.company ? `${lead.company} - ${preset.projectNameSuffix}` : `${lead.name} - ${preset.projectNameSuffix}`,
       milestones: newMilestones,
@@ -757,6 +765,15 @@ export function WonProjectTracker({ lead, className }: WonProjectTrackerProps) {
     }
 
     toast.success(`🎉 1-Click Website Created: Applied "${preset.label}"!`);
+  };
+
+  // Update Project Type directly (allows writing custom project type)
+  const handleUpdateProjectType = (newType: string) => {
+    updateData((prev) => ({
+      ...prev,
+      projectType: newType,
+      projectName: lead.company ? `${lead.company} - ${newType}` : `${lead.name} - ${newType}`
+    }));
   };
 
   // 1. Progress Management: Adjust percent directly
@@ -1112,6 +1129,12 @@ export function WonProjectTracker({ lead, className }: WonProjectTrackerProps) {
                 {lead.company && <span>• Organization: <strong>{lead.company}</strong></span>}
                 <span>• Lead Manager: <strong>{data.projectManager}</strong></span>
                 <span>• Kickoff: <strong>{data.kickoffDate}</strong></span>
+                <span>
+                  • Project Type:{" "}
+                  <strong className="text-[#15803d] dark:text-[#c8f237] font-black bg-[#c8f237]/20 px-2 py-0.5 rounded-md border border-black/10 dark:border-white/10">
+                    {data.projectType || "Corporate Website"}
+                  </strong>
+                </span>
               </p>
             </div>
           </div>
@@ -1429,25 +1452,78 @@ export function WonProjectTracker({ lead, className }: WonProjectTrackerProps) {
 
                     {/* 2-Column Split: Scope & Deliverables Blueprint (Left) & Action Steps Checklist (Right) */}
                     <div className="grid md:grid-cols-2 gap-4 mt-3 pt-1">
-                      {/* Col 1: Scope & Deliverables Blueprint */}
-                      <div className="flex flex-col space-y-2 p-3.5 rounded-xl bg-[#f8fafc]/90 dark:bg-white/[0.02] border border-black/[0.06] dark:border-white/10">
-                        <div className="flex items-center justify-between">
-                          <div className="flex items-center gap-1.5 text-[11px] font-bold text-[#111318] dark:text-white uppercase tracking-wider">
-                            <Globe className="w-3.5 h-3.5 text-[#15803d] dark:text-[#c8f237]" />
-                            <span>Website Scope & Specifications</span>
+                      {/* Col 1: Project Type & Scope Blueprint */}
+                      <div className="flex flex-col space-y-2.5 p-3.5 rounded-xl bg-[#f8fafc]/90 dark:bg-white/[0.02] border border-black/[0.06] dark:border-white/10">
+                        {/* Project Type Input Section */}
+                        <div className="space-y-1.5 pb-2.5 border-b border-black/[0.06] dark:border-white/10">
+                          <div className="flex items-center justify-between">
+                            <label className="text-[10px] font-black uppercase tracking-wider text-[#111318] dark:text-white flex items-center gap-1.5">
+                              <Briefcase className="w-3.5 h-3.5 text-[#15803d] dark:text-[#c8f237]" />
+                              <span>Project Type</span>
+                            </label>
+                            <span className="text-[10px] text-zinc-400 font-medium">Write or click preset:</span>
                           </div>
-                          <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-emerald-500/10 text-emerald-700 dark:text-emerald-400 border border-emerald-500/20">
-                            ✓ 1-Click Configured
-                          </span>
+                          <div className="relative">
+                            <input
+                              type="text"
+                              value={data.projectType || "Corporate Website"}
+                              onChange={(e) => handleUpdateProjectType(e.target.value)}
+                              placeholder="Write what is the project type (e.g. Corporate Website, E-Commerce Store, Mobile App)..."
+                              className="w-full bg-white dark:bg-white/[0.06] border border-black/[0.12] dark:border-white/15 rounded-lg px-2.5 py-1.5 text-xs font-bold text-[#111318] dark:text-white placeholder:text-zinc-400 focus:outline-none focus:border-[#111318] shadow-2xs"
+                            />
+                          </div>
+
+                          {/* Quick 1-Click Type Pills */}
+                          <div className="flex items-center gap-1 flex-wrap pt-0.5">
+                            {Object.values(WEBSITE_PRESETS).map((p) => {
+                              const isSelected = (data.projectType || "").toLowerCase().includes(p.label.toLowerCase());
+                              return (
+                                <button
+                                  key={p.id}
+                                  type="button"
+                                  onClick={() => {
+                                    handleUpdateProjectType(p.label);
+                                    handleApplyWebsitePreset(p.id);
+                                  }}
+                                  className={cn(
+                                    "px-2 py-0.5 rounded-md text-[10px] font-bold border transition-all flex items-center gap-1",
+                                    isSelected
+                                      ? "bg-[#111318] text-white dark:bg-white dark:text-[#111318] border-black shadow-2xs"
+                                      : "bg-white dark:bg-white/[0.04] text-zinc-600 dark:text-zinc-300 border-black/10 hover:border-[#c8f237] hover:bg-[#c8f237]/15"
+                                  )}
+                                  title={`Select ${p.label}`}
+                                >
+                                  <span>{p.emoji}</span>
+                                  <span>{p.label}</span>
+                                </button>
+                              );
+                            })}
+                          </div>
                         </div>
 
-                        {/* Pre-filled Scope Description Box (No empty typing required!) */}
-                        <div className="p-3 rounded-xl bg-white dark:bg-white/[0.04] border border-black/[0.08] dark:border-white/10 text-xs text-[#111318] dark:text-zinc-200 leading-relaxed font-normal shadow-2xs">
-                          {m.description || "Website deliverables, responsive layout, assets, and QA specifications configured for this phase."}
+                        {/* Milestone Deliverables & Scope Specifications */}
+                        <div className="space-y-1.5">
+                          <div className="flex items-center justify-between">
+                            <label className="text-[10px] font-black uppercase tracking-wider text-[#111318] dark:text-white flex items-center gap-1.5">
+                              <FileText className="w-3.5 h-3.5 text-[#15803d] dark:text-[#c8f237]" />
+                              <span>Milestone Scope & Client Specifications</span>
+                            </label>
+                            <span className="text-[10px] font-medium text-emerald-700 dark:text-emerald-400 bg-emerald-500/10 px-2 py-0.5 rounded-full border border-emerald-500/20">
+                              ✓ Auto-saved
+                            </span>
+                          </div>
+
+                          <textarea
+                            rows={3}
+                            value={m.description || ""}
+                            onChange={(e) => handleUpdateMilestoneDescription(m.id, e.target.value)}
+                            placeholder={`Write specific requirements, deliverables, and notes for this ${data.projectType || "project"} milestone...`}
+                            className="w-full bg-white dark:bg-white/[0.04] border border-black/[0.1] dark:border-white/10 rounded-lg p-2.5 text-xs text-[#111318] dark:text-white placeholder:text-zinc-400 focus:outline-none focus:border-[#111318] resize-y shadow-2xs"
+                          />
                         </div>
 
                         {/* Phase Key Deliverable Tags */}
-                        <div className="pt-1">
+                        <div className="pt-0.5">
                           <span className="text-[10px] font-bold uppercase text-zinc-400 tracking-wider">Phase Inclusions:</span>
                           <div className="grid grid-cols-2 gap-1.5 mt-1 text-[11px] text-zinc-600 dark:text-zinc-300 font-medium">
                             <span className="flex items-center gap-1.5">
@@ -1468,28 +1544,6 @@ export function WonProjectTracker({ lead, className }: WonProjectTrackerProps) {
                             </span>
                           </div>
                         </div>
-
-                        {/* Optional Scope Edit Toggle (Only when user specifically wants to modify text) */}
-                        <div className="pt-1 border-t border-black/[0.06] dark:border-white/10 flex items-center justify-between">
-                          <button
-                            type="button"
-                            onClick={() => setEditingScopeMilestoneId(editingScopeMilestoneId === m.id ? null : m.id)}
-                            className="text-[10px] font-semibold text-zinc-500 hover:text-black dark:hover:text-white underline"
-                          >
-                            {editingScopeMilestoneId === m.id ? "Close Editor" : "Edit Scope Notes"}
-                          </button>
-                          <span className="text-[10px] text-zinc-400 font-medium">💾 Auto-saved locally</span>
-                        </div>
-
-                        {editingScopeMilestoneId === m.id && (
-                          <textarea
-                            rows={3}
-                            value={m.description || ""}
-                            onChange={(e) => handleUpdateMilestoneDescription(m.id, e.target.value)}
-                            placeholder="Add specific custom client requirements or scope notes..."
-                            className="w-full bg-white dark:bg-white/[0.04] border border-black/[0.1] dark:border-white/10 rounded-lg p-2 text-xs text-[#111318] dark:text-white placeholder:text-zinc-400 focus:outline-none focus:border-[#111318] resize-y animate-in fade-in duration-100"
-                          />
-                        )}
                       </div>
 
                       {/* Col 2: Action Steps & Deliverables Checklist */}
