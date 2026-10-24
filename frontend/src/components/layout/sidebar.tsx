@@ -11,12 +11,14 @@ import {
   Headphones, 
   ArrowLeft, 
   MessageSquare,
-  Compass
+  Compass,
+  Trophy
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 export const navItems = [
   { name: "Dashboard", href: "/dashboard", icon: Compass },
+  { name: "Projects", href: "/won-deals", icon: Trophy },
   { name: "Leads", href: "/leads", icon: Users },
   { name: "Pulse", href: "/dashboard?tab=pulse", icon: MessageSquare },
   { name: "Settings", href: "/settings", icon: Settings },

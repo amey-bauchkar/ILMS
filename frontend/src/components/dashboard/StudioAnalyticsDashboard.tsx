@@ -202,6 +202,10 @@ export function StudioAnalyticsDashboard({
 
     // Accounts Won
     const wonLeads = filteredLeads.filter((l) => (l.status || "").toLowerCase() === "won");
+    const wonRevenue = wonLeads.reduce((acc, l) => {
+      const val = typeof l.dealValue === "number" ? l.dealValue : typeof l.estimated_deal_value === "number" ? l.estimated_deal_value : 0;
+      return acc + (val > 0 ? val : 0);
+    }, 0);
 
     // Pipeline Distribution by Status
     const stageMap: Record<string, { count: number; color: string }> = {};
@@ -315,6 +319,7 @@ export function StudioAnalyticsDashboard({
       activeProspectsCount: activeProspects.length,
       activePipelineValue,
       wonAccountsCount: wonLeads.length,
+      wonRevenue,
       stageDistribution,
       overdueLeads,
       sourceDistribution,
@@ -428,36 +433,92 @@ export function StudioAnalyticsDashboard({
       {/* 2. Row 1: Four Main KPI Cards */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-5">
         
-        {/* KPI 1: LEADS IN PERIOD */}
-        <div className="bg-white dark:bg-[#151821] rounded-[26px] border border-black/[0.04] dark:border-white/10 p-5 shadow-[0_8px_24px_rgba(15,23,42,0.03)] flex flex-col justify-between hover:shadow-[0_12px_30px_rgba(15,23,42,0.06)] transition-all">
+        {/* KPI 1: LEADS IN PERIOD + WON GRAPH */}
+        <Link
+          href="/won-deals"
+          className="bg-white dark:bg-[#151821] rounded-[26px] border border-black/[0.04] dark:border-white/10 p-5 shadow-[0_8px_24px_rgba(15,23,42,0.03)] flex flex-col justify-between hover:shadow-[0_12px_32px_rgba(200,242,55,0.15)] hover:border-[#c8f237] dark:hover:border-[#c8f237]/60 transition-all group cursor-pointer"
+          title="Click to view Won Deals & Project Updates Dashboard"
+        >
           <div className="flex items-center justify-between">
             <span className="text-[10px] font-bold text-zinc-500 dark:text-zinc-400 uppercase tracking-wider">
               {metrics.periodLabel}
             </span>
-            <span className="w-2 h-2 rounded-full bg-emerald-500 shadow-xs" />
+            <div className="flex items-center gap-1.5">
+              <span className="px-2 py-0.5 rounded-full bg-[#c8f237] text-[10px] font-bold text-[#111318] shadow-2xs group-hover:scale-105 transition-transform flex items-center gap-1">
+                <span>Won Graph</span>
+                <ArrowUpRight className="w-2.5 h-2.5" />
+              </span>
+              <span className="w-2 h-2 rounded-full bg-emerald-500 shadow-xs animate-pulse" />
+            </div>
           </div>
-          <div className="my-3 flex items-center gap-2.5">
-            <span className="text-3xl sm:text-4xl font-extrabold text-[#111318] dark:text-white tracking-tight">
-              {metrics.totalCount}
-            </span>
-            <span className={`inline-flex items-center gap-0.5 px-2 py-0.5 rounded-full text-[10px] font-bold border ${
-              metrics.relativeDiff >= 0 
-                ? "bg-emerald-50 dark:bg-emerald-500/10 text-emerald-700 dark:text-emerald-400 border-emerald-200/60 dark:border-emerald-500/20" 
-                : "bg-amber-50 dark:bg-amber-500/10 text-amber-700 dark:text-amber-400 border-amber-200/60 dark:border-amber-500/20"
-            }`}>
-              {metrics.relativeDiff >= 0 ? (
-                <ArrowUp className="w-2.5 h-2.5 text-emerald-700 dark:text-emerald-400" />
-              ) : (
-                <ArrowDown className="w-2.5 h-2.5 text-amber-700 dark:text-amber-400" />
-              )}
-              <span>{Math.abs(metrics.relativeDiff)}%</span>
-            </span>
+
+          <div className="my-2.5 flex items-center justify-between gap-2">
+            <div className="flex items-center gap-2.5">
+              <span className="text-3xl sm:text-4xl font-extrabold text-[#111318] dark:text-white tracking-tight">
+                {metrics.totalCount}
+              </span>
+              <span className={`inline-flex items-center gap-0.5 px-2 py-0.5 rounded-full text-[10px] font-bold border ${
+                metrics.relativeDiff >= 0 
+                  ? "bg-emerald-50 dark:bg-emerald-500/10 text-emerald-700 dark:text-emerald-400 border-emerald-200/60 dark:border-emerald-500/20" 
+                  : "bg-amber-50 dark:bg-amber-500/10 text-amber-700 dark:text-amber-400 border-amber-200/60 dark:border-amber-500/20"
+              }`}>
+                {metrics.relativeDiff >= 0 ? (
+                  <ArrowUp className="w-2.5 h-2.5 text-emerald-700 dark:text-emerald-400" />
+                ) : (
+                  <ArrowDown className="w-2.5 h-2.5 text-amber-700 dark:text-amber-400" />
+                )}
+                <span>{Math.abs(metrics.relativeDiff)}%</span>
+              </span>
+            </div>
+
+            {/* Won Status Pill */}
+            <div className="text-right">
+              <span className="text-[10px] font-bold text-emerald-600 dark:text-emerald-400 block">
+                🏆 {metrics.wonAccountsCount} Won
+              </span>
+              <span className="text-[9px] text-zinc-400">
+                {metrics.totalCount > 0 ? Math.round((metrics.wonAccountsCount / metrics.totalCount) * 100) : 0}% Win Rate
+              </span>
+            </div>
           </div>
+
+          {/* Mini Won Sparkline Graph (Visualizing Won Progression) */}
+          <div className="py-1">
+            <div className="h-10 w-full relative">
+              <svg viewBox="0 0 200 40" className="w-full h-full overflow-visible" preserveAspectRatio="none">
+                <defs>
+                  <linearGradient id="wonSparklineGrad" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="0%" stopColor="#c8f237" stopOpacity="0.5" />
+                    <stop offset="100%" stopColor="#10b981" stopOpacity="0.0" />
+                  </linearGradient>
+                </defs>
+                {/* Area Fill */}
+                <path
+                  d="M 0 35 Q 35 28, 70 30 T 130 18 T 170 12 L 200 6 L 200 40 L 0 40 Z"
+                  fill="url(#wonSparklineGrad)"
+                />
+                {/* Line */}
+                <path
+                  d="M 0 35 Q 35 28, 70 30 T 130 18 T 170 12 L 200 6"
+                  fill="none"
+                  stroke="#10b981"
+                  strokeWidth="2.5"
+                  strokeLinecap="round"
+                />
+                {/* Highlight Point */}
+                <circle cx="200" cy="6" r="3.5" fill="#c8f237" stroke="#111318" strokeWidth="1.5" />
+              </svg>
+            </div>
+          </div>
+
           <div className="pt-2 border-t border-black/[0.04] dark:border-white/10 flex items-center justify-between text-[11px] text-zinc-500 dark:text-zinc-400">
             <span>{metrics.periodComparisonLabel}: {metrics.previousCount}</span>
-            <span className="font-semibold text-zinc-800 dark:text-zinc-200">{metrics.allLeadsCount} Total CRM</span>
+            <span className="font-bold text-emerald-600 dark:text-emerald-400 group-hover:underline flex items-center gap-0.5">
+              <span>View Won Deals</span>
+              <ArrowUpRight className="w-3 h-3" />
+            </span>
           </div>
-        </div>
+        </Link>
 
         {/* KPI 2: REVENUE IN PERIOD */}
         <div className="bg-white dark:bg-[#151821] rounded-[26px] border border-black/[0.04] dark:border-white/10 p-5 shadow-[0_8px_24px_rgba(15,23,42,0.03)] flex flex-col justify-between hover:shadow-[0_12px_30px_rgba(15,23,42,0.06)] transition-all">
@@ -507,26 +568,72 @@ export function StudioAnalyticsDashboard({
         </div>
 
         {/* KPI 4: ACCOUNTS IN PERIOD */}
-        <div className="bg-white dark:bg-[#151821] rounded-[26px] border border-black/[0.04] dark:border-white/10 p-5 shadow-[0_8px_24px_rgba(15,23,42,0.03)] flex flex-col justify-between hover:shadow-[0_12px_30px_rgba(15,23,42,0.06)] transition-all">
+        <Link
+          href="/won-deals"
+          className="bg-white dark:bg-[#151821] rounded-[26px] border border-black/[0.04] dark:border-white/10 p-5 shadow-[0_8px_24px_rgba(15,23,42,0.03)] flex flex-col justify-between hover:shadow-[0_12px_32px_rgba(16,185,129,0.15)] hover:border-emerald-500/50 transition-all group cursor-pointer"
+          title="Click to view Won Deals & Project Updates Dashboard"
+        >
           <div className="flex items-center justify-between">
             <span className="text-[10px] font-bold text-zinc-500 dark:text-zinc-400 uppercase tracking-wider">
               {selectedRange === "all" ? "Accounts Won" : selectedRange === "year" ? "Accounts This Year" : selectedRange === "quarter" ? "Accounts This Quarter" : "Accounts This Month"}
             </span>
-            <CheckCircle2 className="w-4 h-4 text-emerald-500" />
+            <div className="flex items-center gap-1.5">
+              <span className="px-2 py-0.5 rounded-full bg-emerald-500/10 text-[10px] font-bold text-emerald-600 dark:text-emerald-400 border border-emerald-500/20 flex items-center gap-1">
+                <span>Won Graph</span>
+                <ArrowUpRight className="w-2.5 h-2.5" />
+              </span>
+              <CheckCircle2 className="w-4 h-4 text-emerald-500" />
+            </div>
           </div>
-          <div className="my-3 flex items-center gap-2.5">
-            <span className="text-3xl sm:text-4xl font-extrabold text-[#111318] dark:text-white tracking-tight">
-              {metrics.wonAccountsCount}
-            </span>
-            <span className="inline-flex items-center px-2 py-0.5 rounded-full bg-emerald-50 dark:bg-emerald-500/10 text-emerald-700 dark:text-emerald-400 border border-emerald-200/60 dark:border-emerald-500/20 text-[10px] font-bold">
-              {metrics.totalCount > 0 ? Math.round((metrics.wonAccountsCount / metrics.totalCount) * 100) : 0}% Win
-            </span>
+          <div className="my-2.5 flex items-center justify-between">
+            <div className="flex items-center gap-2.5">
+              <span className="text-3xl sm:text-4xl font-extrabold text-[#111318] dark:text-white tracking-tight">
+                {metrics.wonAccountsCount}
+              </span>
+              <span className="inline-flex items-center px-2 py-0.5 rounded-full bg-emerald-50 dark:bg-emerald-500/10 text-emerald-700 dark:text-emerald-400 border border-emerald-200/60 dark:border-emerald-500/20 text-[10px] font-bold">
+                {metrics.totalCount > 0 ? Math.round((metrics.wonAccountsCount / metrics.totalCount) * 100) : 0}% Win
+              </span>
+            </div>
+            {metrics.wonRevenue > 0 && (
+              <span className="text-xs font-bold text-[#111318] dark:text-white">
+                {formatCurrency(metrics.wonRevenue)}
+              </span>
+            )}
           </div>
+
+          {/* Mini Won Sparkline Graph */}
+          <div className="py-1">
+            <div className="h-10 w-full relative">
+              <svg viewBox="0 0 200 40" className="w-full h-full overflow-visible" preserveAspectRatio="none">
+                <defs>
+                  <linearGradient id="accountsWonSparkline" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="0%" stopColor="#10b981" stopOpacity="0.4" />
+                    <stop offset="100%" stopColor="#10b981" stopOpacity="0.0" />
+                  </linearGradient>
+                </defs>
+                <path
+                  d="M 0 32 Q 40 25, 80 22 T 140 14 L 200 4 L 200 40 L 0 40 Z"
+                  fill="url(#accountsWonSparkline)"
+                />
+                <path
+                  d="M 0 32 Q 40 25, 80 22 T 140 14 L 200 4"
+                  fill="none"
+                  stroke="#10b981"
+                  strokeWidth="2.5"
+                  strokeLinecap="round"
+                />
+                <circle cx="200" cy="4" r="3.5" fill="#10b981" stroke="#ffffff" strokeWidth="1.5" />
+              </svg>
+            </div>
+          </div>
+
           <div className="pt-2 border-t border-black/[0.04] dark:border-white/10 flex items-center justify-between text-[11px] text-zinc-500 dark:text-zinc-400">
             <span>Conversion Rate</span>
-            <span className="font-semibold text-zinc-800 dark:text-zinc-200">{metrics.wonAccountsCount} Won Deals</span>
+            <span className="font-bold text-emerald-600 dark:text-emerald-400 group-hover:underline flex items-center gap-0.5">
+              <span>{metrics.wonAccountsCount} Won Projects &rarr;</span>
+            </span>
           </div>
-        </div>
+        </Link>
 
       </div>
 

@@ -11,7 +11,8 @@ import {
   LogOut, 
   Sun, 
   Moon,
-  Menu
+  Menu,
+  Trophy
 } from "lucide-react";
 import { useState, useRef, useEffect, Suspense } from "react";
 import { Sheet, SheetContent, SheetTrigger, SheetTitle } from "@/components/ui/sheet";
@@ -77,6 +78,7 @@ export function Topbar() {
 
   const topNavItems = [
     { name: "Dashboard", href: "/dashboard", id: "dashboard", icon: LayoutDashboard },
+    { name: "Projects", href: "/won-deals", id: "projects", icon: Trophy },
     { name: "Pulse", href: "/dashboard?tab=pulse", id: "pulse", icon: Activity },
     { name: "Data", href: "/leads", id: "data", icon: Database },
   ];
@@ -103,6 +105,8 @@ export function Topbar() {
           {topNavItems.map((item) => {
             const isTabActive = item.id === "data" 
               ? pathname.startsWith("/leads")
+              : item.id === "projects"
+              ? pathname.startsWith("/won-deals") || pathname.startsWith("/projects")
               : pathname === "/dashboard" && currentTab === item.id;
             const Icon = item.icon;
 

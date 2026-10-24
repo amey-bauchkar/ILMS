@@ -361,7 +361,18 @@ export default function LeadsTable() {
                                             </Link>
                                         </TableCell>
                                         <TableCell>
-                                            <DotBadge color={lead.statusColor} label={lead.status} />
+                                            <div className="flex items-center gap-1.5 flex-wrap">
+                                                <DotBadge color={lead.statusColor} label={lead.status} />
+                                                {lead.status.toLowerCase() === "won" && (
+                                                    <Link
+                                                        href={`/leads/${lead.id}`}
+                                                        className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-[#c8f237] text-[#111318] hover:bg-[#b5e028] shadow-2xs transition-transform active:scale-95"
+                                                        title="Open Project Update"
+                                                    >
+                                                        📊 Project Update
+                                                    </Link>
+                                                )}
+                                            </div>
                                         </TableCell>
                                         <TableCell>
                                             <DotBadge color={priorityColors[lead.priority]} label={lead.priority} />

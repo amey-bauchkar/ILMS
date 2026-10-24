@@ -117,34 +117,34 @@ function ConfirmDialog({
         <div className="space-y-4 py-2">
           {isWon && (
             <div className="flex items-center gap-3 p-3.5 rounded-xl bg-emerald-500/10 border border-emerald-500/25">
-              <Trophy className="h-6 w-6 text-emerald-400 shrink-0" />
-              <p className="text-sm text-zinc-200">
+              <Trophy className="h-6 w-6 text-emerald-600 dark:text-emerald-400 shrink-0" />
+              <p className="text-sm text-[#111318] dark:text-zinc-200">
                 Congratulations! Moving this lead to{" "}
-                <span className="font-bold text-emerald-400">Won</span> stage.
+                <span className="font-bold text-emerald-600 dark:text-emerald-400">Won</span> stage will unlock the active Project Update & Daily Activity Sheet.
               </p>
             </div>
           )}
 
           {isLost && (
             <div className="space-y-3">
-              <p className="text-sm text-zinc-300">
+              <p className="text-sm text-zinc-700 dark:text-zinc-300">
                 Current status:{" "}
-                <span className="font-semibold text-white">{currentStatusName}</span>
+                <span className="font-semibold text-[#111318] dark:text-white">{currentStatusName}</span>
               </p>
               <div className="space-y-2">
-                <label className="text-xs font-semibold text-zinc-200 uppercase tracking-wider">
-                  Reason for Loss <span className="text-rose-400">*</span>
+                <label className="text-xs font-semibold text-zinc-700 dark:text-zinc-200 uppercase tracking-wider">
+                  Reason for Loss <span className="text-rose-500">*</span>
                 </label>
                 <Select
                   value={lostReason}
                   onValueChange={(v) => setLostReason(v as LostReason)}
                 >
-                  <SelectTrigger className="w-full bg-zinc-900/90 border-white/15 text-zinc-100 focus:ring-rose-500">
+                  <SelectTrigger className="w-full bg-white dark:bg-zinc-900 border border-black/10 dark:border-white/15 text-[#111318] dark:text-zinc-100 focus:ring-rose-500">
                     <SelectValue placeholder="Select a reason..." />
                   </SelectTrigger>
-                  <SelectContent className="bg-zinc-900 border-white/10 text-zinc-100">
+                  <SelectContent className="bg-white dark:bg-zinc-900 border border-black/10 dark:border-white/10 text-[#111318] dark:text-zinc-100">
                     {LOST_REASONS.map((r) => (
-                      <SelectItem key={r} value={r} className="focus:bg-white/10 focus:text-white">
+                      <SelectItem key={r} value={r} className="focus:bg-black/5 dark:focus:bg-white/10">
                         {r}
                       </SelectItem>
                     ))}
@@ -155,13 +155,13 @@ function ConfirmDialog({
           )}
 
           {!isWon && !isLost && (
-            <div className="p-3 rounded-xl bg-white/[0.04] border border-white/10 text-sm text-zinc-300 flex items-center gap-2">
+            <div className="p-3 rounded-xl bg-black/[0.03] dark:bg-white/[0.04] border border-black/[0.08] dark:border-white/10 text-sm text-zinc-700 dark:text-zinc-300 flex items-center gap-2">
               <span>Change status from</span>
-              <span className="font-semibold text-zinc-100 px-2 py-0.5 rounded bg-white/10">
+              <span className="font-semibold text-[#111318] dark:text-zinc-100 px-2 py-0.5 rounded bg-black/5 dark:bg-white/10">
                 {currentStatusName}
               </span>
               <ArrowRight className="h-3.5 w-3.5 text-zinc-400" />
-              <span className="font-bold text-white px-2 py-0.5 rounded bg-primary/20 text-primary border border-primary/30">
+              <span className="font-bold text-[#111318] dark:text-white px-2 py-0.5 rounded bg-[#c8f237]/20 border border-black/10">
                 {targetStatusName}
               </span>
             </div>
@@ -172,7 +172,7 @@ function ConfirmDialog({
           <Button
             variant="outline"
             onClick={onCancel}
-            className="border-white/15 text-zinc-300 hover:bg-white/5 hover:text-white"
+            className="border-black/10 dark:border-white/15 text-zinc-700 dark:text-zinc-300 hover:bg-black/5 dark:hover:bg-white/5"
           >
             Cancel
           </Button>
