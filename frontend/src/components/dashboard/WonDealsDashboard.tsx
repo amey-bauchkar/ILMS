@@ -233,6 +233,25 @@ export function WonDealsDashboard({ leads }: WonDealsDashboardProps) {
     return compiled;
   }, [leads, reloadKey, preview25Mode]);
 
+  // Handle URL param to auto-open specific tracker in drawer
+  useEffect(() => {
+    if (typeof window !== "undefined" && wonProjects.length > 0 && !selectedProject) {
+      const sp = new URLSearchParams(window.location.search);
+      const trackerParam = sp.get("tracker") || sp.get("open");
+      if (trackerParam) {
+        const found = wonProjects.find((p) => 
+          p.lead.id === trackerParam || 
+          p.lead.name.toLowerCase().includes(trackerParam.toLowerCase()) ||
+          p.lead.company?.toLowerCase().includes(trackerParam.toLowerCase())
+        ) || wonProjects[0];
+        if (found) {
+          setSelectedProject(found);
+          setIsDrawerOpen(true);
+        }
+      }
+    }
+  }, [wonProjects, selectedProject]);
+
   // Aggregate Key Executive Metrics
   const metrics = useMemo(() => {
     const totalWon = wonProjects.length;
