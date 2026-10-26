@@ -58,7 +58,11 @@ export default function LoginPage() {
       const result = await action(formData);
 
       if (result?.error) {
-        setError(result.error);
+        const cleanError =
+          typeof result.error === "string" && result.error !== "{}" && result.error.trim().length > 0
+            ? result.error
+            : "Unable to complete request. Please ensure your email is pre-invited by an admin in Settings → Team Members.";
+        setError(cleanError);
         setLoading(false);
       } else if (result?.success) {
         window.location.href = "/dashboard";
@@ -122,15 +126,15 @@ export default function LoginPage() {
                 {mode === "login"
                   ? "Enter your email below to login to your account."
                   : mode === "signup"
-                  ? "Set up your password to get started."
+                  ? "Invite-Only: Set up your password for your pre-approved email."
                   : "Authorize with Admin credentials to update password for any user or admin."}
               </CardDescription>
             </CardHeader>
             <form action={handleSubmit} className="flex flex-col gap-6">
               <CardContent className="space-y-4">
                 {error && (
-                  <div className="p-3 rounded-md bg-destructive/10 border border-destructive/20 text-destructive text-sm">
-                    {error}
+                  <div className="p-3 rounded-md bg-destructive/10 border border-destructive/20 text-destructive text-sm font-medium leading-relaxed">
+                    {error === "{}" ? "Unable to create account. Please ensure your email is pre-invited in Settings → Team Members." : error}
                   </div>
                 )}
 
@@ -255,7 +259,7 @@ export default function LoginPage() {
                          id="email" 
                          name="email" 
                          type="email" 
-                         placeholder="m@foremark.in" 
+                         placeholder="you@foremark.in" 
                          required 
                          className="bg-zinc-50 dark:bg-zinc-900/70 border-black/10 dark:border-white/10 rounded-xl h-10 text-zinc-900 dark:text-white placeholder:text-zinc-400 dark:placeholder:text-zinc-500 focus:border-[#c8f237] focus:ring-2 focus:ring-[#c8f237]/20 transition-all font-medium" 
                          disabled={loading}
@@ -290,7 +294,7 @@ export default function LoginPage() {
                        </div>
                        {mode === "signup" && (
                          <p className="text-xs text-zinc-500 dark:text-zinc-400">
-                           Minimum 8 characters
+                           Minimum 8 characters (1 uppercase & 1 number)
                          </p>
                        )}
                      </div>

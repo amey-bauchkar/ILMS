@@ -88,16 +88,61 @@ export async function signup(formData: FormData) {
     return { error: 'Password must contain at least one uppercase letter and one number.' };
   }
 
+  // 1. Verify invitation status before calling Supabase Auth to avoid raw DB exceptions and 500 "{}" errors
+  try {
+    const adminSupabase = await createAdminClient();
+    const { data: dbUser } = await adminSupabase
+      .from('users')
+      .select('id, is_active, auth_id')
+      .eq('email', email)
+      .maybeSingle();
+
+    if (!dbUser) {
+      return {
+        error: `Email "${email}" has not been invited yet. An administrator must first add your email in Settings → Team Members before you can create an account.`,
+      };
+    }
+
+    if (dbUser.is_active === false) {
+      return {
+        error: `The account for "${email}" has been deactivated. Please contact your administrator.`,
+      };
+    }
+
+    if (dbUser.auth_id) {
+      return {
+        error: `An account for "${email}" already exists. Please click "Back to Login" to sign in, or use "Admin: Update User / Admin Password" if you forgot your credentials.`,
+      };
+    }
+  } catch (checkErr) {
+    console.warn('Pre-signup check error:', checkErr);
+  }
+
+  // 2. Perform Supabase signup
   const { data: signUpData, error } = await supabase.auth.signUp({
     email,
     password,
   });
 
   if (error) {
-    return { error: error.message };
+    console.error('Signup error:', error);
+    const msg = error.message;
+    if (!msg || msg === '{}' || msg.includes('Unauthorized signup')) {
+      return {
+        error: `Email "${email}" is not invited. Please ask an administrator to add your email in Settings → Team Members first.`,
+      };
+    }
+    return { error: msg };
   }
 
-  // After signup, try to login
+  // If identities is empty, the user already exists in auth.users
+  if (signUpData?.user?.identities && signUpData.user.identities.length === 0) {
+    return {
+      error: `An account for "${email}" already exists. Please return to the login screen to sign in.`,
+    };
+  }
+
+  // 3. After signup, log in
   const { data: authData, error: loginError } = await supabase.auth.signInWithPassword({
     email,
     password,
@@ -105,7 +150,11 @@ export async function signup(formData: FormData) {
 
   if (loginError) {
     console.error('Signup post-login failed:', loginError.message);
-    return { error: loginError.message || 'Account created, but sign-in failed. Please log in.' };
+    const lMsg = loginError.message;
+    if (!lMsg || lMsg === '{}') {
+      return { error: 'Account created, but sign-in failed. Please click Back to Login to sign in.' };
+    }
+    return { error: lMsg };
   }
 
   if (authData?.user) {
@@ -128,14 +177,6 @@ export async function signup(formData: FormData) {
             .update({ auth_id: authData.user.id })
             .eq('id', dbUser.id);
         }
-      } else {
-        await adminSupabase.from('users').insert({
-          auth_id: authData.user.id,
-          email: authData.user.email || email,
-          name: authData.user.user_metadata?.name || email.split('@')[0],
-          role: 'admin',
-          is_active: true,
-        });
       }
     } catch (e) {
       console.warn('Could not auto-link user profile:', e);
