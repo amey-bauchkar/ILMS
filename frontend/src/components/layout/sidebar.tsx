@@ -12,15 +12,16 @@ import {
   ArrowLeft, 
   MessageSquare,
   Compass,
-  Trophy
+  Trophy,
+  Database
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 export const navItems = [
   { name: "Dashboard", href: "/dashboard", icon: Compass },
   { name: "Projects", href: "/won-deals", icon: Trophy },
-  { name: "Leads", href: "/leads", icon: Users },
-  { name: "Pulse", href: "/dashboard?tab=pulse", icon: MessageSquare },
+  { name: "Teams", href: "/dashboard?tab=teams", icon: Users },
+  { name: "Data", href: "/leads", icon: Database },
   { name: "Settings", href: "/settings", icon: Settings },
 ];
 
@@ -57,12 +58,12 @@ export function SidebarContent({ onNavItemClick }: { onNavItemClick?: () => void
         <nav className="flex flex-col items-center gap-2 p-1.5 rounded-full bg-white dark:bg-[#151821] shadow-[0_4px_16px_rgba(0,0,0,0.03)] border border-black/[0.05] dark:border-white/10 mt-1">
           {navItems.map((item) => {
             const isDashboardTab = item.href === "/dashboard";
-            const isPulseTab = item.href === "/dashboard?tab=pulse";
+            const isTeamsTab = item.href.includes("tab=teams") || item.href.includes("tab=pulse");
 
             let isActive = false;
             if (pathname === "/dashboard") {
-              if (isDashboardTab && currentTab === "dashboard") isActive = true;
-              else if (isPulseTab && currentTab === "pulse") isActive = true;
+              if (isDashboardTab && (!currentTab || currentTab === "dashboard")) isActive = true;
+              else if (isTeamsTab && (currentTab === "teams" || currentTab === "pulse")) isActive = true;
             } else if (!item.href.includes("?")) {
               isActive = pathname.startsWith(item.href);
             }

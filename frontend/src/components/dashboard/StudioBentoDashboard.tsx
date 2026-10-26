@@ -507,9 +507,9 @@ export function StudioBentoDashboard({ leads = [] }: StudioBentoDashboardProps) 
                   <SlidersHorizontal className="w-3.5 h-3.5" />
                 </Link>
                 <Link 
-                  href="/dashboard?tab=pulse"
+                  href="/dashboard?tab=teams"
                   className="w-8 h-8 rounded-full bg-white shadow-xs border border-black/[0.06] flex items-center justify-center text-[#7d8592] hover:text-[#111318] active:scale-95 transition-all"
-                  title="Lead Activity Feed"
+                  title="Team Activity Feed"
                 >
                   <MessageSquare className="w-3.5 h-3.5" />
                 </Link>

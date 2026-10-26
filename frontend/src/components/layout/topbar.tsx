@@ -4,7 +4,7 @@ import Link from "next/link";
 import { usePathname, useSearchParams } from "next/navigation";
 import { 
   LayoutDashboard, 
-  Activity, 
+  Users, 
   Database, 
   Share2, 
   Bell, 
@@ -79,7 +79,7 @@ export function Topbar() {
   const topNavItems = [
     { name: "Dashboard", href: "/dashboard", id: "dashboard", icon: LayoutDashboard },
     { name: "Projects", href: "/won-deals", id: "projects", icon: Trophy },
-    { name: "Pulse", href: "/dashboard?tab=pulse", id: "pulse", icon: Activity },
+    { name: "Teams", href: "/dashboard?tab=teams", id: "teams", icon: Users },
     { name: "Data", href: "/leads", id: "data", icon: Database },
   ];
 
@@ -107,7 +107,9 @@ export function Topbar() {
               ? pathname.startsWith("/leads")
               : item.id === "projects"
               ? pathname.startsWith("/won-deals") || pathname.startsWith("/projects")
-              : pathname === "/dashboard" && currentTab === item.id;
+              : item.id === "teams"
+              ? pathname === "/dashboard" && (currentTab === "teams" || currentTab === "pulse")
+              : pathname === "/dashboard" && (currentTab === item.id || (!currentTab && item.id === "dashboard"));
             const Icon = item.icon;
 
             return (

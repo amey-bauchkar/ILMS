@@ -1030,7 +1030,7 @@ export function StudioAnalyticsDashboard({
 
           <div className="pt-3 border-t border-black/[0.04] dark:border-white/10 flex items-center justify-end">
             <Link 
-              href="/dashboard?tab=pulse"
+              href="/dashboard?tab=teams"
               className="text-xs font-semibold text-zinc-800 dark:text-zinc-200 hover:text-black dark:hover:text-white flex items-center gap-1 transition-colors"
             >
               <span>View Activity Stream</span>
