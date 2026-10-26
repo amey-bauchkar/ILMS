@@ -484,6 +484,16 @@ export const WEBSITE_PRESETS: Record<string, WebsitePreset> = {
   }
 };
 
+export const COMMON_PHASE_SUGGESTIONS = [
+  "Scope & Wireframing",
+  "UI/UX Design",
+  "Core Development",
+  "API & Integrations",
+  "Testing & QA",
+  "Go-Live Launch",
+  "Post-Launch Support"
+];
+
 const STORAGE_PREFIX = "foremark_project_tracker_";
 
 export function buildMilestonesFromPreset(presetId: string, lead: EnrichedLead, preserveInitialCompleted = true): ProjectMilestone[] {
@@ -717,6 +727,7 @@ export function WonProjectTracker({ lead, className }: WonProjectTrackerProps) {
   const [newNextStep, setNewNextStep] = useState("");
 
   // New Milestone Form State
+  const [newMilestonePhase, setNewMilestonePhase] = useState("next");
   const [newMilestoneTitle, setNewMilestoneTitle] = useState("");
   const [newMilestoneDate, setNewMilestoneDate] = useState(() => {
     const d = new Date();
@@ -831,7 +842,7 @@ export function WonProjectTracker({ lead, className }: WonProjectTrackerProps) {
     });
   };
 
-  // 3. Add Milestone
+  // 3. Add Milestone Phase
   const handleAddMilestone = (e: React.FormEvent) => {
     e.preventDefault();
     if (!newMilestoneTitle.trim()) {
@@ -848,13 +859,54 @@ export function WonProjectTracker({ lead, className }: WonProjectTrackerProps) {
       description: "",
       steps: getDefaultStepsForMilestone(newMilestoneTitle.trim(), false)
     };
-    updateData((prev) => ({
-      ...prev,
-      milestones: [...prev.milestones, newM]
-    }));
+
+    updateData((prev) => {
+      let updatedMilestones: ProjectMilestone[];
+      if (newMilestonePhase === "next" || isNaN(Number(newMilestonePhase))) {
+        updatedMilestones = [...prev.milestones, newM];
+      } else {
+        const insertIdx = Math.max(0, Math.min(prev.milestones.length, Number(newMilestonePhase)));
+        updatedMilestones = [
+          ...prev.milestones.slice(0, insertIdx),
+          newM,
+          ...prev.milestones.slice(insertIdx)
+        ];
+      }
+
+      const totalWeight = updatedMilestones.reduce((acc, m) => acc + (m.weight || 0), 0);
+      const completedWeight = updatedMilestones.reduce((acc, m) => acc + (m.completed ? m.weight || 0 : 0), 0);
+      const calculatedPct = totalWeight > 0 ? Math.round((completedWeight / totalWeight) * 100) : prev.progressPercent;
+
+      return {
+        ...prev,
+        milestones: updatedMilestones,
+        progressPercent: calculatedPct,
+        status: calculatedPct === 100 ? "Completed" : prev.status === "Completed" ? "On Track" : prev.status
+      };
+    });
+
     setNewMilestoneTitle("");
+    setNewMilestonePhase("next");
     setShowAddMilestone(false);
-    toast.success("New project milestone added!");
+    toast.success("New project milestone phase added!");
+  };
+
+  // Delete Milestone Phase
+  const handleDeleteMilestone = (milestoneId: string) => {
+    updateData((prev) => {
+      const updatedMilestones = prev.milestones.filter((m) => m.id !== milestoneId);
+      const totalWeight = updatedMilestones.reduce((acc, m) => acc + (m.weight || 0), 0);
+      const completedWeight = updatedMilestones.reduce((acc, m) => acc + (m.completed ? m.weight || 0 : 0), 0);
+      const calculatedPct = totalWeight > 0 ? Math.round((completedWeight / totalWeight) * 100) : 0;
+
+      return {
+        ...prev,
+        milestones: updatedMilestones,
+        progressPercent: calculatedPct,
+        status: calculatedPct === 100 ? "Completed" : prev.status === "Completed" ? "On Track" : prev.status
+      };
+    });
+    toast.success("Milestone phase removed");
   };
 
   // 4. Add Daily Activity Log
@@ -1156,29 +1208,77 @@ export function WonProjectTracker({ lead, className }: WonProjectTrackerProps) {
 
           {/* Add Milestone Inline Form */}
           {showAddMilestone && (
-            <form onSubmit={handleAddMilestone} className="p-3 mb-3 rounded-xl bg-[#f8fafc] dark:bg-white/[0.03] border border-black/[0.08] dark:border-white/10 flex flex-col sm:flex-row gap-2.5 items-end animate-in fade-in duration-150">
-              <div className="flex-1 w-full space-y-1">
-                <label className="text-[10px] font-bold uppercase text-zinc-500">Milestone Title</label>
-                <input
-                  type="text"
-                  value={newMilestoneTitle}
-                  onChange={(e) => setNewMilestoneTitle(e.target.value)}
-                  placeholder="e.g. Scope Sign-off, Core Deliverables, Client Handover"
-                  className="w-full bg-white dark:bg-white/10 border border-black/[0.12] dark:border-white/15 rounded-lg px-3 py-1.5 text-xs text-[#111318] dark:text-white focus:outline-none focus:border-[#111318]"
-                />
+            <form onSubmit={handleAddMilestone} className="p-3.5 mb-3.5 rounded-xl bg-[#f8fafc] dark:bg-white/[0.03] border border-black/[0.08] dark:border-white/10 space-y-2.5 animate-in fade-in duration-150">
+              <div className="flex flex-col sm:flex-row gap-2.5 items-end">
+                {/* Which Phase Selector */}
+                <div className="w-full sm:w-44 space-y-1">
+                  <label className="text-[10px] font-bold uppercase tracking-wider text-zinc-500">
+                    Which Phase
+                  </label>
+                  <select
+                    value={newMilestonePhase}
+                    onChange={(e) => setNewMilestonePhase(e.target.value)}
+                    className="w-full bg-white dark:bg-white/10 border border-black/[0.12] dark:border-white/15 rounded-lg px-2.5 py-1.5 text-xs font-semibold text-[#111318] dark:text-white focus:outline-none"
+                  >
+                    <option value="next">
+                      Phase {data.milestones.length + 1} (Next Phase)
+                    </option>
+                    {data.milestones.map((_, i) => (
+                      <option key={i} value={String(i)}>
+                        Insert as Phase {i + 1}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+
+                {/* Milestone Title */}
+                <div className="flex-1 w-full space-y-1">
+                  <label className="text-[10px] font-bold uppercase tracking-wider text-zinc-500">
+                    Milestone Title
+                  </label>
+                  <input
+                    type="text"
+                    value={newMilestoneTitle}
+                    onChange={(e) => setNewMilestoneTitle(e.target.value)}
+                    placeholder="e.g. Scope Sign-off, Core Deliverables, Client Handover"
+                    className="w-full bg-white dark:bg-white/10 border border-black/[0.12] dark:border-white/15 rounded-lg px-3 py-1.5 text-xs text-[#111318] dark:text-white focus:outline-none focus:border-[#111318]"
+                  />
+                </div>
+
+                {/* Target Date */}
+                <div className="w-full sm:w-40 space-y-1">
+                  <label className="text-[10px] font-bold uppercase tracking-wider text-zinc-500">
+                    Target Date
+                  </label>
+                  <input
+                    type="date"
+                    value={newMilestoneDate}
+                    onChange={(e) => setNewMilestoneDate(e.target.value)}
+                    className="w-full bg-white dark:bg-white/10 border border-black/[0.12] dark:border-white/15 rounded-lg px-3 py-1.5 text-xs text-[#111318] dark:text-white focus:outline-none"
+                  />
+                </div>
+
+                <Button type="submit" size="sm" className="bg-[#111318] text-white hover:bg-black font-bold text-xs h-8 rounded-lg px-4 shrink-0">
+                  Save Milestone
+                </Button>
               </div>
-              <div className="w-full sm:w-44 space-y-1">
-                <label className="text-[10px] font-bold uppercase text-zinc-500">Target Date</label>
-                <input
-                  type="date"
-                  value={newMilestoneDate}
-                  onChange={(e) => setNewMilestoneDate(e.target.value)}
-                  className="w-full bg-white dark:bg-white/10 border border-black/[0.12] dark:border-white/15 rounded-lg px-3 py-1.5 text-xs text-[#111318] dark:text-white focus:outline-none"
-                />
+
+              {/* Quick Phase Suggestions Pills */}
+              <div className="flex items-center gap-1.5 flex-wrap pt-2 border-t border-black/[0.05] dark:border-white/[0.06]">
+                <span className="text-[10px] font-bold uppercase tracking-wider text-zinc-400 mr-1">
+                  Quick Phase Templates:
+                </span>
+                {COMMON_PHASE_SUGGESTIONS.map((phase) => (
+                  <button
+                    key={phase}
+                    type="button"
+                    onClick={() => setNewMilestoneTitle(phase)}
+                    className="px-2 py-0.5 rounded-md text-[10px] font-medium border border-black/[0.08] dark:border-white/10 bg-white dark:bg-white/[0.04] text-zinc-600 dark:text-zinc-300 hover:border-black/25 dark:hover:border-white/25 hover:text-black dark:hover:text-white transition-all"
+                  >
+                    + {phase}
+                  </button>
+                ))}
               </div>
-              <Button type="submit" size="sm" className="bg-[#111318] text-white hover:bg-black font-bold text-xs h-8 rounded-lg px-4 shrink-0">
-                Save Milestone
-              </Button>
             </form>
           )}
 
@@ -1212,14 +1312,24 @@ export function WonProjectTracker({ lead, className }: WonProjectTrackerProps) {
                       <span className="text-[10px] font-bold uppercase tracking-wider text-zinc-400">
                         Phase {idx + 1}
                       </span>
-                      <span className={cn(
-                        "text-[10px] font-bold px-2 py-0.5 rounded-full border",
-                        m.completed 
-                          ? "bg-emerald-500/10 text-emerald-700 dark:text-emerald-400 border-emerald-500/20" 
-                          : "bg-amber-500/10 text-amber-700 dark:text-amber-400 border-amber-500/20"
-                      )}>
-                        {m.completed ? "Completed" : "In Progress"}
-                      </span>
+                      <div className="flex items-center gap-1.5">
+                        <span className={cn(
+                          "text-[10px] font-bold px-2 py-0.5 rounded-full border",
+                          m.completed 
+                            ? "bg-emerald-500/10 text-emerald-700 dark:text-emerald-400 border-emerald-500/20" 
+                            : "bg-amber-500/10 text-amber-700 dark:text-amber-400 border-amber-500/20"
+                        )}>
+                          {m.completed ? "Completed" : "In Progress"}
+                        </span>
+                        <button
+                          type="button"
+                          onClick={() => handleDeleteMilestone(m.id)}
+                          className="opacity-0 group-hover:opacity-100 p-0.5 text-zinc-400 hover:text-rose-500 transition-all rounded"
+                          title="Delete phase"
+                        >
+                          <Trash2 className="w-3 h-3" />
+                        </button>
+                      </div>
                     </div>
                     <h5 className={cn(
                       "text-xs font-bold mt-1 leading-snug transition-colors",
