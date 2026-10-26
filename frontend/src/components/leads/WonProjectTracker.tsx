@@ -702,13 +702,6 @@ export function WonProjectTracker({ lead, className }: WonProjectTrackerProps) {
     return d.toISOString().slice(0, 10);
   });
 
-  // Detailed Steps & Expandable Roadmap State
-  const [expandedMilestones, setExpandedMilestones] = useState<Record<string, boolean>>(() => ({
-    "m-3-corporate": true,
-    "m-3": true // Default active milestone expanded
-  }));
-  const [newStepInputs, setNewStepInputs] = useState<Record<string, string>>({});
-
   // Re-read storage on client mount or if lead id changes
   useEffect(() => {
     setMounted(true);
@@ -757,12 +750,6 @@ export function WonProjectTracker({ lead, className }: WonProjectTrackerProps) {
       status: calculatedPct === 100 ? "Completed" : "On Track",
       dailyLogs: [newLog, ...prev.dailyLogs]
     }));
-
-    // Auto expand the active milestone
-    const activeMilestone = newMilestones.find((m) => !m.completed) || newMilestones[0];
-    if (activeMilestone) {
-      setExpandedMilestones({ [activeMilestone.id]: true });
-    }
 
     toast.success(`🎉 1-Click Website Created: Applied "${preset.label}"!`);
   };
@@ -822,141 +809,6 @@ export function WonProjectTracker({ lead, className }: WonProjectTrackerProps) {
     });
   };
 
-  // Toggle individual sub-step completion
-  const handleToggleStep = (milestoneId: string, stepId: string) => {
-    updateData((prev) => {
-      const newMilestones = prev.milestones.map((m) => {
-        if (m.id !== milestoneId) return m;
-        const currentSteps = m.steps || [];
-        const newSteps = currentSteps.map((s) => {
-          if (s.id !== stepId) return s;
-          const nextDone = !s.completed;
-          return {
-            ...s,
-            completed: nextDone,
-            completedAt: nextDone ? new Date().toISOString().slice(0, 10) : undefined
-          };
-        });
-
-        // If all steps in this milestone are done, automatically complete milestone
-        const allDone = newSteps.length > 0 && newSteps.every((s) => s.completed);
-        const anyUndone = newSteps.some((s) => !s.completed);
-
-        return {
-          ...m,
-          steps: newSteps,
-          completed: allDone ? true : anyUndone && m.completed ? false : m.completed,
-          completedAt: allDone ? new Date().toISOString().slice(0, 10) : anyUndone ? undefined : m.completedAt
-        };
-      });
-
-      const totalWeight = newMilestones.reduce((acc, m) => acc + (m.weight || 0), 0);
-      const completedWeight = newMilestones.reduce((acc, m) => acc + (m.completed ? m.weight || 0 : 0), 0);
-      const calculatedPct = totalWeight > 0 ? Math.round((completedWeight / totalWeight) * 100) : prev.progressPercent;
-
-      return {
-        ...prev,
-        milestones: newMilestones,
-        progressPercent: calculatedPct,
-        status: calculatedPct === 100 ? "Completed" : prev.status === "Completed" ? "On Track" : prev.status
-      };
-    });
-  };
-
-  // Add detailed sub-step to milestone
-  const handleAddStep = (milestoneId: string) => {
-    const text = (newStepInputs[milestoneId] || "").trim();
-    if (!text) {
-      toast.error("Please enter a detailed step title");
-      return;
-    }
-
-    updateData((prev) => {
-      const newMilestones = prev.milestones.map((m) => {
-        if (m.id !== milestoneId) return m;
-        const newStep: MilestoneStep = {
-          id: `step-${Date.now()}-${Math.random().toString(36).slice(2, 6)}`,
-          title: text,
-          completed: false,
-          notes: ""
-        };
-        return {
-          ...m,
-          steps: [...(m.steps || []), newStep],
-          completed: false
-        };
-      });
-      return { ...prev, milestones: newMilestones };
-    });
-
-    setNewStepInputs((prev) => ({ ...prev, [milestoneId]: "" }));
-    toast.success("Detailed action step added to milestone!");
-  };
-
-  // Delete sub-step
-  const handleDeleteStep = (milestoneId: string, stepId: string) => {
-    updateData((prev) => {
-      const newMilestones = prev.milestones.map((m) => {
-        if (m.id !== milestoneId) return m;
-        const newSteps = (m.steps || []).filter((s) => s.id !== stepId);
-        const allDone = newSteps.length > 0 && newSteps.every((s) => s.completed);
-        return {
-          ...m,
-          steps: newSteps,
-          completed: allDone ? true : m.completed
-        };
-      });
-      return { ...prev, milestones: newMilestones };
-    });
-    toast.success("Step removed");
-  };
-
-  // Update milestone detailed information / client scope notes
-  const handleUpdateMilestoneDescription = (milestoneId: string, desc: string) => {
-    updateData((prev) => ({
-      ...prev,
-      milestones: prev.milestones.map((m) => (m.id === milestoneId ? { ...m, description: desc } : m))
-    }));
-  };
-
-  // Update specific step notes / link
-  const handleUpdateStepNotes = (milestoneId: string, stepId: string, notes: string) => {
-    updateData((prev) => ({
-      ...prev,
-      milestones: prev.milestones.map((m) => {
-        if (m.id !== milestoneId) return m;
-        return {
-          ...m,
-          steps: (m.steps || []).map((s) => (s.id === stepId ? { ...s, notes } : s))
-        };
-      })
-    }));
-  };
-
-  // Expand / Collapse helper
-  const allExpanded = useMemo(() => {
-    return data.milestones.length > 0 && data.milestones.every((m) => expandedMilestones[m.id]);
-  }, [data.milestones, expandedMilestones]);
-
-  const handleToggleExpandAll = () => {
-    if (allExpanded) {
-      setExpandedMilestones({});
-    } else {
-      const all: Record<string, boolean> = {};
-      data.milestones.forEach((m) => {
-        all[m.id] = true;
-      });
-      setExpandedMilestones(all);
-    }
-  };
-
-  const toggleMilestoneExpanded = (milestoneId: string) => {
-    setExpandedMilestones((prev) => ({
-      ...prev,
-      [milestoneId]: !prev[milestoneId]
-    }));
-  };
-
   // 3. Add Milestone
   const handleAddMilestone = (e: React.FormEvent) => {
     e.preventDefault();
@@ -980,8 +832,7 @@ export function WonProjectTracker({ lead, className }: WonProjectTrackerProps) {
     }));
     setNewMilestoneTitle("");
     setShowAddMilestone(false);
-    setExpandedMilestones((prev) => ({ ...prev, [newId]: true }));
-    toast.success("New project milestone added with detailed steps!");
+    toast.success("New project milestone added!");
   };
 
   // 4. Add Daily Activity Log
@@ -1052,21 +903,6 @@ export function WonProjectTracker({ lead, className }: WonProjectTrackerProps) {
 
   const completedMilestones = useMemo(() => {
     return data.milestones.filter((m) => m.completed).length;
-  }, [data.milestones]);
-
-  const totalStepsSummary = useMemo(() => {
-    let total = 0;
-    let done = 0;
-    data.milestones.forEach((m) => {
-      const steps = m.steps || [];
-      total += steps.length;
-      done += steps.filter((s) => s.completed).length;
-    });
-    return {
-      total,
-      done,
-      pct: total > 0 ? Math.round((done / total) * 100) : 0
-    };
   }, [data.milestones]);
 
   const healthColor = {
@@ -1302,29 +1138,11 @@ export function WonProjectTracker({ lead, className }: WonProjectTrackerProps) {
               <h4 className="text-xs font-bold uppercase tracking-wider text-[#111318] dark:text-white">
                 Project Milestones & Deliverables Roadmap
               </h4>
-              <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold bg-[#c8f237]/20 text-[#111318] dark:text-[#c8f237] border border-black/10 dark:border-white/15">
-                {totalStepsSummary.done} / {totalStepsSummary.total} Deliverables ({totalStepsSummary.pct}%)
+              <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-[#c8f237]/20 text-[#111318] dark:text-[#c8f237] border border-black/10 dark:border-white/15">
+                {completedMilestones} / {data.milestones.length} Milestones Done ({data.milestones.length > 0 ? Math.round((completedMilestones / data.milestones.length) * 100) : 0}%)
               </span>
             </div>
             <div className="flex items-center gap-2 shrink-0">
-              <button
-                type="button"
-                onClick={handleToggleExpandAll}
-                className="inline-flex items-center gap-1 text-[11px] font-semibold text-zinc-600 dark:text-zinc-300 hover:text-black dark:hover:text-white px-2 py-1 rounded-lg border border-black/[0.08] dark:border-white/10 hover:bg-black/5 dark:hover:bg-white/5 transition-colors"
-                title="Expand or collapse all detailed step checklists"
-              >
-                {allExpanded ? (
-                  <>
-                    <ChevronUp className="w-3 h-3" />
-                    <span>Collapse All Steps</span>
-                  </>
-                ) : (
-                  <>
-                    <ChevronDown className="w-3 h-3" />
-                    <span>Expand All Steps</span>
-                  </>
-                )}
-              </button>
               <button
                 type="button"
                 onClick={() => setShowAddMilestone(!showAddMilestone)}
@@ -1364,365 +1182,86 @@ export function WonProjectTracker({ lead, className }: WonProjectTrackerProps) {
             </form>
           )}
 
-          {/* Milestones List with Detailed Steps & Client Information */}
-          <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-3">
-            {data.milestones.map((m) => {
-              const isExpanded = !!expandedMilestones[m.id];
-              const steps = m.steps || [];
-              const completedSteps = steps.filter((s) => s.completed).length;
-              const stepsPct = steps.length > 0 ? Math.round((completedSteps / steps.length) * 100) : (m.completed ? 100 : 0);
-
-              if (isExpanded) {
-                return (
-                  <div
-                    key={m.id}
-                    className={cn(
-                      "sm:col-span-2 lg:col-span-3 p-4 rounded-xl border transition-all bg-white dark:bg-[#161821] shadow-sm",
-                      m.completed
-                        ? "border-emerald-500/40 ring-1 ring-emerald-500/20"
-                        : "border-black/[0.12] dark:border-white/15"
-                    )}
+          {/* Clean Compact Milestones Grid */}
+          <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-3.5">
+            {data.milestones.map((m, idx) => (
+              <div
+                key={m.id}
+                className={cn(
+                  "p-4 rounded-2xl border transition-all select-none group flex flex-col justify-between shadow-2xs",
+                  m.completed
+                    ? "bg-emerald-500/[0.04] border-emerald-500/30 hover:border-emerald-500/50"
+                    : "bg-[#f8fafc]/80 dark:bg-white/[0.02] border-black/[0.06] dark:border-white/10 hover:border-black/20 dark:hover:border-white/20"
+                )}
+              >
+                <div className="flex items-start gap-3">
+                  <button
+                    type="button"
+                    onClick={() => handleToggleMilestone(m.id)}
+                    className="mt-0.5 shrink-0 focus:outline-none transition-transform active:scale-90"
+                    title={m.completed ? "Mark milestone pending" : "Mark milestone completed"}
                   >
-                    {/* Expanded Milestone Header */}
-                    <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2.5 pb-3 border-b border-black/[0.06] dark:border-white/10">
-                      <div className="flex items-center gap-2.5 min-w-0">
-                        <button
-                          type="button"
-                          onClick={() => handleToggleMilestone(m.id)}
-                          className="shrink-0 focus:outline-none"
-                          title={m.completed ? "Mark incomplete" : "Mark complete"}
-                        >
-                          {m.completed ? (
-                            <CheckCircle2 className="w-5 h-5 text-emerald-600 dark:text-emerald-400" />
-                          ) : (
-                            <Circle className="w-5 h-5 text-zinc-400 hover:text-zinc-600" />
-                          )}
-                        </button>
-                        <div className="min-w-0">
-                          <h5 className={cn(
-                            "text-sm font-bold truncate",
-                            m.completed ? "line-through text-zinc-500 dark:text-zinc-400" : "text-[#111318] dark:text-white"
-                          )}>
-                            {m.title}
-                          </h5>
-                          <div className="flex items-center gap-2 mt-0.5 text-[11px] text-zinc-500 flex-wrap">
-                            <span className="flex items-center gap-1">
-                              <Calendar className="w-3 h-3 text-zinc-400" />
-                              Target: {m.targetDate}
-                            </span>
-                            <span>•</span>
-                            <span className={m.completed ? "text-emerald-600 dark:text-emerald-400 font-bold" : "text-amber-600 dark:text-amber-400 font-medium"}>
-                              {m.completed ? "Milestone Completed" : "In Progress"}
-                            </span>
-                            <span>•</span>
-                            <span className="text-zinc-400">Weight: {m.weight || 20}%</span>
-                          </div>
-                        </div>
-                      </div>
-
-                      <div className="flex items-center gap-2 shrink-0 self-end sm:self-center flex-wrap">
-                        {/* ⚡ 1-Click Complete Phase button */}
-                        <button
-                          type="button"
-                          onClick={() => handleToggleMilestone(m.id)}
-                          className={cn(
-                            "inline-flex items-center gap-1 text-[11px] font-bold px-2.5 py-1 rounded-lg border transition-all active:scale-95 shadow-2xs",
-                            m.completed
-                              ? "bg-zinc-100 dark:bg-white/10 text-zinc-700 dark:text-zinc-300 border-black/10 dark:border-white/15"
-                              : "bg-[#c8f237] hover:bg-[#b5dc30] text-[#111318] border-black/15 font-black"
-                          )}
-                        >
-                          <Zap className="w-3 h-3" />
-                          <span>{m.completed ? "Reopen Milestone" : "1-Click Complete Phase"}</span>
-                        </button>
-
-                        <span className="text-[11px] font-bold px-2.5 py-1 rounded-md bg-[#c8f237]/20 text-[#111318] dark:text-[#c8f237] border border-black/10 dark:border-white/15">
-                          {completedSteps} / {steps.length} Done ({stepsPct}%)
-                        </span>
-                        <button
-                          type="button"
-                          onClick={() => toggleMilestoneExpanded(m.id)}
-                          className="inline-flex items-center gap-1 text-xs font-semibold px-2 py-1 rounded-lg text-zinc-600 dark:text-zinc-300 hover:text-black dark:hover:text-white border border-black/[0.08] dark:border-white/10 hover:bg-black/5 dark:hover:bg-white/5 transition-colors"
-                        >
-                          <span>Collapse</span>
-                          <ChevronUp className="w-3 h-3" />
-                        </button>
-                      </div>
-                    </div>
-
-                    {/* 2-Column Split: Scope & Deliverables Blueprint (Left) & Action Steps Checklist (Right) */}
-                    <div className="grid md:grid-cols-2 gap-4 mt-3 pt-1">
-                      {/* Col 1: Project Type & Scope Blueprint */}
-                      <div className="flex flex-col space-y-2.5 p-3.5 rounded-xl bg-[#f8fafc]/90 dark:bg-white/[0.02] border border-black/[0.06] dark:border-white/10">
-                        {/* Project Type Input Section */}
-                        <div className="space-y-1.5 pb-2.5 border-b border-black/[0.06] dark:border-white/10">
-                          <div className="flex items-center justify-between">
-                            <label className="text-[10px] font-black uppercase tracking-wider text-[#111318] dark:text-white flex items-center gap-1.5">
-                              <Briefcase className="w-3.5 h-3.5 text-[#15803d] dark:text-[#c8f237]" />
-                              <span>Project Type</span>
-                            </label>
-                            <span className="text-[10px] text-zinc-400 font-medium">Write or click preset:</span>
-                          </div>
-                          <div className="relative">
-                            <input
-                              type="text"
-                              value={data.projectType || "Corporate Website"}
-                              onChange={(e) => handleUpdateProjectType(e.target.value)}
-                              placeholder="Write what is the project type (e.g. Corporate Website, E-Commerce Store, Mobile App)..."
-                              className="w-full bg-white dark:bg-white/[0.06] border border-black/[0.12] dark:border-white/15 rounded-lg px-2.5 py-1.5 text-xs font-bold text-[#111318] dark:text-white placeholder:text-zinc-400 focus:outline-none focus:border-[#111318] shadow-2xs"
-                            />
-                          </div>
-
-                          {/* Quick 1-Click Type Pills */}
-                          <div className="flex items-center gap-1 flex-wrap pt-0.5">
-                            {Object.values(WEBSITE_PRESETS).map((p) => {
-                              const isSelected = (data.projectType || "").toLowerCase().includes(p.label.toLowerCase());
-                              return (
-                                <button
-                                  key={p.id}
-                                  type="button"
-                                  onClick={() => {
-                                    handleUpdateProjectType(p.label);
-                                    handleApplyWebsitePreset(p.id);
-                                  }}
-                                  className={cn(
-                                    "px-2 py-0.5 rounded-md text-[10px] font-bold border transition-all flex items-center gap-1",
-                                    isSelected
-                                      ? "bg-[#111318] text-white dark:bg-white dark:text-[#111318] border-black shadow-2xs"
-                                      : "bg-white dark:bg-white/[0.04] text-zinc-600 dark:text-zinc-300 border-black/10 hover:border-[#c8f237] hover:bg-[#c8f237]/15"
-                                  )}
-                                  title={`Select ${p.label}`}
-                                >
-                                  <span>{p.emoji}</span>
-                                  <span>{p.label}</span>
-                                </button>
-                              );
-                            })}
-                          </div>
-                        </div>
-
-                        {/* Milestone Deliverables & Scope Specifications */}
-                        <div className="space-y-1.5">
-                          <div className="flex items-center justify-between">
-                            <label className="text-[10px] font-black uppercase tracking-wider text-[#111318] dark:text-white flex items-center gap-1.5">
-                              <FileText className="w-3.5 h-3.5 text-[#15803d] dark:text-[#c8f237]" />
-                              <span>Milestone Scope & Client Specifications</span>
-                            </label>
-                            <span className="text-[10px] font-medium text-emerald-700 dark:text-emerald-400 bg-emerald-500/10 px-2 py-0.5 rounded-full border border-emerald-500/20">
-                              ✓ Auto-saved
-                            </span>
-                          </div>
-
-                          <textarea
-                            rows={3}
-                            value={m.description || ""}
-                            onChange={(e) => handleUpdateMilestoneDescription(m.id, e.target.value)}
-                            placeholder={`Write specific requirements, deliverables, and notes for this ${data.projectType || "project"} milestone...`}
-                            className="w-full bg-white dark:bg-white/[0.04] border border-black/[0.1] dark:border-white/10 rounded-lg p-2.5 text-xs text-[#111318] dark:text-white placeholder:text-zinc-400 focus:outline-none focus:border-[#111318] resize-y shadow-2xs"
-                          />
-                        </div>
-
-                        {/* Phase Key Deliverable Tags */}
-                        <div className="pt-0.5">
-                          <span className="text-[10px] font-bold uppercase text-zinc-400 tracking-wider">Phase Inclusions:</span>
-                          <div className="grid grid-cols-2 gap-1.5 mt-1 text-[11px] text-zinc-600 dark:text-zinc-300 font-medium">
-                            <span className="flex items-center gap-1.5">
-                              <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400 shrink-0" />
-                              Custom Domain & SSL
-                            </span>
-                            <span className="flex items-center gap-1.5">
-                              <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400 shrink-0" />
-                              Mobile-Responsive UI
-                            </span>
-                            <span className="flex items-center gap-1.5">
-                              <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400 shrink-0" />
-                              Lead Capture Forms
-                            </span>
-                            <span className="flex items-center gap-1.5">
-                              <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400 shrink-0" />
-                              Google SEO & Speed Pass
-                            </span>
-                          </div>
-                        </div>
-                      </div>
-
-                      {/* Col 2: Action Steps & Deliverables Checklist */}
-                      <div className="flex flex-col space-y-2 p-3.5 rounded-xl bg-[#f8fafc]/90 dark:bg-white/[0.02] border border-black/[0.06] dark:border-white/10">
-                        <div className="flex items-center justify-between">
-                          <div className="flex items-center gap-1.5 text-[11px] font-bold text-[#111318] dark:text-white uppercase tracking-wider">
-                            <CheckSquare className="w-3.5 h-3.5 text-[#15803d] dark:text-[#c8f237]" />
-                            <span>Website Deliverables Checklist</span>
-                          </div>
-                          <span className="text-[10px] font-bold text-zinc-500">
-                            {completedSteps} of {steps.length} Done
-                          </span>
-                        </div>
-
-                        {/* Progress mini-bar */}
-                        <div className="w-full h-1.5 bg-black/[0.08] dark:bg-white/10 rounded-full overflow-hidden">
-                          <div
-                            className="h-full bg-emerald-500 transition-all duration-300 rounded-full"
-                            style={{ width: `${stepsPct}%` }}
-                          />
-                        </div>
-
-                        {/* Steps List */}
-                        <div className="space-y-1.5 max-h-[220px] overflow-y-auto pr-0.5">
-                          {steps.map((s) => (
-                            <div
-                              key={s.id}
-                              className={cn(
-                                "flex items-start gap-2 p-2 rounded-lg border transition-all group",
-                                s.completed
-                                  ? "bg-emerald-500/[0.05] border-emerald-500/20"
-                                  : "bg-white dark:bg-white/[0.04] border-black/[0.06] dark:border-white/10 hover:border-black/20"
-                              )}
-                            >
-                              <button
-                                type="button"
-                                onClick={() => handleToggleStep(m.id, s.id)}
-                                className="mt-0.5 shrink-0 focus:outline-none"
-                                title={s.completed ? "Mark step undone" : "Mark step done"}
-                              >
-                                {s.completed ? (
-                                  <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400" />
-                                ) : (
-                                  <Circle className="w-3.5 h-3.5 text-zinc-400 group-hover:text-zinc-600" />
-                                )}
-                              </button>
-                              <div className="flex-1 min-w-0">
-                                <p className={cn(
-                                  "text-xs font-medium leading-snug",
-                                  s.completed
-                                    ? "line-through text-zinc-400 dark:text-zinc-500"
-                                    : "text-[#111318] dark:text-zinc-200"
-                                )}>
-                                  {s.title}
-                                </p>
-                                <input
-                                  type="text"
-                                  value={s.notes || ""}
-                                  onChange={(e) => handleUpdateStepNotes(m.id, s.id, e.target.value)}
-                                  placeholder="Deliverable details / notes / URL..."
-                                  className="w-full mt-1 bg-transparent border-b border-dashed border-black/10 dark:border-white/15 text-[10px] text-zinc-600 dark:text-zinc-300 placeholder:text-zinc-400 focus:outline-none focus:border-[#111318]"
-                                />
-                              </div>
-                              <button
-                                type="button"
-                                onClick={() => handleDeleteStep(m.id, s.id)}
-                                className="opacity-0 group-hover:opacity-100 p-1 text-zinc-400 hover:text-rose-500 transition-all shrink-0"
-                                title="Remove this step"
-                              >
-                                <Trash2 className="w-3 h-3" />
-                              </button>
-                            </div>
-                          ))}
-                        </div>
-
-                        {/* Inline Add Step */}
-                        <div className="flex items-center gap-1.5 pt-1">
-                          <input
-                            type="text"
-                            value={newStepInputs[m.id] || ""}
-                            onChange={(e) => setNewStepInputs((prev) => ({ ...prev, [m.id]: e.target.value }))}
-                            onKeyDown={(e) => {
-                              if (e.key === "Enter") {
-                                e.preventDefault();
-                                handleAddStep(m.id);
-                              }
-                            }}
-                            placeholder="+ Add custom website step (press Enter)..."
-                            className="flex-1 bg-white dark:bg-white/[0.04] border border-black/[0.1] dark:border-white/10 rounded-lg px-2.5 py-1 text-xs text-[#111318] dark:text-white placeholder:text-zinc-400 focus:outline-none focus:border-[#111318]"
-                          />
-                          <Button
-                            type="button"
-                            size="sm"
-                            onClick={() => handleAddStep(m.id)}
-                            className="h-7 px-3 text-xs font-bold bg-[#111318] text-white hover:bg-black rounded-lg shrink-0"
-                          >
-                            Add
-                          </Button>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                );
-              }
-
-              // Collapsed View
-              return (
-                <div
-                  key={m.id}
-                  className={cn(
-                    "p-3 rounded-xl border transition-all select-none group flex flex-col justify-between",
-                    m.completed
-                      ? "bg-emerald-500/[0.04] border-emerald-500/25 hover:border-emerald-500/40"
-                      : "bg-[#f8fafc]/70 dark:bg-white/[0.02] border-black/[0.06] dark:border-white/10 hover:border-black/20 dark:hover:border-white/25"
-                  )}
-                >
-                  <div className="flex items-start gap-2.5">
-                    <button
-                      type="button"
-                      onClick={() => handleToggleMilestone(m.id)}
-                      className="mt-0.5 shrink-0 focus:outline-none"
-                      title={m.completed ? "Mark milestone incomplete" : "Mark milestone complete"}
-                    >
-                      {m.completed ? (
-                        <CheckCircle2 className="w-4 h-4 text-emerald-600 dark:text-emerald-400" />
-                      ) : (
-                        <Circle className="w-4 h-4 text-zinc-400 group-hover:text-zinc-600 transition-colors" />
-                      )}
-                    </button>
-                    <div className="min-w-0 flex-1">
-                      <p className={cn(
-                        "text-xs font-semibold leading-tight transition-colors",
+                    {m.completed ? (
+                      <CheckCircle2 className="w-5 h-5 text-emerald-600 dark:text-emerald-400" />
+                    ) : (
+                      <Circle className="w-5 h-5 text-zinc-400 group-hover:text-zinc-600 dark:group-hover:text-zinc-200 transition-colors" />
+                    )}
+                  </button>
+                  <div className="min-w-0 flex-1">
+                    <div className="flex items-center justify-between gap-2">
+                      <span className="text-[10px] font-bold uppercase tracking-wider text-zinc-400">
+                        Phase {idx + 1}
+                      </span>
+                      <span className={cn(
+                        "text-[10px] font-bold px-2 py-0.5 rounded-full border",
                         m.completed 
-                          ? "text-[#111318] dark:text-white line-through opacity-85" 
-                          : "text-[#111318] dark:text-zinc-200"
+                          ? "bg-emerald-500/10 text-emerald-700 dark:text-emerald-400 border-emerald-500/20" 
+                          : "bg-amber-500/10 text-amber-700 dark:text-amber-400 border-amber-500/20"
                       )}>
-                        {m.title}
-                      </p>
-                      <div className="flex items-center gap-2 mt-1.5 text-[10px] text-zinc-500 dark:text-zinc-400 font-medium flex-wrap">
-                        <span className="flex items-center gap-1">
-                          <Calendar className="w-3 h-3 text-zinc-400" />
-                          {m.targetDate}
-                        </span>
-                        <span>•</span>
-                        <span className={m.completed ? "text-emerald-700 dark:text-emerald-400 font-bold" : "text-zinc-500"}>
-                          {m.completed ? "Done" : "Pending"}
-                        </span>
-                        <span>•</span>
-                        <span className="text-zinc-400 font-semibold">
-                          {m.weight || 20}% Wt
-                        </span>
-                      </div>
+                        {m.completed ? "Completed" : "In Progress"}
+                      </span>
                     </div>
-                  </div>
-
-                  {/* Sub-steps count badge & expand trigger */}
-                  <div className="mt-2.5 pt-2 border-t border-black/[0.05] dark:border-white/[0.06] flex items-center justify-between">
-                    <span className={cn(
-                      "text-[10px] font-semibold px-2 py-0.5 rounded-md",
-                      m.completed
-                        ? "bg-emerald-500/10 text-emerald-700 dark:text-emerald-400"
-                        : completedSteps > 0
-                        ? "bg-[#c8f237]/30 text-[#111318] dark:text-[#c8f237]"
-                        : "bg-black/[0.04] dark:bg-white/5 text-zinc-500"
+                    <h5 className={cn(
+                      "text-xs font-bold mt-1 leading-snug transition-colors",
+                      m.completed 
+                        ? "text-[#111318] dark:text-white line-through opacity-80" 
+                        : "text-[#111318] dark:text-white"
                     )}>
-                      {completedSteps}/{steps.length} Steps ({stepsPct}%)
-                    </span>
-                    <button
-                      type="button"
-                      onClick={() => toggleMilestoneExpanded(m.id)}
-                      className="inline-flex items-center gap-1 text-[11px] font-bold text-[#15803d] dark:text-[#c8f237] hover:underline"
-                    >
-                      <span>Steps & Details</span>
-                      <ChevronDown className="w-3 h-3" />
-                    </button>
+                      {m.title}
+                    </h5>
+                    <div className="flex items-center gap-2 mt-2 text-[10px] text-zinc-500 dark:text-zinc-400 font-medium flex-wrap">
+                      <span className="flex items-center gap-1">
+                        <Calendar className="w-3 h-3 text-zinc-400" />
+                        Target: {m.targetDate}
+                      </span>
+                      <span>•</span>
+                      <span className="text-zinc-400 font-semibold">
+                        Weight: {m.weight || 20}%
+                      </span>
+                    </div>
                   </div>
                 </div>
-              );
-            })}
+
+                <div className="mt-3 pt-2.5 border-t border-black/[0.05] dark:border-white/[0.06] flex items-center justify-between">
+                  <span className="text-[10px] text-zinc-400 font-medium">
+                    {m.completed ? "✓ Delivered" : "Pending action"}
+                  </span>
+                  <button
+                    type="button"
+                    onClick={() => handleToggleMilestone(m.id)}
+                    className={cn(
+                      "inline-flex items-center gap-1 text-[10px] font-bold px-2.5 py-1 rounded-lg border transition-all active:scale-95 shadow-2xs",
+                      m.completed
+                        ? "bg-zinc-100 dark:bg-white/10 text-zinc-700 dark:text-zinc-300 border-black/10 dark:border-white/15 hover:bg-zinc-200"
+                        : "bg-[#c8f237] hover:bg-[#b5dc30] text-[#111318] border-black/15 font-black"
+                    )}
+                  >
+                    <Zap className="w-3 h-3" />
+                    <span>{m.completed ? "Reopen Phase" : "1-Click Complete"}</span>
+                  </button>
+                </div>
+              </div>
+            ))}
           </div>
         </div>
       </div>
