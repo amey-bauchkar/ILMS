@@ -8,7 +8,6 @@ import {
   RotateCcw, 
   Check, 
   Users, 
-  Sparkles,
   Lock
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -212,17 +211,6 @@ export function TargetSettings() {
               {pill.label}
             </button>
           ))}
-        </div>
-      </div>
-
-      {/* Info Notice */}
-      <div className="p-4 rounded-2xl bg-zinc-50 dark:bg-white/[0.02] border border-black/[0.05] dark:border-white/10 text-xs text-zinc-500 dark:text-zinc-400 flex items-start gap-2.5">
-        <Sparkles className="w-4 h-4 text-[#c8f237] shrink-0 mt-0.5" />
-        <div className="space-y-0.5">
-          <p className="font-semibold text-zinc-700 dark:text-zinc-300">Synchronized Organization Targets</p>
-          <p className="text-[11px] leading-relaxed">
-            Updating targets here instantly updates the speedometer gauge and revenue progress bars for all users viewing the executive dashboard.
-          </p>
         </div>
       </div>
 

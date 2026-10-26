@@ -17,7 +17,6 @@ import {
   IndianRupee, 
   ShieldCheck, 
   Lock, 
-  Sparkles, 
   RotateCcw, 
   Check, 
   Users 
@@ -250,22 +249,6 @@ export function EditTargetsModal({
                     </button>
                   ))}
                 </div>
-              )}
-            </div>
-
-            {/* Target Scope Explainer */}
-            <div className="p-3.5 rounded-2xl bg-zinc-50 dark:bg-white/[0.02] border border-black/[0.05] dark:border-white/10 text-xs text-zinc-500 dark:text-zinc-400 space-y-1">
-              <div className="flex items-center gap-1.5 font-bold text-[#111318] dark:text-white">
-                <Sparkles className="w-3.5 h-3.5 text-[#c8f237]" />
-                <span>How targets are applied:</span>
-              </div>
-              <p className="text-[11px] leading-relaxed">
-                Targets scale dynamically across your selected dashboard filters (All Time, Annual, Quarterly, Monthly) and adjust individual sales rep quotas proportionally.
-              </p>
-              {targets.updatedAt && (
-                <p className="text-[10px] text-zinc-400 pt-1">
-                  Last updated: {new Date(targets.updatedAt).toLocaleDateString()} {targets.updatedBy ? `by ${targets.updatedBy}` : ""}
-                </p>
               )}
             </div>
           </div>
