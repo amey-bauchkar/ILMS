@@ -182,7 +182,7 @@ export function TargetSettings() {
   }
 
   return (
-    <div className="space-y-8 max-w-3xl">
+    <div className="space-y-8 max-w-4xl">
       {/* Intro Header */}
       <div className="flex items-center justify-between p-4 rounded-2xl bg-zinc-50 dark:bg-white/[0.02] border border-black/[0.05] dark:border-white/10">
         <div className="flex items-center gap-3">
@@ -257,10 +257,13 @@ export function TargetSettings() {
 
                 {/* Inputs */}
                 <div className="flex items-center gap-3 flex-1">
-                  <div className="flex-1 space-y-1">
-                    <Label className="text-[10px] font-bold uppercase tracking-wider text-zinc-500 dark:text-zinc-400">
-                      Lead Target
-                    </Label>
+                  <div className="flex-1 min-w-[110px] space-y-1">
+                    <div className="flex items-center justify-between">
+                      <Label className="text-[10px] font-bold uppercase tracking-wider text-zinc-500 dark:text-zinc-400">
+                        Lead Target
+                      </Label>
+                      <span className="text-[10px] text-zinc-400 font-medium">leads</span>
+                    </div>
                     <Input
                       type="number"
                       min="0"
@@ -272,27 +275,35 @@ export function TargetSettings() {
                         }))
                       }
                       placeholder="e.g. 150"
-                      className="h-10 text-xs font-semibold rounded-xl bg-zinc-50 dark:bg-white/[0.04] border-black/[0.08] dark:border-white/10"
+                      className="h-10 text-sm font-semibold rounded-xl bg-zinc-50 dark:bg-white/[0.04] border-black/[0.08] dark:border-white/10 px-3 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
                     />
                   </div>
 
-                  <div className="flex-1 space-y-1">
-                    <Label className="text-[10px] font-bold uppercase tracking-wider text-zinc-500 dark:text-zinc-400">
-                      Revenue Target (₹)
-                    </Label>
-                    <Input
-                      type="number"
-                      min="0"
-                      value={row.rev}
-                      onChange={(e) =>
-                        setMemberGrid((prev) => ({
-                          ...prev,
-                          [m.id]: { ...prev[m.id], rev: e.target.value },
-                        }))
-                      }
-                      placeholder="e.g. 200000"
-                      className="h-10 text-xs font-semibold rounded-xl bg-zinc-50 dark:bg-white/[0.04] border-black/[0.08] dark:border-white/10"
-                    />
+                  <div className="flex-1 min-w-[150px] space-y-1">
+                    <div className="flex items-center justify-between">
+                      <Label className="text-[10px] font-bold uppercase tracking-wider text-zinc-500 dark:text-zinc-400">
+                        Revenue Target
+                      </Label>
+                      <span className="text-[10px] font-bold text-emerald-600 dark:text-emerald-400">
+                        {formatLakhsCr(Number(row.rev) || 0)}
+                      </span>
+                    </div>
+                    <div className="relative">
+                      <span className="absolute left-3 top-1/2 -translate-y-1/2 text-xs font-bold text-zinc-400">₹</span>
+                      <Input
+                        type="number"
+                        min="0"
+                        value={row.rev}
+                        onChange={(e) =>
+                          setMemberGrid((prev) => ({
+                            ...prev,
+                            [m.id]: { ...prev[m.id], rev: e.target.value },
+                          }))
+                        }
+                        placeholder="e.g. 200000"
+                        className="h-10 text-sm font-semibold rounded-xl bg-zinc-50 dark:bg-white/[0.04] border-black/[0.08] dark:border-white/10 pl-7 pr-3 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+                      />
+                    </div>
                   </div>
 
                   <div className="pt-4">

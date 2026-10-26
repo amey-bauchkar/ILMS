@@ -224,7 +224,7 @@ export function EditTargetsModal({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-xl p-0 overflow-hidden rounded-3xl border border-black/[0.08] dark:border-white/10 bg-white dark:bg-[#151821] text-[#111318] dark:text-white shadow-2xl max-h-[90vh] flex flex-col">
+      <DialogContent className="max-w-2xl sm:max-w-3xl p-0 overflow-hidden rounded-3xl border border-black/[0.08] dark:border-white/10 bg-white dark:bg-[#151821] text-[#111318] dark:text-white shadow-2xl max-h-[90vh] flex flex-col">
         {/* Header */}
         <div className="p-5 sm:p-6 border-b border-black/[0.06] dark:border-white/10 bg-gradient-to-br from-zinc-50 to-white dark:from-white/[0.03] dark:to-transparent shrink-0">
           <div className="flex items-center justify-between gap-3">
@@ -435,27 +435,31 @@ export function EditTargetsModal({
               <div className="space-y-3">
                 {activeMembers.map((m) => {
                   const row = tableGrid[m.id] || { lead: "150", rev: "200000" };
-                  const isCustom = !!targets.userTargets?.[m.id];
+                  const revVal = Number(row.rev) || 0;
+                  const revPreview = revVal >= 100000 ? formatLakhsCr(revVal) : `₹${revVal.toLocaleString("en-IN")}`;
                   return (
                     <div
                       key={m.id}
-                      className="p-3.5 rounded-2xl border border-black/[0.06] dark:border-white/10 bg-zinc-50/70 dark:bg-white/[0.02] flex flex-col sm:flex-row sm:items-center justify-between gap-3"
+                      className="p-4 rounded-2xl border border-black/[0.06] dark:border-white/10 bg-zinc-50/70 dark:bg-white/[0.02] flex flex-col sm:flex-row sm:items-center justify-between gap-4"
                     >
-                      <div className="flex items-center gap-2.5 sm:w-1/3">
-                        <div className="w-8 h-8 rounded-full bg-[#111318] dark:bg-white text-white dark:text-[#111318] flex items-center justify-center text-xs font-bold shrink-0">
+                      <div className="flex items-center gap-3 sm:w-48 shrink-0">
+                        <div className="w-9 h-9 rounded-full bg-[#111318] dark:bg-white text-white dark:text-[#111318] flex items-center justify-center text-xs font-bold shrink-0 shadow-2xs">
                           {m.name.slice(0, 2).toUpperCase()}
                         </div>
-                        <div>
-                          <h4 className="text-xs font-bold text-zinc-900 dark:text-white leading-tight">{m.name}</h4>
-                          <span className="text-[10px] text-zinc-400 block mt-0.5">
+                        <div className="min-w-0">
+                          <h4 className="text-xs font-bold text-zinc-900 dark:text-white leading-tight truncate">{m.name}</h4>
+                          <span className="text-[10px] text-zinc-400 block mt-0.5 truncate">
                             {m.role === "admin" ? "Admin" : "Client Manager"}
                           </span>
                         </div>
                       </div>
 
-                      <div className="flex items-center gap-2 flex-1">
-                        <div className="flex-1 space-y-1">
-                          <Label className="text-[10px] text-zinc-400 font-medium">Lead Target</Label>
+                      <div className="flex items-center gap-3 flex-1">
+                        <div className="flex-1 min-w-[110px] space-y-1">
+                          <div className="flex items-center justify-between">
+                            <Label className="text-[10px] text-zinc-500 dark:text-zinc-400 font-semibold uppercase tracking-wider">Lead Target</Label>
+                            <span className="text-[10px] text-zinc-400 font-medium">leads</span>
+                          </div>
                           <Input
                             type="number"
                             min="0"
@@ -467,25 +471,31 @@ export function EditTargetsModal({
                               }))
                             }
                             placeholder="150"
-                            className="h-9 text-xs font-semibold rounded-lg bg-white dark:bg-[#121319]"
+                            className="h-10 text-sm font-semibold rounded-xl bg-white dark:bg-[#121319] border-black/10 dark:border-white/10 px-3 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
                           />
                         </div>
 
-                        <div className="flex-1 space-y-1">
-                          <Label className="text-[10px] text-zinc-400 font-medium">Revenue Target (₹)</Label>
-                          <Input
-                            type="number"
-                            min="0"
-                            value={row.rev}
-                            onChange={(e) =>
-                              setTableGrid((prev) => ({
-                                ...prev,
-                                [m.id]: { ...prev[m.id], rev: e.target.value },
-                              }))
-                            }
-                            placeholder="200000"
-                            className="h-9 text-xs font-semibold rounded-lg bg-white dark:bg-[#121319]"
-                          />
+                        <div className="flex-1 min-w-[150px] space-y-1">
+                          <div className="flex items-center justify-between">
+                            <Label className="text-[10px] text-zinc-500 dark:text-zinc-400 font-semibold uppercase tracking-wider">Revenue Target</Label>
+                            <span className="text-[10px] font-bold text-emerald-600 dark:text-emerald-400">{revPreview}</span>
+                          </div>
+                          <div className="relative">
+                            <span className="absolute left-3 top-1/2 -translate-y-1/2 text-xs font-bold text-zinc-400">₹</span>
+                            <Input
+                              type="number"
+                              min="0"
+                              value={row.rev}
+                              onChange={(e) =>
+                                setTableGrid((prev) => ({
+                                  ...prev,
+                                  [m.id]: { ...prev[m.id], rev: e.target.value },
+                                }))
+                              }
+                              placeholder="200000"
+                              className="h-10 text-sm font-semibold rounded-xl bg-white dark:bg-[#121319] border-black/10 dark:border-white/10 pl-7 pr-3 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+                            />
+                          </div>
                         </div>
                       </div>
                     </div>
