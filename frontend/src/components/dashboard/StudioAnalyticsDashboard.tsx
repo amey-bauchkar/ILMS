@@ -350,6 +350,13 @@ export function StudioAnalyticsDashboard({
     };
   }, [filteredLeads, leads, selectedOwnerId, selectedRange, statuses, members, targets]);
 
+  // Dynamic scale ticks for horizontal revenue target bar
+  const revenueScaleTicks = useMemo(() => {
+    const target = metrics.revenueTarget || 1000000;
+    const fractions = [0, 0.1, 0.2, 0.4, 0.6, 0.8, 1];
+    return fractions.map((frac) => Math.round(target * frac));
+  }, [metrics.revenueTarget]);
+
   // Format currency helpers
   const formatCurrency = (val: number) => {
     return `Rs. ${val.toLocaleString("en-IN", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
@@ -838,15 +845,14 @@ export function StudioAnalyticsDashboard({
               </div>
             </div>
 
-            {/* X-axis scale ticks */}
-            <div className="pl-19 flex items-center justify-between text-[10px] text-zinc-400 dark:text-zinc-500 font-medium">
-              <span>0</span>
-              <span>100000</span>
-              <span>200000</span>
-              <span>400000</span>
-              <span>600000</span>
-              <span>800000</span>
-              <span>1000000</span>
+            {/* X-axis scale ticks (dynamic according to revenue target) */}
+            <div className="flex items-center gap-3">
+              <span className="w-20 shrink-0" />
+              <div className="flex-1 flex items-center justify-between text-[10px] text-zinc-400 dark:text-zinc-500 font-medium px-0.5">
+                {revenueScaleTicks.map((tick, i) => (
+                  <span key={i}>{tick}</span>
+                ))}
+              </div>
             </div>
 
             {/* Legend label */}
