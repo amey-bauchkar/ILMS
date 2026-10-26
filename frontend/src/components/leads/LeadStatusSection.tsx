@@ -37,10 +37,10 @@ export function LeadStatusSection({ lead }: LeadStatusSectionProps) {
   return (
     <div className="space-y-4">
       {/* 1. Pipeline Stage Progression Card */}
-      <div className="rounded-2xl border border-black/[0.06] bg-white dark:bg-[#121319] p-4 sm:p-5 shadow-[0_4px_20px_rgba(0,0,0,0.03)] space-y-4">
+      <div className="rounded-2xl border border-black/[0.06] dark:border-white/10 bg-white dark:bg-[#121319] p-4 sm:p-5 shadow-[0_4px_20px_rgba(0,0,0,0.03)] space-y-4">
         <div className="flex items-center justify-between gap-2 border-b border-black/[0.06] dark:border-white/10 pb-3">
           <div className="flex items-center gap-2">
-            <span className="flex h-2.5 w-2.5 rounded-full bg-[#c8f237] animate-pulse shadow-xs" />
+            <span className="flex h-2 w-2 rounded-full bg-emerald-500 animate-pulse shadow-xs" />
             <h3 className="text-xs font-bold uppercase tracking-wider text-[#111318] dark:text-white">
               Pipeline Stage Progression
             </h3>
@@ -56,10 +56,10 @@ export function LeadStatusSection({ lead }: LeadStatusSectionProps) {
               <button
                 type="button"
                 onClick={() => setManualTrackerOpen(!manualTrackerOpen)}
-                className="text-[11px] text-zinc-500 hover:text-[#111318] dark:text-zinc-400 dark:hover:text-white font-medium flex items-center gap-1.5 hover:underline transition-colors px-2.5 py-1 rounded-lg bg-black/[0.02] dark:bg-white/[0.04] border border-black/[0.05]"
+                className="text-[11px] text-zinc-500 hover:text-[#111318] dark:text-zinc-400 dark:hover:text-white font-medium flex items-center gap-1.5 hover:underline transition-colors px-2.5 py-1 rounded-lg bg-black/[0.02] dark:bg-white/[0.04] border border-black/[0.05] dark:border-white/10"
                 title="Preview project update on localhost"
               >
-                <FileSpreadsheet className="w-3 h-3 text-[#15803d] dark:text-[#c8f237]" />
+                <FileSpreadsheet className="w-3 h-3 text-emerald-600 dark:text-emerald-400" />
                 <span>{manualTrackerOpen ? "Hide Project Update" : "Preview Project Update (Localhost)"}</span>
               </button>
             )}
