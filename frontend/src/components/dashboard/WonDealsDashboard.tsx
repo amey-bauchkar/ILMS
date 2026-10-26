@@ -1414,22 +1414,16 @@ export function WonDealsDashboard({ leads }: WonDealsDashboardProps) {
           <div className="w-full max-w-4xl bg-white dark:bg-[#121319] h-full shadow-2xl overflow-y-auto border-l border-black/10 dark:border-white/10 p-6 space-y-6">
             
             {/* Drawer Header */}
-            <div className="flex items-center justify-between border-b border-black/[0.06] dark:border-white/10 pb-4">
-              <div>
-                <div className="flex items-center gap-2">
-                  <span className="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-[#c8f237] text-[#111318]">
-                    Won Project Active
-                  </span>
-                  <span className={cn("px-2.5 py-0.5 rounded-full text-[10px] font-bold border", getStatusColor(selectedProject.tracker.status))}>
-                    {selectedProject.tracker.status}
-                  </span>
-                </div>
-                <h3 className="text-xl font-extrabold text-[#111318] dark:text-white mt-1">
-                  {selectedProject.tracker.projectName}
-                </h3>
-                <p className="text-xs text-zinc-500 dark:text-zinc-400 mt-0.5">
-                  Client: <strong>{selectedProject.lead.name}</strong> • Manager: <strong>{selectedProject.tracker.projectManager}</strong>
-                </p>
+            <div className="flex items-center justify-between border-b border-black/[0.06] dark:border-white/10 pb-3">
+              <div className="flex items-center gap-2 text-xs text-zinc-500 dark:text-zinc-400 font-medium">
+                <span>Won Deals Pipeline</span>
+                <span>/</span>
+                <span className="font-bold text-zinc-900 dark:text-white">
+                  {selectedProject.lead.company || selectedProject.lead.name}
+                </span>
+                <span className={cn("px-2 py-0.5 rounded-full text-[10px] font-semibold border ml-1", getStatusColor(selectedProject.tracker.status))}>
+                  {selectedProject.tracker.status}
+                </span>
               </div>
 
               <div className="flex items-center gap-2">

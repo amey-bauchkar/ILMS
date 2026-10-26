@@ -980,235 +980,176 @@ export function WonProjectTracker({ lead, className }: WonProjectTrackerProps) {
   }, [data.milestones]);
 
   const healthColor = {
-    "On Track": "bg-emerald-500/10 text-emerald-700 dark:text-emerald-400 border-emerald-500/25",
-    "In Progress": "bg-[#c8f237]/25 text-[#111318] dark:text-white border-black/15 dark:border-white/20",
-    "Planning": "bg-blue-500/10 text-blue-700 dark:text-blue-400 border-blue-500/25",
-    "At Risk": "bg-amber-500/10 text-amber-700 dark:text-amber-400 border-amber-500/25",
+    "On Track": "bg-emerald-50 text-emerald-700 dark:bg-emerald-950/40 dark:text-emerald-400 border-emerald-200 dark:border-emerald-800",
+    "In Progress": "bg-blue-50 text-blue-700 dark:bg-blue-950/40 dark:text-blue-400 border-blue-200 dark:border-blue-800",
+    "Planning": "bg-purple-50 text-purple-700 dark:bg-purple-950/40 dark:text-purple-400 border-purple-200 dark:border-purple-800",
+    "At Risk": "bg-rose-50 text-rose-700 dark:bg-rose-950/40 dark:text-rose-400 border-rose-200 dark:border-rose-800",
     "Completed": "bg-emerald-600 text-white border-emerald-700"
-  }[data.status] || "bg-zinc-100 text-zinc-700";
+  }[data.status] || "bg-zinc-100 text-zinc-700 border-zinc-200";
 
   return (
     <div className={cn("space-y-5 select-none animate-in fade-in duration-200", className)} data-testid="won-project-tracker">
       
       {/* ------------------------------------------------------- */}
-      {/* 1. Main Project Card Header with Live Status & Delivery */}
+      {/* 1. Main Project Delivery Overview Card                 */}
       {/* ------------------------------------------------------- */}
-      <div className="rounded-2xl border border-black/[0.08] dark:border-white/10 bg-white dark:bg-[#121319] p-5 shadow-[0_4px_24px_rgba(0,0,0,0.04)] dark:shadow-[0_4px_24px_rgba(0,0,0,0.4)]">
+      <div className="rounded-2xl border border-zinc-200/80 dark:border-zinc-800 bg-white dark:bg-[#151821] p-5 shadow-xs space-y-4">
         
-        {/* Top Badges & Title */}
-        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-black/[0.06] dark:border-white/10 pb-4">
-          <div className="flex items-start gap-3">
-            <div className="w-10 h-10 rounded-xl bg-[#c8f237] border border-black/10 text-[#111318] flex items-center justify-center shrink-0 shadow-xs font-black">
-              <Trophy className="w-5 h-5 text-[#111318]" />
-            </div>
-            <div>
-              <div className="flex items-center gap-2 flex-wrap">
-                <h3 suppressHydrationWarning className="text-base sm:text-lg font-extrabold text-[#111318] dark:text-white tracking-tight">
-                  {data.projectName}
-                </h3>
-                <span className="px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider bg-[#c8f237] text-[#111318] shadow-xs">
-                  Won Deal Active
-                </span>
-                
-                {/* Status Switcher Dropdown */}
-                <div className="relative inline-block">
-                  <select
-                    value={data.status}
-                    onChange={(e) => {
-                      const next = e.target.value as ProjectTrackerData["status"];
-                      updateData((prev) => ({ ...prev, status: next }));
-                      toast.success(`Project status updated to ${next}`);
-                    }}
-                    className={cn(
-                      "appearance-none text-[10px] font-bold uppercase tracking-wider rounded-full px-2.5 py-0.5 pr-5 border cursor-pointer focus:outline-none transition-all shadow-2xs",
-                      healthColor
-                    )}
-                  >
-                    <option value="On Track">On Track</option>
-                    <option value="In Progress">In Progress</option>
-                    <option value="Planning">Planning</option>
-                    <option value="At Risk">At Risk</option>
-                    <option value="Completed">Completed</option>
-                  </select>
-                  <ChevronDown className="w-3 h-3 absolute right-1.5 top-1/2 -translate-y-1/2 pointer-events-none opacity-60" />
-                </div>
-              </div>
+        {/* Top Header: Title, Status, Metadata & Export */}
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-zinc-100 dark:border-zinc-800 pb-4">
+          <div>
+            <div className="flex items-center gap-2.5 flex-wrap">
+              <h3 suppressHydrationWarning className="text-lg font-bold text-zinc-900 dark:text-white tracking-tight">
+                {data.projectName}
+              </h3>
 
-              <p suppressHydrationWarning className="text-xs text-zinc-500 dark:text-zinc-400 mt-1 flex items-center gap-2 flex-wrap">
-                <span>Client: <strong>{lead.name}</strong></span>
-                {lead.company && <span>• Organization: <strong>{lead.company}</strong></span>}
-                <span>• Lead Manager: <strong>{data.projectManager}</strong></span>
-                <span>• Kickoff: <strong>{data.kickoffDate}</strong></span>
-                <span>
-                  • Project Type:{" "}
-                  <strong className="text-[#15803d] dark:text-[#c8f237] font-black bg-[#c8f237]/20 px-2 py-0.5 rounded-md border border-black/10 dark:border-white/10">
-                    {data.projectType || "Corporate Website"}
-                  </strong>
-                </span>
-              </p>
+              {/* Status Switcher Dropdown */}
+              <div className="relative inline-block">
+                <select
+                  value={data.status}
+                  onChange={(e) => {
+                    const next = e.target.value as ProjectTrackerData["status"];
+                    updateData((prev) => ({ ...prev, status: next }));
+                    toast.success(`Status updated to ${next}`);
+                  }}
+                  className={cn(
+                    "appearance-none text-[11px] font-semibold rounded-full px-2.5 py-0.5 pr-5 border cursor-pointer focus:outline-none transition-all",
+                    healthColor
+                  )}
+                >
+                  <option value="On Track">On Track</option>
+                  <option value="In Progress">In Progress</option>
+                  <option value="Planning">Planning</option>
+                  <option value="At Risk">At Risk</option>
+                  <option value="Completed">Completed</option>
+                </select>
+                <ChevronDown className="w-3 h-3 absolute right-1.5 top-1/2 -translate-y-1/2 pointer-events-none opacity-60" />
+              </div>
             </div>
+
+            <p suppressHydrationWarning className="text-xs text-zinc-500 dark:text-zinc-400 mt-1 flex items-center gap-2 flex-wrap">
+              <span>Client: <strong className="text-zinc-700 dark:text-zinc-300 font-semibold">{lead.name}</strong></span>
+              {lead.company && <span>• Organization: <strong className="text-zinc-700 dark:text-zinc-300 font-semibold">{lead.company}</strong></span>}
+              <span>• Manager: <strong className="text-zinc-700 dark:text-zinc-300 font-semibold">{data.projectManager}</strong></span>
+              <span>• Kickoff: <strong className="text-zinc-700 dark:text-zinc-300 font-semibold">{data.kickoffDate}</strong></span>
+            </p>
           </div>
 
-          {/* Quick Action Badges */}
+          {/* Action Badges */}
           <div className="flex items-center gap-2 shrink-0">
             <button
               type="button"
               onClick={handleExportCSV}
-              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl border border-black/[0.08] dark:border-white/10 bg-[#f8fafc] dark:bg-white/[0.05] text-xs font-semibold text-[#111318] dark:text-white hover:bg-black/[0.04] transition-all shadow-2xs active:scale-95"
+              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-800/80 text-xs font-semibold text-zinc-700 dark:text-zinc-300 hover:bg-zinc-50 dark:hover:bg-zinc-800 transition-all shadow-2xs active:scale-95"
               title="Download Tracker Sheet as CSV"
             >
-              <Download className="w-3.5 h-3.5 text-zinc-600 dark:text-zinc-400" />
+              <Download className="w-3.5 h-3.5 text-zinc-500" />
               <span>Export Sheet</span>
             </button>
-            <div className="px-2.5 py-1 rounded-xl bg-black/[0.03] dark:bg-white/[0.05] border border-black/[0.05] dark:border-white/10 text-[10px] font-bold text-zinc-600 dark:text-zinc-300">
-              <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 inline-block mr-1.5" />Local Storage Active
+            <div className="px-2.5 py-1 rounded-lg bg-zinc-50 dark:bg-zinc-800/50 border border-zinc-200/80 dark:border-zinc-800 text-[11px] font-medium text-zinc-600 dark:text-zinc-400 flex items-center gap-1.5">
+              <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 inline-block" />
+              <span>Active Sync</span>
             </div>
           </div>
         </div>
 
-        {/* ----------------------------------------------------- */}
-        {/* 2. "How Much the Work is Done" — Completion Progress */}
-        {/* ----------------------------------------------------- */}
-        <div className="pt-4 space-y-4">
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
-            <div>
-              <div className="flex items-center gap-2">
-                <TrendingUp className="w-4 h-4 text-[#15803d] dark:text-[#c8f237]" />
-                <span className="text-xs font-bold uppercase tracking-wider text-zinc-600 dark:text-zinc-400">
-                  Work Completed Progress
+        {/* 2. Unified Project Type & Progress Bar */}
+        <div className="space-y-3">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+            {/* Clean Website Type Dropdown Selector */}
+            <div className="flex items-center gap-2">
+              <span className="text-xs font-semibold text-zinc-500 dark:text-zinc-400">
+                Project Type:
+              </span>
+              <div className="relative inline-block">
+                <select
+                  value={data.websitePreset || "corporate"}
+                  onChange={(e) => handleApplyWebsitePreset(e.target.value)}
+                  className="appearance-none text-xs font-bold px-3 py-1.5 pr-7 rounded-lg border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-800 text-zinc-900 dark:text-zinc-100 cursor-pointer focus:outline-none hover:border-zinc-300 transition-colors shadow-2xs"
+                >
+                  {Object.values(WEBSITE_PRESETS).map((p) => (
+                    <option key={p.id} value={p.id}>
+                      {p.label}
+                    </option>
+                  ))}
+                </select>
+                <ChevronDown className="w-3 h-3 absolute right-2 top-1/2 -translate-y-1/2 pointer-events-none text-zinc-400" />
+              </div>
+            </div>
+
+            {/* Overall Progress & Quick Set */}
+            <div className="flex items-center gap-3">
+              <div>
+                <span className="text-xs font-semibold text-zinc-500 dark:text-zinc-400">
+                  Overall Progress:
                 </span>
-                <span className="text-2xl font-black text-[#111318] dark:text-white tracking-tight ml-1">
+                <span className="ml-1.5 text-base font-extrabold text-zinc-900 dark:text-white">
                   {data.progressPercent}%
+                </span>
+                <span className="text-[11px] text-zinc-400 ml-1.5 hidden md:inline">
+                  ({completedMilestones}/{data.milestones.length} phases done)
                 </span>
               </div>
-              <p className="text-[11px] text-zinc-500 dark:text-zinc-400 mt-0.5">
-                {completedMilestones} of {data.milestones.length} major deliverables checked • {totalHours} total hours logged
-              </p>
-            </div>
 
-            {/* Quick Adjust Buttons */}
-            <div className="flex items-center gap-1.5 shrink-0 flex-wrap">
-              <span className="text-[10px] font-semibold text-zinc-400 uppercase tracking-wider mr-1">Quick Set:</span>
-              {[25, 50, 75, 100].map((pct) => (
-                <button
-                  key={pct}
-                  type="button"
-                  onClick={() => handleProgressChange(pct)}
-                  className={cn(
-                    "px-2.5 py-1 rounded-lg text-xs font-bold transition-all shadow-2xs active:scale-95",
-                    data.progressPercent === pct
-                      ? "bg-[#111318] dark:bg-white text-white dark:text-[#111318]"
-                      : "bg-[#f8fafc] dark:bg-white/[0.05] border border-black/[0.08] dark:border-white/10 text-zinc-700 dark:text-zinc-300 hover:border-black/30"
-                  )}
-                >
-                  {pct}%
-                </button>
-              ))}
-              <button
-                type="button"
-                onClick={() => handleProgressChange(data.progressPercent - 5)}
-                className="px-2 py-1 rounded-lg text-xs font-bold bg-[#f8fafc] dark:bg-white/[0.05] border border-black/[0.08] text-zinc-700 dark:text-zinc-300 hover:bg-black/5 active:scale-95"
-                title="Decrease 5%"
-              >
-                -5%
-              </button>
-              <button
-                type="button"
-                onClick={() => handleProgressChange(data.progressPercent + 5)}
-                className="px-2 py-1 rounded-lg text-xs font-bold bg-[#f8fafc] dark:bg-white/[0.05] border border-black/[0.08] text-zinc-700 dark:text-zinc-300 hover:bg-black/5 active:scale-95"
-                title="Increase 5%"
-              >
-                +5%
-              </button>
+              {/* Quick Set buttons */}
+              <div className="flex items-center gap-1">
+                {[25, 50, 75, 100].map((pct) => (
+                  <button
+                    key={pct}
+                    type="button"
+                    onClick={() => handleProgressChange(pct)}
+                    className={cn(
+                      "px-2 py-0.5 rounded text-[11px] font-semibold transition-all border",
+                      data.progressPercent === pct
+                        ? "bg-zinc-900 text-white dark:bg-white dark:text-zinc-900 border-zinc-900 dark:border-white shadow-2xs"
+                        : "bg-white dark:bg-zinc-800 text-zinc-600 dark:text-zinc-400 border-zinc-200 dark:border-zinc-800 hover:border-zinc-300"
+                    )}
+                  >
+                    {pct}%
+                  </button>
+                ))}
+              </div>
             </div>
           </div>
 
-          {/* Interactive Visual Progress Bar */}
-          <div className="relative w-full h-3.5 bg-zinc-100 dark:bg-white/10 rounded-full overflow-hidden p-0.5 border border-black/[0.06] dark:border-white/10">
+          {/* Clean Progress Bar (Subtle Emerald, NO Neon Yellow Gradient) */}
+          <div className="relative w-full h-2 bg-zinc-100 dark:bg-zinc-800 rounded-full overflow-hidden">
             <div
-              className="h-full rounded-full transition-all duration-500 ease-out shadow-xs flex items-center justify-end pr-1.5"
-              style={{
-                width: `${data.progressPercent}%`,
-                background: data.progressPercent === 100 
-                  ? "linear-gradient(90deg, #10b981 0%, #059669 100%)" 
-                  : "linear-gradient(90deg, #c8f237 0%, #10b981 100%)"
-              }}
-            >
-              {data.progressPercent >= 15 && (
-                <span className="text-[9px] font-black text-[#111318]">
-                  {data.progressPercent}%
-                </span>
-              )}
-            </div>
+              className="h-full rounded-full transition-all duration-500 ease-out bg-emerald-500"
+              style={{ width: `${data.progressPercent}%` }}
+            />
           </div>
         </div>
 
-        {/* ----------------------------------------------------- */}
-        {/* 3. Deliverables & Milestones Checklist                 */}
-        {/* ----------------------------------------------------- */}
-        <div className="pt-5 border-t border-black/[0.06] dark:border-white/10 mt-5">
+        {/* 3. Deliverables & Milestones Roadmap */}
+        <div className="pt-4 border-t border-zinc-100 dark:border-zinc-800">
           
-          {/* Website Type Selector */}
-          <div className="p-3.5 mb-4 rounded-xl bg-[#f8fafc] dark:bg-white/[0.02] border border-black/[0.08] dark:border-white/10">
-            <div className="flex items-center justify-between gap-2 mb-2.5">
-              <span className="text-xs font-bold uppercase tracking-wider text-[#111318] dark:text-white">
-                Website Type
-              </span>
-              {data.websitePreset && WEBSITE_PRESETS[data.websitePreset] && (
-                <span className="text-xs text-zinc-500 dark:text-zinc-400">
-                  Active: <strong className="text-[#111318] dark:text-white font-bold">{WEBSITE_PRESETS[data.websitePreset].label}</strong>
-                </span>
-              )}
-            </div>
-
-            <div className="flex flex-wrap gap-2">
-              {Object.values(WEBSITE_PRESETS).map((preset) => {
-                const isActive = (data.websitePreset || "corporate") === preset.id;
-                return (
-                  <button
-                    key={preset.id}
-                    type="button"
-                    onClick={() => handleApplyWebsitePreset(preset.id)}
-                    className={cn(
-                      "px-3 py-1.5 rounded-lg text-xs font-semibold border transition-all text-center",
-                      isActive
-                        ? "bg-[#111318] text-white dark:bg-white dark:text-[#111318] border-[#111318] dark:border-white shadow-2xs font-bold"
-                        : "bg-white dark:bg-white/[0.04] text-zinc-700 dark:text-zinc-300 border-black/[0.08] dark:border-white/10 hover:border-black/25 dark:hover:border-white/25 hover:text-black dark:hover:text-white"
-                    )}
-                  >
-                    {preset.label}
-                  </button>
-                );
-              })}
-            </div>
-          </div>
-
           {/* Section Sub-Header */}
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-3">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-3.5">
             <div className="flex items-center gap-2 flex-wrap">
-              <CheckSquare className="w-4 h-4 text-[#15803d] dark:text-[#c8f237]" />
-              <h4 className="text-xs font-bold uppercase tracking-wider text-[#111318] dark:text-white">
+              <CheckSquare className="w-4 h-4 text-zinc-700 dark:text-zinc-300" />
+              <h4 className="text-xs font-bold uppercase tracking-wider text-zinc-900 dark:text-white">
                 Project Milestones & Deliverables Roadmap
               </h4>
-              <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-[#c8f237]/20 text-[#111318] dark:text-[#c8f237] border border-black/10 dark:border-white/15">
-                {completedMilestones} / {data.milestones.length} Milestones Done ({data.milestones.length > 0 ? Math.round((completedMilestones / data.milestones.length) * 100) : 0}%)
+              <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[11px] font-semibold bg-zinc-100 dark:bg-zinc-800 text-zinc-700 dark:text-zinc-300 border border-zinc-200/80 dark:border-zinc-700">
+                {completedMilestones} / {data.milestones.length} Completed ({data.milestones.length > 0 ? Math.round((completedMilestones / data.milestones.length) * 100) : 0}%)
               </span>
             </div>
             <div className="flex items-center gap-2 shrink-0">
               <button
                 type="button"
                 onClick={() => setShowAddMilestone(!showAddMilestone)}
-                className="inline-flex items-center gap-1 text-xs font-bold text-[#15803d] dark:text-[#c8f237] hover:underline"
+                className="inline-flex items-center gap-1 text-xs font-semibold text-zinc-700 dark:text-zinc-300 hover:text-black dark:hover:text-white px-2.5 py-1 rounded-lg border border-zinc-200 dark:border-zinc-800 hover:bg-zinc-50 dark:hover:bg-zinc-800 transition-colors"
               >
                 <Plus className="w-3.5 h-3.5" />
-                <span>{showAddMilestone ? "Close" : "Add Milestone"}</span>
+                <span>{showAddMilestone ? "Close" : "Add Phase"}</span>
               </button>
             </div>
           </div>
 
           {/* Add Milestone Inline Form */}
           {showAddMilestone && (
-            <form onSubmit={handleAddMilestone} className="p-3.5 mb-3.5 rounded-xl bg-[#f8fafc] dark:bg-white/[0.03] border border-black/[0.08] dark:border-white/10 space-y-2.5 animate-in fade-in duration-150">
+            <form onSubmit={handleAddMilestone} className="p-3.5 mb-3.5 rounded-xl bg-zinc-50/80 dark:bg-zinc-900/60 border border-zinc-200 dark:border-zinc-800 space-y-2.5 animate-in fade-in duration-150">
               <div className="flex flex-col sm:flex-row gap-2.5 items-end">
                 {/* Which Phase Selector */}
                 <div className="w-full sm:w-44 space-y-1">
@@ -1218,7 +1159,7 @@ export function WonProjectTracker({ lead, className }: WonProjectTrackerProps) {
                   <select
                     value={newMilestonePhase}
                     onChange={(e) => setNewMilestonePhase(e.target.value)}
-                    className="w-full bg-white dark:bg-white/10 border border-black/[0.12] dark:border-white/15 rounded-lg px-2.5 py-1.5 text-xs font-semibold text-[#111318] dark:text-white focus:outline-none"
+                    className="w-full bg-white dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 rounded-lg px-2.5 py-1.5 text-xs font-semibold text-zinc-900 dark:text-white focus:outline-none"
                   >
                     <option value="next">
                       Phase {data.milestones.length + 1} (Next Phase)
@@ -1241,7 +1182,7 @@ export function WonProjectTracker({ lead, className }: WonProjectTrackerProps) {
                     value={newMilestoneTitle}
                     onChange={(e) => setNewMilestoneTitle(e.target.value)}
                     placeholder="e.g. Scope Sign-off, Core Deliverables, Client Handover"
-                    className="w-full bg-white dark:bg-white/10 border border-black/[0.12] dark:border-white/15 rounded-lg px-3 py-1.5 text-xs text-[#111318] dark:text-white focus:outline-none focus:border-[#111318]"
+                    className="w-full bg-white dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 rounded-lg px-3 py-1.5 text-xs font-medium text-zinc-900 dark:text-white focus:outline-none focus:border-zinc-900"
                   />
                 </div>
 
@@ -1254,26 +1195,26 @@ export function WonProjectTracker({ lead, className }: WonProjectTrackerProps) {
                     type="date"
                     value={newMilestoneDate}
                     onChange={(e) => setNewMilestoneDate(e.target.value)}
-                    className="w-full bg-white dark:bg-white/10 border border-black/[0.12] dark:border-white/15 rounded-lg px-3 py-1.5 text-xs text-[#111318] dark:text-white focus:outline-none"
+                    className="w-full bg-white dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 rounded-lg px-3 py-1.5 text-xs text-zinc-900 dark:text-white focus:outline-none"
                   />
                 </div>
 
-                <Button type="submit" size="sm" className="bg-[#111318] text-white hover:bg-black font-bold text-xs h-8 rounded-lg px-4 shrink-0">
-                  Save Milestone
+                <Button type="submit" size="sm" className="bg-zinc-900 text-white hover:bg-black font-semibold text-xs h-8 rounded-lg px-4 shrink-0">
+                  Save Phase
                 </Button>
               </div>
 
               {/* Quick Phase Suggestions Pills */}
-              <div className="flex items-center gap-1.5 flex-wrap pt-2 border-t border-black/[0.05] dark:border-white/[0.06]">
+              <div className="flex items-center gap-1.5 flex-wrap pt-2 border-t border-zinc-200/60 dark:border-zinc-800">
                 <span className="text-[10px] font-bold uppercase tracking-wider text-zinc-400 mr-1">
-                  Quick Phase Templates:
+                  Quick Templates:
                 </span>
                 {COMMON_PHASE_SUGGESTIONS.map((phase) => (
                   <button
                     key={phase}
                     type="button"
                     onClick={() => setNewMilestoneTitle(phase)}
-                    className="px-2 py-0.5 rounded-md text-[10px] font-medium border border-black/[0.08] dark:border-white/10 bg-white dark:bg-white/[0.04] text-zinc-600 dark:text-zinc-300 hover:border-black/25 dark:hover:border-white/25 hover:text-black dark:hover:text-white transition-all"
+                    className="px-2 py-0.5 rounded-md text-[10px] font-medium border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-800 text-zinc-600 dark:text-zinc-300 hover:border-zinc-400 hover:text-black dark:hover:text-white transition-all"
                   >
                     + {phase}
                   </button>
@@ -1282,16 +1223,16 @@ export function WonProjectTracker({ lead, className }: WonProjectTrackerProps) {
             </form>
           )}
 
-          {/* Clean Compact Milestones Grid */}
-          <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-3.5">
+          {/* Clean 2-Column Milestone Grid */}
+          <div className="grid sm:grid-cols-2 gap-3">
             {data.milestones.map((m, idx) => (
               <div
                 key={m.id}
                 className={cn(
-                  "p-4 rounded-2xl border transition-all select-none group flex flex-col justify-between shadow-2xs",
+                  "p-3.5 rounded-xl border transition-all select-none group flex flex-col justify-between shadow-2xs",
                   m.completed
-                    ? "bg-emerald-500/[0.04] border-emerald-500/30 hover:border-emerald-500/50"
-                    : "bg-[#f8fafc]/80 dark:bg-white/[0.02] border-black/[0.06] dark:border-white/10 hover:border-black/20 dark:hover:border-white/20"
+                    ? "bg-zinc-50/70 dark:bg-zinc-900/30 border-zinc-200/80 dark:border-zinc-800 opacity-90"
+                    : "bg-white dark:bg-zinc-900/50 border-zinc-200 dark:border-zinc-800 hover:border-zinc-300 dark:hover:border-zinc-700"
                 )}
               >
                 <div className="flex items-start gap-3">
@@ -1302,9 +1243,9 @@ export function WonProjectTracker({ lead, className }: WonProjectTrackerProps) {
                     title={m.completed ? "Mark milestone pending" : "Mark milestone completed"}
                   >
                     {m.completed ? (
-                      <CheckCircle2 className="w-5 h-5 text-emerald-600 dark:text-emerald-400" />
+                      <CheckCircle2 className="w-4 h-4 text-emerald-600 dark:text-emerald-400" />
                     ) : (
-                      <Circle className="w-5 h-5 text-zinc-400 group-hover:text-zinc-600 dark:group-hover:text-zinc-200 transition-colors" />
+                      <Circle className="w-4 h-4 text-zinc-400 group-hover:text-zinc-600 dark:group-hover:text-zinc-300 transition-colors" />
                     )}
                   </button>
                   <div className="min-w-0 flex-1">
@@ -1314,10 +1255,10 @@ export function WonProjectTracker({ lead, className }: WonProjectTrackerProps) {
                       </span>
                       <div className="flex items-center gap-1.5">
                         <span className={cn(
-                          "text-[10px] font-bold px-2 py-0.5 rounded-full border",
+                          "text-[10px] font-semibold px-2 py-0.5 rounded-full border",
                           m.completed 
-                            ? "bg-emerald-500/10 text-emerald-700 dark:text-emerald-400 border-emerald-500/20" 
-                            : "bg-amber-500/10 text-amber-700 dark:text-amber-400 border-amber-500/20"
+                            ? "bg-emerald-50 text-emerald-700 dark:bg-emerald-950/40 dark:text-emerald-400 border-emerald-200 dark:border-emerald-800" 
+                            : "bg-zinc-100 text-zinc-600 dark:bg-zinc-800 dark:text-zinc-400 border-zinc-200 dark:border-zinc-700"
                         )}>
                           {m.completed ? "Completed" : "In Progress"}
                         </span>
@@ -1334,25 +1275,23 @@ export function WonProjectTracker({ lead, className }: WonProjectTrackerProps) {
                     <h5 className={cn(
                       "text-xs font-bold mt-1 leading-snug transition-colors",
                       m.completed 
-                        ? "text-[#111318] dark:text-white line-through opacity-80" 
-                        : "text-[#111318] dark:text-white"
+                        ? "text-zinc-500 dark:text-zinc-400 line-through" 
+                        : "text-zinc-900 dark:text-zinc-100"
                     )}>
                       {m.title}
                     </h5>
-                    <div className="flex items-center gap-2 mt-2 text-[10px] text-zinc-500 dark:text-zinc-400 font-medium flex-wrap">
+                    <div className="flex items-center gap-2 mt-1.5 text-[10px] text-zinc-500 dark:text-zinc-400 font-medium">
                       <span className="flex items-center gap-1">
                         <Calendar className="w-3 h-3 text-zinc-400" />
                         Target: {m.targetDate}
                       </span>
                       <span>•</span>
-                      <span className="text-zinc-400 font-semibold">
-                        Weight: {m.weight || 20}%
-                      </span>
+                      <span>Weight: {m.weight || 20}%</span>
                     </div>
                   </div>
                 </div>
 
-                <div className="mt-3 pt-2.5 border-t border-black/[0.05] dark:border-white/[0.06] flex items-center justify-between">
+                <div className="mt-3 pt-2.5 border-t border-zinc-100 dark:border-zinc-800 flex items-center justify-between">
                   <span className="text-[10px] text-zinc-400 font-medium">
                     {m.completed ? "✓ Delivered" : "Pending action"}
                   </span>
@@ -1360,14 +1299,13 @@ export function WonProjectTracker({ lead, className }: WonProjectTrackerProps) {
                     type="button"
                     onClick={() => handleToggleMilestone(m.id)}
                     className={cn(
-                      "inline-flex items-center gap-1 text-[10px] font-bold px-2.5 py-1 rounded-lg border transition-all active:scale-95 shadow-2xs",
+                      "text-[11px] font-semibold px-2.5 py-1 rounded-lg border transition-all active:scale-95 shadow-2xs",
                       m.completed
-                        ? "bg-zinc-100 dark:bg-white/10 text-zinc-700 dark:text-zinc-300 border-black/10 dark:border-white/15 hover:bg-zinc-200"
-                        : "bg-[#c8f237] hover:bg-[#b5dc30] text-[#111318] border-black/15 font-black"
+                        ? "bg-zinc-50 dark:bg-zinc-800 text-zinc-600 dark:text-zinc-400 border-zinc-200 dark:border-zinc-700 hover:bg-zinc-100"
+                        : "bg-zinc-900 text-white dark:bg-white dark:text-zinc-900 hover:bg-black dark:hover:bg-zinc-200 border-zinc-900 dark:border-white font-bold"
                     )}
                   >
-                    <Zap className="w-3 h-3" />
-                    <span>{m.completed ? "Reopen Phase" : "1-Click Complete"}</span>
+                    {m.completed ? "Reopen" : "Mark Done"}
                   </button>
                 </div>
               </div>
@@ -1379,20 +1317,20 @@ export function WonProjectTracker({ lead, className }: WonProjectTrackerProps) {
       {/* ------------------------------------------------------- */}
       {/* 4. Daily Activity Tracker Sheet ("Tracker Sheet")       */}
       {/* ------------------------------------------------------- */}
-      <div className="rounded-2xl border border-black/[0.08] dark:border-white/10 bg-white dark:bg-[#121319] p-5 shadow-[0_4px_24px_rgba(0,0,0,0.04)] dark:shadow-[0_4px_24px_rgba(0,0,0,0.4)]">
+      <div className="rounded-2xl border border-zinc-200/80 dark:border-zinc-800 bg-white dark:bg-[#151821] p-5 shadow-xs">
         
         {/* Table Controls & Header */}
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-black/[0.06] dark:border-white/10 pb-4">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-zinc-100 dark:border-zinc-800 pb-4">
           <div className="flex items-center gap-2.5">
-            <div className="w-8 h-8 rounded-lg bg-[#c8f237]/20 border border-black/10 flex items-center justify-center text-[#111318] dark:text-[#c8f237] shrink-0 font-bold">
+            <div className="w-8 h-8 rounded-lg bg-zinc-100 dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 flex items-center justify-center text-zinc-700 dark:text-zinc-300 shrink-0 font-bold">
               <FileSpreadsheet className="w-4 h-4" />
             </div>
             <div>
               <div className="flex items-center gap-2">
-                <h4 className="text-sm font-bold text-[#111318] dark:text-white uppercase tracking-wider">
+                <h4 className="text-xs font-bold text-zinc-900 dark:text-white uppercase tracking-wider">
                   Daily Project Activity Tracker Sheet
                 </h4>
-                <span className="px-2 py-0.5 rounded-full bg-black/5 dark:bg-white/10 text-[10px] font-bold text-[#111318] dark:text-white">
+                <span className="px-2 py-0.5 rounded-full bg-zinc-100 dark:bg-zinc-800 text-[10px] font-bold text-zinc-700 dark:text-zinc-300">
                   {data.dailyLogs.length} Entries
                 </span>
               </div>
@@ -1407,10 +1345,10 @@ export function WonProjectTracker({ lead, className }: WonProjectTrackerProps) {
             <Button
               type="button"
               onClick={() => setShowAddLog(!showAddLog)}
-              className="bg-[#c8f237] hover:bg-[#b5e028] text-[#111318] font-bold text-xs h-9 px-4 rounded-xl shadow-xs gap-1.5 active:scale-95"
+              className="bg-zinc-900 text-white hover:bg-black font-semibold text-xs h-8 px-3 rounded-lg shadow-2xs gap-1.5 active:scale-95"
             >
-              <Plus className="w-4 h-4" />
-              <span>{showAddLog ? "Cancel Entry" : "Log Daily Activity"}</span>
+              <Plus className="w-3.5 h-3.5" />
+              <span>{showAddLog ? "Cancel Entry" : "Log Activity"}</span>
             </Button>
           </div>
         </div>
@@ -1419,14 +1357,14 @@ export function WonProjectTracker({ lead, className }: WonProjectTrackerProps) {
         {showAddLog && (
           <form
             onSubmit={handleAddDailyLog}
-            className="p-4 my-4 rounded-xl bg-[#f8fafc] dark:bg-white/[0.03] border border-black/[0.1] dark:border-white/15 space-y-3 animate-in fade-in slide-in-from-top-2 duration-150"
+            className="p-4 my-4 rounded-xl bg-zinc-50/80 dark:bg-zinc-900/60 border border-zinc-200 dark:border-zinc-800 space-y-3 animate-in fade-in slide-in-from-top-2 duration-150"
           >
-            <div className="flex items-center justify-between border-b border-black/[0.06] dark:border-white/10 pb-2">
-              <span className="text-xs font-bold uppercase text-[#111318] dark:text-white flex items-center gap-1.5">
-                <Plus className="w-3.5 h-3.5 text-[#15803d] dark:text-[#c8f237]" />
+            <div className="flex items-center justify-between border-b border-zinc-200/60 dark:border-zinc-800 pb-2">
+              <span className="text-xs font-bold uppercase text-zinc-900 dark:text-white flex items-center gap-1.5">
+                <Plus className="w-3.5 h-3.5 text-zinc-500" />
                 Log Daily Project Activity
               </span>
-              <span className="text-[10px] text-zinc-400">Saved to localhost session</span>
+              <span className="text-[10px] text-zinc-400">Saved to session</span>
             </div>
 
             <div className="grid grid-cols-1 sm:grid-cols-4 gap-3">
