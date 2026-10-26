@@ -70,7 +70,7 @@ export interface ProjectTrackerData {
   leadId: string;
   projectName: string;
   projectType?: string;
-  websitePreset?: "corporate" | "ecommerce" | "landing" | "portfolio" | "saas" | "custom";
+  websitePreset?: string;
   status: "Planning" | "In Progress" | "On Track" | "At Risk" | "Completed";
   progressPercent: number; // 0 - 100
   kickoffDate: string;
@@ -88,11 +88,8 @@ export interface ProjectTrackerData {
 // -------------------------------------------------------------
 
 export interface WebsitePreset {
-  id: "corporate" | "ecommerce" | "landing" | "portfolio" | "saas";
+  id: string;
   label: string;
-  emoji: string;
-  tagline: string;
-  badge: string;
   description: string;
   projectNameSuffix: string;
   milestones: {
@@ -100,7 +97,7 @@ export interface WebsitePreset {
     description: string;
     weight: number;
     targetDaysFromNow: number;
-    steps: { title: string; notes?: string }[];
+    steps?: { title: string; notes?: string }[];
   }[];
 }
 
@@ -108,355 +105,380 @@ export const WEBSITE_PRESETS: Record<string, WebsitePreset> = {
   corporate: {
     id: "corporate",
     label: "Corporate Website",
-    emoji: "🌐",
-    tagline: "5-Page Business CMS",
-    badge: "Corporate CMS",
-    description: "Complete 5-page responsive corporate website with custom domain, SSL, contact forms, lead alerts, WhatsApp chat, and Google SEO setup.",
+    description: "5-page responsive corporate website with custom domain, SSL, contact forms, lead alerts, WhatsApp chat, and Google SEO setup.",
     projectNameSuffix: "Corporate Website Project",
     milestones: [
       {
         title: "1. Domain, Brand Assets & Sitemap Structure",
-        description: "Connect custom domain DNS, setup SSL security, gather client brand guidelines/logo, and finalize 5-page responsive sitemap (Home, About, Services, Case Studies, Contact).",
+        description: "Connect custom domain DNS, setup SSL security, gather client brand guidelines/logo, and finalize 5-page responsive sitemap.",
         weight: 20,
-        targetDaysFromNow: -1,
-        steps: [
-          { title: "Configure custom domain & SSL certificate on production hosting", notes: "Domain DNS & SSL active" },
-          { title: "Collect client brand assets (vector logo, color palette & typography)", notes: "Brand guidelines confirmed" },
-          { title: "Finalize 5-page sitemap & desktop/mobile layout wireframes", notes: "Sitemap approved by client" },
-          { title: "Client design approval & stakeholder sign-off", notes: "Wireframes approved" }
-        ]
+        targetDaysFromNow: -1
       },
       {
         title: "2. Website Copywriting & Media Assets Finalized",
-        description: "High-converting headline copy, value proposition messaging, and curated high-resolution WebP imagery and icons.",
+        description: "Headline copy, value proposition messaging, and curated high-resolution WebP imagery and icons.",
         weight: 20,
-        targetDaysFromNow: 0,
-        steps: [
-          { title: "Draft headline copy, service blurbs & call-to-action text", notes: "All page copy completed" },
-          { title: "Source optimized WebP images, icons & client team photos", notes: "Media assets compressed & optimized" },
-          { title: "Review copy & layout structure with client", notes: "Client feedback incorporated" },
-          { title: "Sign-off on all page copy & content deliverables", notes: "Content sign-off secured" }
-        ]
+        targetDaysFromNow: 0
       },
       {
         title: "3. Frontend Development & Lead Capture Integration",
-        description: "Build pixel-perfect responsive pages, interactive lead capture form with instant email alerts, and floating WhatsApp contact button.",
+        description: "Pixel-perfect responsive pages, interactive lead capture form with instant email alerts, and floating WhatsApp contact button.",
         weight: 20,
-        targetDaysFromNow: 7,
-        steps: [
-          { title: "Develop responsive pages: Home, About, Services & Case Studies", notes: "Desktop & mobile responsive layouts" },
-          { title: "Implement interactive Contact Form with instant email alerts", notes: "Instant sales notification verified" },
-          { title: "Integrate floating WhatsApp & Click-to-Call CTAs", notes: "WhatsApp direct chat connected" },
-          { title: "Setup FAQ accordion, testimonial carousel & Google Map embed", notes: "Interactive components active" }
-        ]
+        targetDaysFromNow: 7
       },
       {
         title: "4. SEO Optimization, Speed & Mobile QA Audit",
         description: "Technical on-page SEO, meta tags, Google Analytics 4 tracking, 90+ mobile PageSpeed performance, and cross-browser QA.",
         weight: 20,
-        targetDaysFromNow: 18,
-        steps: [
-          { title: "Configure meta titles, descriptions, OpenGraph tags & favicon", notes: "SEO meta tags completed" },
-          { title: "Connect Google Search Console & submit XML sitemap", notes: "GSC verified & indexed" },
-          { title: "Optimize image compression & caching for sub-2s load time", notes: "Core Web Vitals passed" },
-          { title: "Cross-device testing on Chrome, Safari, iOS & Android", notes: "Multi-device QA verified" }
-        ]
+        targetDaysFromNow: 18
       },
       {
         title: "5. Go-Live Production Launch & Client Handover",
         description: "Live DNS propagation, live contact form submission verification, CMS client walkthrough, and warranty support handover.",
         weight: 20,
-        targetDaysFromNow: 30,
-        steps: [
-          { title: "Point live domain to production & verify SSL status", notes: "Live on custom domain" },
-          { title: "Test live contact form submission and deliverability", notes: "Form test verified" },
-          { title: "Conduct CMS walkthrough & record client training video", notes: "Training video delivered to client" },
-          { title: "Formal project completion sign-off & client review request", notes: "Project closure completed" }
-        ]
+        targetDaysFromNow: 30
       }
     ]
   },
   ecommerce: {
     id: "ecommerce",
     label: "E-Commerce Store",
-    emoji: "🛒",
-    tagline: "Catalog, Cart & Payments",
-    badge: "Online Store",
-    description: "Full e-commerce online store with product catalog, cart drawer, Razorpay/Stripe checkout, order confirmation automation, and GST invoicing.",
+    description: "Full e-commerce online store with product catalog, cart drawer, Razorpay/Stripe checkout, order confirmation automation, and invoicing.",
     projectNameSuffix: "E-Commerce Store Project",
     milestones: [
       {
         title: "1. Store Setup, Domain & Brand Identity",
         description: "Hosting setup, secure SSL, currency/tax configuration, and homepage announcement banner.",
         weight: 20,
-        targetDaysFromNow: -1,
-        steps: [
-          { title: "Setup store hosting, custom domain & SSL certificate", notes: "Domain & SSL active" },
-          { title: "Configure store currency (INR/USD), tax rules & business details", notes: "Taxes & currency set" },
-          { title: "Design homepage banner, announcement bar & brand theme", notes: "Store branding finalized" },
-          { title: "Client review of initial store layout & branding", notes: "Theme approved by client" }
-        ]
+        targetDaysFromNow: -1
       },
       {
-        title: "2. Product Catalog, Categories & Inventory Setup",
-        description: "Product categorization, bulk catalog upload, high-res photo gallery, variants (sizes, colors), and stock management.",
+        title: "2. Product Catalog, Inventory & Categories Upload",
+        description: "Product variants, pricing, inventory stock counts, SKU mapping, and photography.",
         weight: 20,
-        targetDaysFromNow: 0,
-        steps: [
-          { title: "Create product categories, tags & collection pages", notes: "Category taxonomy configured" },
-          { title: "Upload initial product catalog with pricing, SKUs & stock", notes: "All products published" },
-          { title: "Configure product variants (sizes, colors) & image galleries", notes: "Variant matrices active" },
-          { title: "Catalog verification & pricing review with client", notes: "Catalog sign-off completed" }
-        ]
+        targetDaysFromNow: 0
       },
       {
         title: "3. Cart, Checkout & Payment Gateway Integration",
-        description: "1-page frictionless checkout, cart drawer with free shipping goal, payment gateways (Razorpay, UPI, Cards, COD), and shipping rates.",
+        description: "1-page fast checkout, Razorpay / Stripe gateway, automated email invoices, and coupon codes.",
         weight: 20,
-        targetDaysFromNow: 7,
-        steps: [
-          { title: "Integrate payment gateway (Razorpay / Stripe / UPI / Cards)", notes: "Live payment gateway verified" },
-          { title: "Setup Cash on Delivery (COD) & shipping zone rates", notes: "Shipping matrices configured" },
-          { title: "Configure cart drawer & 1-page frictionless checkout", notes: "Cart drawer active" },
-          { title: "Automate order confirmation emails & WhatsApp alerts", notes: "Order triggers tested" }
-        ]
+        targetDaysFromNow: 7
       },
       {
-        title: "4. E-Commerce SEO, Speed & Security Audit",
-        description: "Product schema markup, mobile checkout stress test, live test transaction pass, and PCI compliance verification.",
+        title: "4. Shipping Rules, Tax & Order Notification Tests",
+        description: "Shiprocket / courier integration, live test transactions, order confirmation SMS, and abandoned cart recovery.",
         weight: 20,
-        targetDaysFromNow: 18,
-        steps: [
-          { title: "Add product schema markup & meta tags for Google Shopping", notes: "Product rich snippets active" },
-          { title: "Conduct live test orders with card, net banking & UPI", notes: "End-to-end checkout test passed" },
-          { title: "Verify automated GST invoices & receipt generation", notes: "PDF invoice generation active" },
-          { title: "Mobile speed optimization & security checkout verification", notes: "Sub-2s mobile checkout" }
-        ]
+        targetDaysFromNow: 18
       },
       {
-        title: "5. Store Launch, Marketing Tracking & Handover",
-        description: "Remove store password, launch public access, setup Meta Pixel & GA4 Enhanced Ecommerce, and provide admin order management training.",
+        title: "5. Store Go-Live, Meta Pixel & Client Admin Handover",
+        description: "Live domain switch, Meta Pixel purchase events, Google Tag Manager verification, and admin store training.",
         weight: 20,
-        targetDaysFromNow: 30,
-        steps: [
-          { title: "Remove store password & launch live store on custom domain", notes: "Store open to public" },
-          { title: "Install Meta Pixel, Google Tag Manager & GA4 Ecommerce events", notes: "Purchase tracking verified" },
-          { title: "Admin walkthrough on fulfilling orders & processing refunds", notes: "Admin training completed" },
-          { title: "Final project handover, sign-off & launch announcement", notes: "Store launched successfully" }
-        ]
+        targetDaysFromNow: 30
       }
     ]
   },
   landing: {
     id: "landing",
     label: "Landing Page",
-    emoji: "🚀",
-    tagline: "Lead Gen & Conversions",
-    badge: "High-Converting Page",
-    description: "High-converting single-page landing page optimized for paid ads and lead generation with interactive forms, WhatsApp CTA, and pixel tracking.",
+    description: "High-converting single-page landing page optimized for paid ads and lead generation with interactive forms and pixel tracking.",
     projectNameSuffix: "High-Converting Landing Page",
     milestones: [
       {
         title: "1. Offer Strategy & High-Converting Wireframe",
         description: "Target audience hook, core value proposition, irresistible offer breakdown, and mobile-first visual hierarchy.",
         weight: 20,
-        targetDaysFromNow: -1,
-        steps: [
-          { title: "Define target audience hook, core offer & guarantees", notes: "Core hook formalized" },
-          { title: "Structure wireframe: Hero, Social Proof, Benefits, Offer, FAQ", notes: "Wireframe layout complete" },
-          { title: "Craft compelling Call-to-Action (CTA) buttons", notes: "High-converting CTAs drafted" },
-          { title: "Client review & wireframe sign-off", notes: "Structure approved" }
-        ]
+        targetDaysFromNow: -1
       },
       {
         title: "2. High-Impact Visual Design & Copywriting",
         description: "Persuasive sales copywriting, custom 3D/vector graphics, client video testimonials, trust badges, and hero imagery.",
         weight: 20,
-        targetDaysFromNow: 0,
-        steps: [
-          { title: "Finalize persuasive sales copy & objection-busting FAQs", notes: "Sales copy finalized" },
-          { title: "Create custom graphics, mockup visuals & trust badges", notes: "Graphics rendered & optimized" },
-          { title: "Design mobile-first responsive layout", notes: "Mobile layout perfected" },
-          { title: "Client review of final visual prototype", notes: "Design approved by client" }
-        ]
+        targetDaysFromNow: 0
       },
       {
         title: "3. Interactive Lead Form & CRM Integration",
         description: "Multi-step interactive lead capture form, instant webhook to Foremark CRM, email notifications, and direct WhatsApp chat.",
         weight: 20,
-        targetDaysFromNow: 5,
-        steps: [
-          { title: "Build interactive lead capture form with instant validation", notes: "Real-time validation active" },
-          { title: "Connect real-time webhook to Foremark CRM & sales team email", notes: "CRM auto-lead sync verified" },
-          { title: "Integrate WhatsApp click-to-chat floating button", notes: "Direct WhatsApp link active" },
-          { title: "Configure Calendly / meeting booking appointment embed", notes: "Booking scheduler active" }
-        ]
+        targetDaysFromNow: 7
       },
       {
         title: "4. Tracking Pixels, Speed & A/B Test Readiness",
         description: "Google Tag Manager, GA4 conversion tracking, Meta Pixel, Core Web Vitals optimization, and privacy/terms pages.",
         weight: 20,
-        targetDaysFromNow: 12,
-        steps: [
-          { title: "Install Google Tag Manager, GA4 & Meta Pixel conversion tags", notes: "Lead event tracking verified" },
-          { title: "Verify form submission lead event fires accurately", notes: "Pixel firing verified" },
-          { title: "Optimize load time for sub-1.5s mobile rendering", notes: "95+ PageSpeed score" },
-          { title: "Add Privacy Policy, Terms & Disclaimer legal links", notes: "Compliance pages active" }
-        ]
+        targetDaysFromNow: 18
       },
       {
         title: "5. Campaign Go-Live & Traffic Readiness",
         description: "Custom subdomain pointing, live test lead submission, notification check, and ad campaign traffic launch.",
         weight: 20,
-        targetDaysFromNow: 20,
-        steps: [
-          { title: "Connect custom domain / subdomain with active SSL", notes: "Landing page live" },
-          { title: "Execute live end-to-end test lead submission", notes: "Lead test confirmed" },
-          { title: "Verify sales team instant notification triggers", notes: "Alert triggers verified" },
-          { title: "Final project sign-off & campaign launch ready", notes: "Ready for paid ads traffic" }
-        ]
+        targetDaysFromNow: 30
       }
     ]
   },
   portfolio: {
     id: "portfolio",
     label: "Portfolio / Agency",
-    emoji: "💼",
-    tagline: "Case Studies & Creative",
-    badge: "Creative Showcase",
-    description: "Modern portfolio and agency website showcasing client case studies, service packaging, video testimonials, and discovery call scheduling.",
-    projectNameSuffix: "Agency Portfolio Website",
+    description: "Portfolio and creative agency showcase with dynamic case study grids, project detail sliders, client logos, and inquiry booking.",
+    projectNameSuffix: "Agency Portfolio Project",
     milestones: [
       {
-        title: "1. Creative Direction & Case Study Selection",
-        description: "Brand aesthetic, case study curation, service packages, and typography alignment.",
+        title: "1. Creative Direction, Brand Identity & Sitemap",
+        description: "Creative direction, typography hierarchy, dark/light palette, and case study categories.",
         weight: 20,
-        targetDaysFromNow: -1,
-        steps: [
-          { title: "Curate top client case studies with before/after results", notes: "Case studies drafted" },
-          { title: "Define agency service tiers, deliverables & pricing packages", notes: "Packages documented" },
-          { title: "Establish bold modern typography & brand aesthetic", notes: "Design direction confirmed" },
-          { title: "Client approval of project direction & sitemap", notes: "Sitemap approved" }
-        ]
+        targetDaysFromNow: -1
       },
       {
-        title: "2. Visual Design & Interactive Case Studies",
-        description: "Interactive portfolio grid, modal project previews, video showcase, and founder bio.",
+        title: "2. Case Studies, Media Gallery & Project Showcases",
+        description: "Client case studies, before/after sliders, video embeds, client reviews, and metrics.",
         weight: 20,
-        targetDaysFromNow: 0,
-        steps: [
-          { title: "Design filterable portfolio grid with interactive hover states", notes: "Portfolio gallery built" },
-          { title: "Build detailed case study modal / detail pages", notes: "Modals & case studies live" },
-          { title: "Design founder story & client video testimonial section", notes: "Social proof active" },
-          { title: "Client design review & feedback implementation", notes: "Design approved" }
-        ]
+        targetDaysFromNow: 0
       },
       {
         title: "3. Inquiry Questionnaire & Booking Flow",
-        description: "Client onboarding intake questionnaire, budget selection, and automated discovery call scheduling.",
+        description: "Interactive client inquiry intake questionnaire, budget select dropdown, and Calendly booking embed.",
         weight: 20,
-        targetDaysFromNow: 7,
-        steps: [
-          { title: "Build project inquiry intake form with budget selector", notes: "Intake questionnaire ready" },
-          { title: "Integrate automated meeting scheduler (Google Meet / Zoom)", notes: "Calendar bookings active" },
-          { title: "Setup downloadable agency portfolio PDF lead magnet", notes: "PDF brochure download active" },
-          { title: "Automate inquiry notification to agency founders", notes: "Instant notifications tested" }
-        ]
+        targetDaysFromNow: 7
       },
       {
-        title: "4. Motion Animations, SEO & Speed Optimization",
-        description: "Smooth scrolling, micro-interactions, local SEO schema, and fast WebP image delivery.",
+        title: "4. Motion Design, Mobile Responsiveness & SEO",
+        description: "Micro-interactions, smooth scrolling, image optimization for retina screens, and meta tags.",
         weight: 20,
-        targetDaysFromNow: 18,
-        steps: [
-          { title: "Implement smooth page transitions & interactive animations", notes: "Animations polished" },
-          { title: "Configure Local SEO schema & Google Business Profile link", notes: "Local SEO configured" },
-          { title: "Compress imagery for high-DPI Retina screen performance", notes: "Retina assets optimized" },
-          { title: "Full mobile, tablet & desktop responsiveness audit", notes: "All viewports verified" }
-        ]
+        targetDaysFromNow: 18
       },
       {
-        title: "5. Live Launch, Asset Handover & Sign-Off",
+        title: "5. Production Launch & Final Project Handover",
         description: "Production launch, delivery of design files and media kit, and final sign-off.",
         weight: 20,
-        targetDaysFromNow: 30,
-        steps: [
-          { title: "Deploy live to production domain with SSL", notes: "Live portfolio launched" },
-          { title: "Deliver complete asset package (Figma files & media kit)", notes: "Figma assets transferred" },
-          { title: "Record admin video guide for adding future case studies", notes: "Client guide recorded" },
-          { title: "Project completion sign-off & client testimonial", notes: "Delivery completed" }
-        ]
+        targetDaysFromNow: 30
       }
     ]
   },
   saas: {
     id: "saas",
-    label: "SaaS Product Site",
-    emoji: "📱",
-    tagline: "App Tour & Pricing",
-    badge: "Tech Product",
-    description: "Modern SaaS product marketing site with interactive feature tours, tiered pricing plans, free trial sign-up, and product docs.",
+    label: "SaaS Product",
+    description: "SaaS product marketing site with interactive feature tours, tiered pricing plans, free trial sign-up, and product docs.",
     projectNameSuffix: "SaaS Product Website",
     milestones: [
       {
         title: "1. Messaging, Feature Matrix & User Journey",
         description: "Value proposition, product screenshots, tiered pricing plans, and competitor comparison table.",
         weight: 20,
-        targetDaysFromNow: -1,
-        steps: [
-          { title: "Draft headline messaging, ICP pain points & core solutions", notes: "Positioning completed" },
-          { title: "Structure tiered pricing table (Starter, Pro, Enterprise)", notes: "Pricing tiers verified" },
-          { title: "Design product mockup screenshots & feature hierarchy", notes: "App mockups rendered" },
-          { title: "Stakeholder sign-off on messaging & pricing", notes: "Pricing & copy approved" }
-        ]
+        targetDaysFromNow: -1
       },
       {
         title: "2. Interactive Product Tour & UI Layout",
         description: "Interactive feature walkthrough tabs, customer logo wall, and security badges.",
         weight: 20,
-        targetDaysFromNow: 0,
-        steps: [
-          { title: "Build interactive feature tour tabs with high-res UI mockups", notes: "Product tabs active" },
-          { title: "Design customer social proof banner & SOC-2 security badges", notes: "Trust badges active" },
-          { title: "Implement interactive ROI / pricing calculator slider", notes: "Calculator slider verified" },
-          { title: "Client review of interactive product page layout", notes: "Layout approved" }
-        ]
+        targetDaysFromNow: 0
       },
       {
         title: "3. Free Trial & Demo Booking Integrations",
         description: "App sign-up redirects, enterprise demo booking calendar, live chat widget, and changelog.",
         weight: 20,
-        targetDaysFromNow: 7,
-        steps: [
-          { title: "Wire 'Start Free Trial' CTA buttons to app registration URL", notes: "Trial funnel connected" },
-          { title: "Build 'Request Enterprise Demo' modal with calendar booking", notes: "Demo booking active" },
-          { title: "Integrate Intercom / Crisp live chat widget", notes: "Live chat active" },
-          { title: "Setup product changelog & documentation portal links", notes: "Docs links verified" }
-        ]
+        targetDaysFromNow: 7
       },
       {
         title: "4. Technical SEO, Analytics & Compliance",
         description: "SoftwareApplication schema, product event tracking, cookie consent banner, and CDN edge caching.",
         weight: 20,
-        targetDaysFromNow: 18,
-        steps: [
-          { title: "Implement SoftwareApplication JSON-LD schema markup", notes: "SaaS schema validated" },
-          { title: "Setup Segment / Mixpanel / GA4 conversion tracking events", notes: "Event analytics verified" },
-          { title: "Configure GDPR cookie consent & Terms of Service pages", notes: "Legal pages published" },
-          { title: "Deploy to global edge CDN for sub-1s worldwide load times", notes: "Edge CDN active" }
-        ]
+        targetDaysFromNow: 18
       },
       {
         title: "5. Product Launch & Marketing Handover",
         description: "Live domain propagation, test sign-up funnel verification, marketing team handover, and launch announcement.",
         weight: 20,
-        targetDaysFromNow: 30,
-        steps: [
-          { title: "Point custom domain to production environment", notes: "Custom domain live" },
-          { title: "Conduct end-to-end verification of trial sign-up funnel", notes: "Signup flow verified" },
-          { title: "Train marketing team on updating CMS copy & blog posts", notes: "Team training complete" },
-          { title: "Milestone completion sign-off & launch readiness", notes: "Product website launched" }
-        ]
+        targetDaysFromNow: 30
+      }
+    ]
+  },
+  blog: {
+    id: "blog",
+    label: "Blog / Editorial",
+    description: "Content and editorial publishing platform with article categories, author profiles, SEO schema, newsletter capture, and ad spaces.",
+    projectNameSuffix: "Blog & Editorial Platform",
+    milestones: [
+      {
+        title: "1. Content Architecture & Editorial Taxonomy",
+        description: "Content categories, tag hierarchy, author bio guidelines, and editorial guidelines.",
+        weight: 20,
+        targetDaysFromNow: -1
+      },
+      {
+        title: "2. Article Layout & Typography Styling",
+        description: "Editorial reading experience, mobile typography, social sharing, and featured image formatting.",
+        weight: 20,
+        targetDaysFromNow: 0
+      },
+      {
+        title: "3. CMS Publishing Engine & Newsletter Integration",
+        description: "Rich text editor, scheduled publishing, media library, and subscriber capture.",
+        weight: 20,
+        targetDaysFromNow: 7
+      },
+      {
+        title: "4. On-Page SEO, Speed & Ad Placements",
+        description: "Article JSON-LD schema, Google Publisher tags, RSS feeds, and 95+ mobile PageSpeed pass.",
+        weight: 20,
+        targetDaysFromNow: 18
+      },
+      {
+        title: "5. Production Launch & Google News Sitemap",
+        description: "Custom domain propagation, Google News sitemap submission, editorial team training, and handover.",
+        weight: 20,
+        targetDaysFromNow: 30
+      }
+    ]
+  },
+  webapp: {
+    id: "webapp",
+    label: "Web Application",
+    description: "Custom web app or client portal with user authentication, dashboard analytics, database integration, and role permissions.",
+    projectNameSuffix: "Web Application",
+    milestones: [
+      {
+        title: "1. System Architecture, Schema & UI Wireframes",
+        description: "Database models, API specifications, user journeys, and component wireframes.",
+        weight: 20,
+        targetDaysFromNow: -1
+      },
+      {
+        title: "2. Authentication, Roles & Security Permissions",
+        description: "User sign-up, session auth, password reset, and role-based access control.",
+        weight: 20,
+        targetDaysFromNow: 0
+      },
+      {
+        title: "3. Core Dashboard UI & Interactive Workflows",
+        description: "Data tables, interactive CRUD workflows, analytics widgets, and notifications.",
+        weight: 20,
+        targetDaysFromNow: 7
+      },
+      {
+        title: "4. API Integrations, Webhooks & Database Sync",
+        description: "Third-party API connections, background worker jobs, and automated webhook handling.",
+        weight: 20,
+        targetDaysFromNow: 18
+      },
+      {
+        title: "5. End-to-End QA, Production Deployment & Handover",
+        description: "Stress testing, security audit, production deployment on cloud infrastructure, and documentation.",
+        weight: 20,
+        targetDaysFromNow: 30
+      }
+    ]
+  },
+  marketplace: {
+    id: "marketplace",
+    label: "Marketplace / Directory",
+    description: "Multi-vendor marketplace or directory platform with listings management, search filters, vendor storefronts, and reviews.",
+    projectNameSuffix: "Marketplace Platform",
+    milestones: [
+      {
+        title: "1. Marketplace Taxonomy & User Roles Architecture",
+        description: "Buyer/seller user journeys, category taxonomies, listing attributes, and wireframes.",
+        weight: 20,
+        targetDaysFromNow: -1
+      },
+      {
+        title: "2. Vendor Onboarding & Listings Management",
+        description: "Vendor registration, KYC/verification, product/service listing submission, and moderation queue.",
+        weight: 20,
+        targetDaysFromNow: 0
+      },
+      {
+        title: "3. Advanced Search, Filtering & Booking Flow",
+        description: "Faceted search, geo-location filters, booking calendar, and inquiry messaging.",
+        weight: 20,
+        targetDaysFromNow: 7
+      },
+      {
+        title: "4. Escrow / Payment Flow & Review System",
+        description: "Payment gateway split payout, transaction fees, buyer protection, and verified reviews.",
+        weight: 20,
+        targetDaysFromNow: 18
+      },
+      {
+        title: "5. Production Launch, SSL & Legal Compliance",
+        description: "Live launch on production domain, terms of service, marketplace escrow testing, and handover.",
+        weight: 20,
+        targetDaysFromNow: 30
+      }
+    ]
+  },
+  lms: {
+    id: "lms",
+    label: "LMS / Educational",
+    description: "Online learning academy with video lesson player, course modules, student progress tracking, quizzes, and certificates.",
+    projectNameSuffix: "Online Course Platform",
+    milestones: [
+      {
+        title: "1. Course Curriculum Structure & Student Journey",
+        description: "Lesson module hierarchies, learning outcomes, instructor profiles, and wireframes.",
+        weight: 20,
+        targetDaysFromNow: -1
+      },
+      {
+        title: "2. Video Player, Lesson Viewer & Course Content",
+        description: "Secure video streaming, downloadable resource attachments, and transcript display.",
+        weight: 20,
+        targetDaysFromNow: 0
+      },
+      {
+        title: "3. Student Dashboard, Progress Tracker & Quizzes",
+        description: "Interactive quizzes, completion trackers, student notes, and discussion forums.",
+        weight: 20,
+        targetDaysFromNow: 7
+      },
+      {
+        title: "4. Payment Gateways, Subscription & Paywalls",
+        description: "One-off course purchase, membership subscriptions, coupon codes, and invoices.",
+        weight: 20,
+        targetDaysFromNow: 18
+      },
+      {
+        title: "5. Platform Go-Live, Certificate Engine & QA",
+        description: "Automated PDF certificate generation, live payment tests, instructor walkthrough, and handover.",
+        weight: 20,
+        targetDaysFromNow: 30
+      }
+    ]
+  },
+  nonprofit: {
+    id: "nonprofit",
+    label: "Non-Profit / Event",
+    description: "Mission-driven non-profit or event website with donation gateway, impact storytelling, event ticket registration, and volunteer sign-ups.",
+    projectNameSuffix: "Non-Profit & Event Site",
+    milestones: [
+      {
+        title: "1. Brand Assets, Mission Storytelling & Sitemap",
+        description: "Cause narrative, impact statistics, brand guidelines, and responsive site structure.",
+        weight: 20,
+        targetDaysFromNow: -1
+      },
+      {
+        title: "2. Donation Processing & Recurring Giving Setup",
+        description: "Secure one-time and monthly donation processing, 80G/tax receipts, and donor tracking.",
+        weight: 20,
+        targetDaysFromNow: 0
+      },
+      {
+        title: "3. Event Schedule, Speaker Lineup & RSVP Flow",
+        description: "Interactive agenda, speaker cards, venue map, and QR code ticket registration.",
+        weight: 20,
+        targetDaysFromNow: 7
+      },
+      {
+        title: "4. Transparency Reports & Volunteer Signup",
+        description: "Annual reports download, photo gallery, volunteer onboarding form, and sponsor logos.",
+        weight: 20,
+        targetDaysFromNow: 18
+      },
+      {
+        title: "5. Live Launch, Campaign Tracking & Handover",
+        description: "Domain propagation, donation webhook testing, social sharing meta tags, and handover.",
+        weight: 20,
+        targetDaysFromNow: 30
       }
     ]
   }
@@ -481,7 +503,7 @@ export function buildMilestonesFromPreset(presetId: string, lead: EnrichedLead, 
       completedAt: isCompleted ? targetDateStr : undefined,
       weight: m.weight,
       description: m.description,
-      steps: m.steps.map((s, sIdx) => ({
+      steps: (m.steps || []).map((s, sIdx) => ({
         id: `step-${idx + 1}-${sIdx + 1}-${preset.id}`,
         title: s.title,
         completed: isCompleted,
@@ -570,7 +592,7 @@ function getDefaultTrackerData(lead: EnrichedLead): ProjectTrackerData {
     {
       id: "log-1",
       date: yesterdayStr,
-      activity: "Deal marked Won! ⚡ 1-Click Corporate Website Project created. Domain, SSL & initial sitemap finalized.",
+      activity: "Deal marked Won. Corporate Website project initialized. Domain, SSL & initial sitemap finalized.",
       hours: 2.5,
       status: "Completed",
       loggedBy: manager,
@@ -732,7 +754,7 @@ export function WonProjectTracker({ lead, className }: WonProjectTrackerProps) {
     const newLog: DailyActivityLog = {
       id: `log-${Date.now()}`,
       date: todayStr,
-      activity: `⚡ 1-Click Website Created: Applied "${preset.label}" (${preset.tagline}). Complete deliverables roadmap & scope configured.`,
+      activity: `Applied "${preset.label}" website template. Deliverables roadmap & scope configured.`,
       hours: 3.5,
       status: "Completed",
       loggedBy: data.projectManager || "Admin",
@@ -751,7 +773,7 @@ export function WonProjectTracker({ lead, className }: WonProjectTrackerProps) {
       dailyLogs: [newLog, ...prev.dailyLogs]
     }));
 
-    toast.success(`🎉 1-Click Website Created: Applied "${preset.label}"!`);
+    toast.success(`Applied "${preset.label}" website preset`);
   };
 
   // Update Project Type directly (allows writing custom project type)
@@ -987,7 +1009,7 @@ export function WonProjectTracker({ lead, className }: WonProjectTrackerProps) {
               <span>Export Sheet</span>
             </button>
             <div className="px-2.5 py-1 rounded-xl bg-black/[0.03] dark:bg-white/[0.05] border border-black/[0.05] dark:border-white/10 text-[10px] font-bold text-zinc-600 dark:text-zinc-300">
-              💾 Localhost Synced
+              <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 inline-block mr-1.5" />Local Storage Active
             </div>
           </div>
         </div>
@@ -1074,35 +1096,20 @@ export function WonProjectTracker({ lead, className }: WonProjectTrackerProps) {
         {/* ----------------------------------------------------- */}
         <div className="pt-5 border-t border-black/[0.06] dark:border-white/10 mt-5">
           
-          {/* ⚡ 1-Click Make Website Presets Bar */}
-          <div className="p-3.5 mb-4 rounded-2xl bg-gradient-to-r from-[#c8f237]/15 via-emerald-500/10 to-black/[0.02] dark:to-white/[0.02] border border-[#c8f237]/40 dark:border-[#c8f237]/20 shadow-xs">
-            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2.5 mb-2.5">
-              <div className="flex items-center gap-2">
-                <span className="w-6 h-6 rounded-lg bg-[#c8f237] text-[#111318] flex items-center justify-center font-black text-xs shadow-xs">
-                  ⚡
-                </span>
-                <div>
-                  <h4 className="text-xs font-black uppercase tracking-wider text-[#111318] dark:text-white flex items-center gap-1.5 flex-wrap">
-                    <span>1-Click Make Website Presets</span>
-                    <span className="text-[10px] font-bold text-emerald-700 dark:text-emerald-400 bg-emerald-500/10 px-2 py-0.5 rounded-full border border-emerald-500/20">
-                      Instant Roadmap & Deliverables
-                    </span>
-                  </h4>
-                  <p className="text-[11px] text-zinc-600 dark:text-zinc-400">
-                    Click any website type below to automatically generate all deliverables, scope specifications, and milestones in 1 click:
-                  </p>
-                </div>
-              </div>
-
+          {/* Website Type Selector */}
+          <div className="p-3.5 mb-4 rounded-xl bg-[#f8fafc] dark:bg-white/[0.02] border border-black/[0.08] dark:border-white/10">
+            <div className="flex items-center justify-between gap-2 mb-2.5">
+              <span className="text-xs font-bold uppercase tracking-wider text-[#111318] dark:text-white">
+                Website Type
+              </span>
               {data.websitePreset && WEBSITE_PRESETS[data.websitePreset] && (
-                <span className="text-[10px] font-bold px-2.5 py-1 rounded-lg bg-black/5 dark:bg-white/10 text-zinc-700 dark:text-zinc-300 self-start sm:self-center shrink-0 border border-black/10 dark:border-white/15">
-                  Applied: <strong className="text-[#111318] dark:text-[#c8f237]">{WEBSITE_PRESETS[data.websitePreset].emoji} {WEBSITE_PRESETS[data.websitePreset].label}</strong>
+                <span className="text-xs text-zinc-500 dark:text-zinc-400">
+                  Active: <strong className="text-[#111318] dark:text-white font-bold">{WEBSITE_PRESETS[data.websitePreset].label}</strong>
                 </span>
               )}
             </div>
 
-            {/* 5 Website Preset Buttons */}
-            <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-2">
+            <div className="flex flex-wrap gap-2">
               {Object.values(WEBSITE_PRESETS).map((preset) => {
                 const isActive = (data.websitePreset || "corporate") === preset.id;
                 return (
@@ -1111,20 +1118,13 @@ export function WonProjectTracker({ lead, className }: WonProjectTrackerProps) {
                     type="button"
                     onClick={() => handleApplyWebsitePreset(preset.id)}
                     className={cn(
-                      "flex items-center gap-2 px-3 py-2 rounded-xl text-left border transition-all text-xs font-semibold group",
+                      "px-3 py-1.5 rounded-lg text-xs font-semibold border transition-all text-center",
                       isActive
-                        ? "bg-[#111318] text-white dark:bg-white dark:text-[#111318] border-black shadow-xs ring-2 ring-[#c8f237]"
-                        : "bg-white dark:bg-white/[0.04] text-[#111318] dark:text-white border-black/[0.08] dark:border-white/10 hover:border-[#c8f237] hover:bg-[#c8f237]/10"
+                        ? "bg-[#111318] text-white dark:bg-white dark:text-[#111318] border-[#111318] dark:border-white shadow-2xs font-bold"
+                        : "bg-white dark:bg-white/[0.04] text-zinc-700 dark:text-zinc-300 border-black/[0.08] dark:border-white/10 hover:border-black/25 dark:hover:border-white/25 hover:text-black dark:hover:text-white"
                     )}
-                    title={`1-Click Make ${preset.label}`}
                   >
-                    <span className="text-base shrink-0">{preset.emoji}</span>
-                    <div className="min-w-0">
-                      <div className="truncate font-bold leading-tight">{preset.label}</div>
-                      <div className={cn("text-[10px] truncate", isActive ? "text-zinc-300 dark:text-zinc-600" : "text-zinc-500")}>
-                        {preset.tagline}
-                      </div>
-                    </div>
+                    {preset.label}
                   </button>
                 );
               })}
@@ -1496,9 +1496,9 @@ export function WonProjectTracker({ lead, className }: WonProjectTrackerProps) {
 
         {/* Footer info note */}
         <div className="flex items-center justify-between text-[11px] text-zinc-400 dark:text-zinc-500 pt-3">
-          <span>⚡ All entries & progress % are updated and stored locally on your localhost session.</span>
+          <span>All entries & progress % are updated and stored locally in this session.</span>
           <span suppressHydrationWarning>
-            {mounted && data?.lastUpdated ? `Last modified: ${new Date(data.lastUpdated).toLocaleTimeString()}` : "⚡ Localhost Storage Active"}
+            {mounted && data?.lastUpdated ? `Last modified: ${new Date(data.lastUpdated).toLocaleTimeString()}` : "Local Storage Active"}
           </span>
         </div>
       </div>
