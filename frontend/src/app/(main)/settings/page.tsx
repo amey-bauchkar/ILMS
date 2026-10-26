@@ -17,14 +17,16 @@ import { UserManagement } from "@/components/settings/UserManagement";
 import { StatusManagement } from "@/components/settings/StatusManagement";
 import { TagManagement } from "@/components/settings/TagManagement";
 import { ThemeSettings } from "@/components/settings/ThemeSettings";
+import { TargetSettings } from "@/components/settings/TargetSettings";
 
 export default async function SettingsPage({
   searchParams,
 }: {
-  searchParams?: Promise<{ preview?: string }>;
+  searchParams?: Promise<{ preview?: string; tab?: string }>;
 }) {
   const resolvedParams = searchParams ? await searchParams : {};
   const isPreview = resolvedParams?.preview === "1";
+  const defaultTab = resolvedParams?.tab || "profile";
   const supabase = await createClient();
 
   // Get current auth user
@@ -45,7 +47,7 @@ export default async function SettingsPage({
   }
 
   if (!profile && isPreview) {
-    const { data: anyAdmin } = await supabase.from("users").select("*").limit(1).single();
+    const { data: anyAdmin } = await supabase.from("users").select("*").eq("role", "admin").limit(1).maybeSingle();
     profile = anyAdmin || {
       id: "preview-admin",
       auth_id: "preview-auth",
@@ -99,7 +101,7 @@ export default async function SettingsPage({
         </p>
       </div>
 
-      <Tabs defaultValue="profile" className="space-y-6">
+      <Tabs defaultValue={defaultTab} className="space-y-6">
         <TabsList className="bg-zinc-100 dark:bg-[#151821] border border-black/[0.06] dark:border-white/10 p-1.5 h-auto rounded-full flex overflow-x-auto overflow-y-hidden whitespace-nowrap justify-start w-full sm:w-fit sm:justify-center shadow-inner [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
           <TabsTrigger value="profile" className="rounded-full px-4 sm:px-6 py-1.5 sm:py-2 text-xs sm:text-sm data-[state=active]:bg-[#c8f237] data-[state=active]:text-[#111318] data-[state=active]:font-bold data-[state=active]:shadow-xs text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-white transition-all">
             Profile
@@ -110,6 +112,9 @@ export default async function SettingsPage({
           
           {isAdmin && (
             <>
+              <TabsTrigger value="targets" className="rounded-full px-4 sm:px-6 py-1.5 sm:py-2 text-xs sm:text-sm data-[state=active]:bg-[#c8f237] data-[state=active]:text-[#111318] data-[state=active]:font-bold data-[state=active]:shadow-xs text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-white transition-all">
+                Targets
+              </TabsTrigger>
               <TabsTrigger value="users" className="rounded-full px-4 sm:px-6 py-1.5 sm:py-2 text-xs sm:text-sm data-[state=active]:bg-[#c8f237] data-[state=active]:text-[#111318] data-[state=active]:font-bold data-[state=active]:shadow-xs text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-white transition-all">
                 Team
               </TabsTrigger>
@@ -156,6 +161,20 @@ export default async function SettingsPage({
 
         {isAdmin && (
           <>
+            <TabsContent value="targets" className="focus-visible:outline-none focus-visible:ring-0">
+              <Card className="border border-black/[0.06] dark:border-white/10 bg-white dark:bg-[#151821] rounded-3xl shadow-[0_4px_24px_rgba(0,0,0,0.03)] text-[#111318] dark:text-white">
+                <CardHeader className="border-b border-black/[0.05] dark:border-white/10 p-4 sm:p-6 pb-4 mb-4">
+                  <CardTitle className="text-xl text-[#111318] dark:text-white">Sales & Revenue Targets</CardTitle>
+                  <CardDescription className="text-zinc-500 dark:text-zinc-400 text-sm">
+                    Configure company-wide lead generation and revenue benchmarks (Admin Only).
+                  </CardDescription>
+                </CardHeader>
+                <CardContent className="p-4 sm:p-6 pt-0 pb-6">
+                  <TargetSettings />
+                </CardContent>
+              </Card>
+            </TabsContent>
+
             <TabsContent value="users" className="focus-visible:outline-none focus-visible:ring-0">
               <Card className="border border-black/[0.06] dark:border-white/10 bg-white dark:bg-[#151821] rounded-3xl shadow-[0_4px_24px_rgba(0,0,0,0.03)] text-[#111318] dark:text-white">
                 <CardHeader className="border-b border-black/[0.05] dark:border-white/10 p-4 sm:p-6 pb-4 mb-4">

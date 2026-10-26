@@ -13,11 +13,17 @@ import {
   TrendingUp, 
   Clock,
   Sparkles,
-  Phone
+  Phone,
+  Pencil,
+  Target,
+  ShieldCheck
 } from "lucide-react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { LeadForm } from "@/components/leads/LeadForm";
 import { useStatuses, useTeamMembers } from "@/hooks/use-data";
+import { useUser } from "@/components/providers/user-provider";
+import { useTargets } from "@/lib/targets";
+import { EditTargetsModal } from "./EditTargetsModal";
 import { format } from "date-fns";
 
 function matchesDateRange(dateStr: string | null | undefined, range: "all" | "month" | "quarter" | "year"): boolean {
@@ -57,6 +63,13 @@ export function StudioAnalyticsDashboard({
 }: StudioAnalyticsDashboardProps) {
   const { statuses } = useStatuses();
   const { members } = useTeamMembers();
+  const { user } = useUser();
+  const { targets } = useTargets();
+  const isAdmin = user?.role === "admin" || (!user && process.env.NODE_ENV === "development");
+
+  const [isEditTargetsOpen, setIsEditTargetsOpen] = useState(false);
+  const [targetsDefaultFocus, setTargetsDefaultFocus] = useState<"leads" | "revenue">("leads");
+
   const searchParams = useSearchParams();
   const initialRange = (searchParams?.get("range") as any) || "all";
   const initialOwner = searchParams?.get("owner") || "all";
@@ -301,11 +314,15 @@ export function StudioAnalyticsDashboard({
     });
     const recentFive = sortedLeads.slice(0, 5);
 
-    // Target metrics
-    const leadGenTarget = selectedOwnerId === "all" ? 1000 : Math.round(1000 / (repList.length || 3));
+    // Target metrics (dynamic from persisted targets)
+    const baseLeadTarget = targets.leadGenTarget || 1000;
+    const baseRevTarget = targets.revenueTarget || 1000000;
+
+    const leadGenTarget = selectedOwnerId === "all" ? baseLeadTarget : Math.max(1, Math.round(baseLeadTarget / (repList.length || 3)));
     const leadGenAchieved = totalCount;
     const leadGenPercent = Math.min(100, Math.round((leadGenAchieved / leadGenTarget) * 100));
     const leadGenRemaining = Math.max(0, leadGenTarget - leadGenAchieved);
+    const revenueTarget = selectedOwnerId === "all" ? baseRevTarget : Math.max(1, Math.round(baseRevTarget / (repList.length || 3)));
 
     return {
       totalCount,
@@ -329,9 +346,9 @@ export function StudioAnalyticsDashboard({
       leadGenAchieved,
       leadGenRemaining,
       leadGenPercent,
-      revenueTarget: 1000000
+      revenueTarget
     };
-  }, [filteredLeads, leads, selectedOwnerId, selectedRange, statuses, members]);
+  }, [filteredLeads, leads, selectedOwnerId, selectedRange, statuses, members, targets]);
 
   // Format currency helpers
   const formatCurrency = (val: number) => {
@@ -642,13 +659,29 @@ export function StudioAnalyticsDashboard({
         
         {/* LEAD GENERATION TARGET - THIS YEAR (col-span 5) */}
         <div className="lg:col-span-5 bg-white dark:bg-[#151821] rounded-[28px] border border-black/[0.04] dark:border-white/10 p-6 sm:p-7 shadow-[0_8px_24px_rgba(15,23,42,0.03)] flex flex-col justify-between">
-          <div className="flex items-center justify-between">
+          <div className="flex items-center justify-between gap-2">
             <span className="text-xs font-bold text-zinc-700 dark:text-zinc-300 uppercase tracking-wider">
               Lead Generation Target - {selectedRange === "all" ? "All Time" : selectedRange === "year" ? "This Year" : selectedRange === "quarter" ? "This Quarter" : "This Month"}
             </span>
-            <span className="px-2.5 py-0.5 rounded-full bg-emerald-50 dark:bg-emerald-500/10 text-emerald-700 dark:text-emerald-400 border border-emerald-200/80 dark:border-emerald-500/20 text-[11px] font-bold">
-              {metrics.leadGenPercent}% Achieved
-            </span>
+            <div className="flex items-center gap-2">
+              {isAdmin && (
+                <button
+                  type="button"
+                  onClick={() => {
+                    setTargetsDefaultFocus("leads");
+                    setIsEditTargetsOpen(true);
+                  }}
+                  className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-zinc-100 hover:bg-[#c8f237] text-zinc-700 hover:text-[#111318] dark:bg-white/[0.06] dark:hover:bg-[#c8f237] dark:hover:text-[#111318] text-[10px] font-bold border border-black/[0.08] dark:border-white/10 transition-all active:scale-95 shadow-2xs cursor-pointer"
+                  title="Admin: Set Target Number"
+                >
+                  <Pencil className="w-2.5 h-2.5" />
+                  <span>Set Target</span>
+                </button>
+              )}
+              <span className="px-2.5 py-0.5 rounded-full bg-emerald-50 dark:bg-emerald-500/10 text-emerald-700 dark:text-emerald-400 border border-emerald-200/80 dark:border-emerald-500/20 text-[11px] font-bold">
+                {metrics.leadGenPercent}% Achieved
+              </span>
+            </div>
           </div>
 
           {/* Speedometer Gauge Visual */}
@@ -704,7 +737,22 @@ export function StudioAnalyticsDashboard({
                 Remaining : {metrics.leadGenRemaining}
               </div>
               <div className="text-right leading-none">
-                <span className="text-xs text-zinc-500 dark:text-zinc-400 font-medium">Target: {metrics.leadGenTarget}</span>
+                {isAdmin ? (
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setTargetsDefaultFocus("leads");
+                      setIsEditTargetsOpen(true);
+                    }}
+                    className="text-xs text-zinc-500 dark:text-zinc-400 font-medium hover:text-black dark:hover:text-white underline decoration-dotted inline-flex items-center gap-1 cursor-pointer"
+                    title="Click to set target number (Admin only)"
+                  >
+                    <span>Target: {metrics.leadGenTarget}</span>
+                    <Pencil className="w-2.5 h-2.5 text-zinc-400" />
+                  </button>
+                ) : (
+                  <span className="text-xs text-zinc-500 dark:text-zinc-400 font-medium">Target: {metrics.leadGenTarget}</span>
+                )}
               </div>
             </div>
           </div>
@@ -725,19 +773,49 @@ export function StudioAnalyticsDashboard({
 
         {/* REVENUE TARGET - THIS YEAR (col-span 7) */}
         <div className="lg:col-span-7 bg-white dark:bg-[#151821] rounded-[28px] border border-black/[0.04] dark:border-white/10 p-6 sm:p-7 shadow-[0_8px_24px_rgba(15,23,42,0.03)] flex flex-col justify-between">
-          <div className="flex items-center justify-between">
+          <div className="flex items-center justify-between gap-2">
             <span className="text-xs font-bold text-zinc-700 dark:text-zinc-300 uppercase tracking-wider">
               Revenue Target - {selectedRange === "all" ? "All Time" : selectedRange === "year" ? "This Year" : selectedRange === "quarter" ? "This Quarter" : "This Month"}
             </span>
-            <div className="flex items-center gap-4 text-xs">
+            <div className="flex items-center gap-3 text-xs">
+              {isAdmin && (
+                <button
+                  type="button"
+                  onClick={() => {
+                    setTargetsDefaultFocus("revenue");
+                    setIsEditTargetsOpen(true);
+                  }}
+                  className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-zinc-100 hover:bg-[#c8f237] text-zinc-700 hover:text-[#111318] dark:bg-white/[0.06] dark:hover:bg-[#c8f237] dark:hover:text-[#111318] text-[10px] font-bold border border-black/[0.08] dark:border-white/10 transition-all active:scale-95 shadow-2xs cursor-pointer"
+                  title="Admin: Set Revenue Target"
+                >
+                  <Pencil className="w-2.5 h-2.5" />
+                  <span>Set Target</span>
+                </button>
+              )}
               <span className="flex items-center gap-1.5 font-medium text-zinc-600 dark:text-zinc-300">
                 <span className="w-2 h-2 rounded-full bg-emerald-500" />
                 Achieved
               </span>
-              <span className="flex items-center gap-1.5 font-semibold text-zinc-900 dark:text-white">
-                <span className="w-2 h-2 rounded-xs bg-[#111318] dark:bg-white" />
-                Target: {formatCurrency(metrics.revenueTarget)}
-              </span>
+              {isAdmin ? (
+                <button
+                  type="button"
+                  onClick={() => {
+                    setTargetsDefaultFocus("revenue");
+                    setIsEditTargetsOpen(true);
+                  }}
+                  className="flex items-center gap-1.5 font-semibold text-zinc-900 dark:text-white hover:text-emerald-600 dark:hover:text-[#c8f237] transition-colors cursor-pointer"
+                  title="Click to set revenue target (Admin only)"
+                >
+                  <span className="w-2 h-2 rounded-xs bg-[#111318] dark:bg-white" />
+                  <span>Target: {formatCurrency(metrics.revenueTarget)}</span>
+                  <Pencil className="w-2.5 h-2.5 text-zinc-400" />
+                </button>
+              ) : (
+                <span className="flex items-center gap-1.5 font-semibold text-zinc-900 dark:text-white">
+                  <span className="w-2 h-2 rounded-xs bg-[#111318] dark:bg-white" />
+                  Target: {formatCurrency(metrics.revenueTarget)}
+                </span>
+              )}
             </div>
           </div>
 
@@ -1055,6 +1133,13 @@ export function StudioAnalyticsDashboard({
           <LeadForm onSuccess={() => setIsAddLeadOpen(false)} />
         </DialogContent>
       </Dialog>
+
+      {/* Edit Performance Targets Modal (Admin Only) */}
+      <EditTargetsModal
+        open={isEditTargetsOpen}
+        onOpenChange={setIsEditTargetsOpen}
+        defaultFocus={targetsDefaultFocus}
+      />
 
     </div>
   );
