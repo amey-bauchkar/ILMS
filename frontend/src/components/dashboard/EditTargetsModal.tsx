@@ -113,7 +113,7 @@ export function EditTargetsModal({
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-lg p-0 overflow-hidden rounded-3xl border border-black/[0.08] dark:border-white/10 bg-white dark:bg-[#151821] text-[#111318] dark:text-white shadow-2xl">
-        <form onSubmit={handleSave}>
+        <form noValidate onSubmit={handleSave}>
           {/* Header */}
           <div className="p-6 border-b border-black/[0.06] dark:border-white/10 bg-gradient-to-br from-zinc-50 to-white dark:from-white/[0.03] dark:to-transparent">
             <div className="flex items-center justify-between gap-3">
@@ -167,8 +167,8 @@ export function EditTargetsModal({
                 <Input
                   id="leadTargetInput"
                   type="number"
-                  min="1"
-                  step="1"
+                  min="0"
+                  step="any"
                   disabled={!isAdmin}
                   autoFocus={defaultFocus === "leads"}
                   value={leadTargetInput}
@@ -219,13 +219,13 @@ export function EditTargetsModal({
                 <Input
                   id="revenueTargetInput"
                   type="number"
-                  min="1"
-                  step="50000"
+                  min="0"
+                  step="any"
                   disabled={!isAdmin}
                   autoFocus={defaultFocus === "revenue"}
                   value={revenueTargetInput}
                   onChange={(e) => setRevenueTargetInput(e.target.value)}
-                  placeholder="e.g. 1000000"
+                  placeholder="e.g. 2500000"
                   className="pl-8 h-11 rounded-xl text-sm font-semibold bg-zinc-50 dark:bg-white/[0.04] border-black/[0.1] dark:border-white/10 focus-visible:ring-2 focus-visible:ring-[#111318] dark:focus-visible:ring-[#c8f237]"
                 />
               </div>

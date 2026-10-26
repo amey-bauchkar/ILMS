@@ -104,7 +104,7 @@ export function TargetSettings() {
   }
 
   return (
-    <form onSubmit={handleSave} className="space-y-6 max-w-2xl">
+    <form noValidate onSubmit={handleSave} className="space-y-6 max-w-2xl">
       {/* Intro Header */}
       <div className="flex items-center justify-between p-4 rounded-2xl bg-zinc-50 dark:bg-white/[0.02] border border-black/[0.05] dark:border-white/10">
         <div className="flex items-center gap-3">
@@ -140,8 +140,8 @@ export function TargetSettings() {
         <Input
           id="leadTargetInputSettings"
           type="number"
-          min="1"
-          step="1"
+          min="0"
+          step="any"
           value={leadTargetInput}
           onChange={(e) => setLeadTargetInput(e.target.value)}
           placeholder="e.g. 1000"
@@ -186,11 +186,11 @@ export function TargetSettings() {
           <Input
             id="revenueTargetInputSettings"
             type="number"
-            min="1"
-            step="50000"
+            min="0"
+            step="any"
             value={revenueTargetInput}
             onChange={(e) => setRevenueTargetInput(e.target.value)}
-            placeholder="e.g. 1000000"
+            placeholder="e.g. 2500000"
             className="pl-8 h-11 rounded-xl text-sm font-semibold bg-zinc-50 dark:bg-white/[0.04] border-black/[0.1] dark:border-white/10"
           />
         </div>
