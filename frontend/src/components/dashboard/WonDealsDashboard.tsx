@@ -25,7 +25,6 @@ import {
   Calendar,
   User,
   Activity,
-  Sparkles,
   Layers,
   BarChart3
 } from "lucide-react";
@@ -65,35 +64,6 @@ interface EnrichedWonProject {
   tracker: ProjectTrackerData;
 }
 
-// 25 Sample Won Projects dataset for testing & demonstrating high-scale responsiveness (> 20 projects)
-const SAMPLE_25_WON_PROJECTS = [
-  { name: "Yash Sharma", company: "Apex Global Media", dealValue: 2450000, status: "On Track" as const, progressPercent: 95, projectManager: "Priya Nair", targetDeliveryDate: "2026-11-15", hours: 94, latestActivity: "Final client review & UAT signoff completed" },
-  { name: "Vikram Malhotra", company: "TechNova Dynamics", dealValue: 1850000, status: "Completed" as const, progressPercent: 100, projectManager: "Rahul Mehta", targetDeliveryDate: "2026-10-20", hours: 142, latestActivity: "Production deployment finished and handed over" },
-  { name: "Ananya Iyer", company: "Zenith Retail Corp", dealValue: 1200000, status: "In Progress" as const, progressPercent: 70, projectManager: "Amit Sen", targetDeliveryDate: "2026-11-30", hours: 56, latestActivity: "Inventory sync API connected to payment gateway" },
-  { name: "Rohan Kapoor", company: "CloudSprint SaaS", dealValue: 3100000, status: "In Progress" as const, progressPercent: 48, projectManager: "Priya Nair", targetDeliveryDate: "2026-12-10", hours: 44, latestActivity: "Database schema migration and auth integration" },
-  { name: "Deepak Verma", company: "Nexus Health Systems", dealValue: 1950000, status: "Planning" as const, progressPercent: 15, projectManager: "Amit Sen", targetDeliveryDate: "2027-01-15", hours: 16, latestActivity: "Architecture kickoff and HIPAA compliance kickoff" },
-  { name: "Meera Patel", company: "Hyperion Solar Tech", dealValue: 4200000, status: "On Track" as const, progressPercent: 85, projectManager: "Rahul Mehta", targetDeliveryDate: "2026-11-25", hours: 110, latestActivity: "SCADA telemetry dashboard QA pass 2 complete" },
-  { name: "Kavita Rao", company: "Solaris Logistics", dealValue: 1600000, status: "In Progress" as const, progressPercent: 62, projectManager: "Priya Nair", targetDeliveryDate: "2026-12-05", hours: 68, latestActivity: "Route optimization engine integrated with Google Maps" },
-  { name: "Siddharth Jain", company: "Vanguard Fintech", dealValue: 2800000, status: "At Risk" as const, progressPercent: 32, projectManager: "Amit Sen", targetDeliveryDate: "2026-11-20", hours: 52, latestActivity: "Pending RBI regulatory sandbox approvals" },
-  { name: "Aditi Joshi", company: "Quantum AI Labs", dealValue: 5400000, status: "Completed" as const, progressPercent: 100, projectManager: "Rahul Mehta", targetDeliveryDate: "2026-10-18", hours: 215, latestActivity: "Model quantization and live inference endpoints live" },
-  { name: "Suresh Pillai", company: "Starlight Capital", dealValue: 950000, status: "On Track" as const, progressPercent: 90, projectManager: "Priya Nair", targetDeliveryDate: "2026-11-10", hours: 60, latestActivity: "LP portal dark mode & PDF generation finalized" },
-  { name: "Sunita Gupta", company: "BluePeak Pharma", dealValue: 3600000, status: "In Progress" as const, progressPercent: 40, projectManager: "Amit Sen", targetDeliveryDate: "2026-12-28", hours: 42, latestActivity: "Batch tracking ledger integration tested" },
-  { name: "Karan Singhania", company: "CyberShield Sec", dealValue: 2200000, status: "Planning" as const, progressPercent: 20, projectManager: "Rahul Mehta", targetDeliveryDate: "2027-01-20", hours: 22, latestActivity: "Penetration test scope finalized with CISO" },
-  { name: "Neha Deshmukh", company: "Ironclad Steel", dealValue: 1450000, status: "In Progress" as const, progressPercent: 55, projectManager: "Priya Nair", targetDeliveryDate: "2026-12-15", hours: 48, latestActivity: "Warehouse ERP webhook listener deployed" },
-  { name: "Rajesh Bhatia", company: "Orbit Cargo", dealValue: 1750000, status: "On Track" as const, progressPercent: 78, projectManager: "Amit Sen", targetDeliveryDate: "2026-11-28", hours: 74, latestActivity: "Customs declaration export template approved" },
-  { name: "Pooja Reddy", company: "Prime Ventures", dealValue: 850000, status: "Planning" as const, progressPercent: 8, projectManager: "Rahul Mehta", targetDeliveryDate: "2027-02-01", hours: 10, latestActivity: "Discovery questionnaire and stakeholder workshop" },
-  { name: "Manish Agarwal", company: "SwiftCart Quick", dealValue: 2900000, status: "Completed" as const, progressPercent: 100, projectManager: "Priya Nair", targetDeliveryDate: "2026-10-15", hours: 165, latestActivity: "Hyperlocal rider dispatch microservice launched" },
-  { name: "Divya Nambiar", company: "Pulse Digital", dealValue: 620000, status: "At Risk" as const, progressPercent: 35, projectManager: "Amit Sen", targetDeliveryDate: "2026-11-18", hours: 34, latestActivity: "Awaiting video asset uploads from marketing agency" },
-  { name: "Nikhil Chawla", company: "Alpha Dynamics", dealValue: 3800000, status: "On Track" as const, progressPercent: 82, projectManager: "Rahul Mehta", targetDeliveryDate: "2026-11-22", hours: 88, latestActivity: "Assembly line IoT telemetry bridge passed stress test" },
-  { name: "Shweta Kulkarni", company: "Echo Sound Lab", dealValue: 1100000, status: "In Progress" as const, progressPercent: 65, projectManager: "Priya Nair", targetDeliveryDate: "2026-12-08", hours: 54, latestActivity: "Dolby Atmos asset workflow automation connected" },
-  { name: "Arjun Saxena", company: "Summit Green", dealValue: 4600000, status: "In Progress" as const, progressPercent: 50, projectManager: "Amit Sen", targetDeliveryDate: "2026-12-22", hours: 76, latestActivity: "Grid inverter telemetry sync module completed" },
-  { name: "Tanvi Mathur", company: "Beacon Analytics", dealValue: 780000, status: "Planning" as const, progressPercent: 0, projectManager: "Rahul Mehta", targetDeliveryDate: "2027-02-15", hours: 0, latestActivity: "Deal won! Initial kickoff meeting scheduled for Monday" },
-  { name: "Alok Sengupta", company: "Terra Botanics", dealValue: 1350000, status: "On Track" as const, progressPercent: 92, projectManager: "Priya Nair", targetDeliveryDate: "2026-11-12", hours: 72, latestActivity: "Cold-chain temperature alert notifications enabled" },
-  { name: "Bhavna Trivedi", company: "Omega Systems", dealValue: 2150000, status: "Planning" as const, progressPercent: 25, projectManager: "Amit Sen", targetDeliveryDate: "2027-01-10", hours: 24, latestActivity: "Single-sign-on (SSO) SAML integration configured" },
-  { name: "Harish Murthy", company: "AeroTech Defense", dealValue: 6800000, status: "Completed" as const, progressPercent: 100, projectManager: "Rahul Mehta", targetDeliveryDate: "2026-10-12", hours: 290, latestActivity: "Final security clearance and customer handoff complete" },
-  { name: "Priyanka Roy", company: "Crestview Hotel", dealValue: 1500000, status: "In Progress" as const, progressPercent: 42, projectManager: "Priya Nair", targetDeliveryDate: "2026-12-18", hours: 38, latestActivity: "PMS booking engine webhooks live in staging" }
-];
-
 export function WonDealsDashboard({ leads }: WonDealsDashboardProps) {
   const [mounted, setMounted] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
@@ -101,9 +71,6 @@ export function WonDealsDashboard({ leads }: WonDealsDashboardProps) {
   const [selectedProject, setSelectedProject] = useState<EnrichedWonProject | null>(null);
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
   const [reloadKey, setReloadKey] = useState(0);
-
-  // Toggle for testing scale with 25 realistic won projects
-  const [preview25Mode, setPreview25Mode] = useState<boolean>(false);
 
   // Graph 1 View Modes & Pagination State
   const [chartViewMode, setChartViewMode] = useState<"paginated" | "scrollable" | "distribution">("paginated");
@@ -122,9 +89,6 @@ export function WonDealsDashboard({ leads }: WonDealsDashboardProps) {
 
     if (typeof window !== "undefined") {
       const sp = new URLSearchParams(window.location.search);
-      if (sp.get("preview") === "1" || sp.get("preview25") === "1" || sp.get("scale") === "25") {
-        setPreview25Mode(true);
-      }
       if (sp.get("mode") === "distribution") {
         setChartViewMode("distribution");
       } else if (sp.get("mode") === "scrollable") {
@@ -154,58 +118,8 @@ export function WonDealsDashboard({ leads }: WonDealsDashboardProps) {
     }).format(val);
   };
 
-  // Compile all Won deals from real DB leads, local project trackers, or preview scale mode
+  // Compile all Won deals from real DB leads, local project trackers
   const wonProjects = useMemo(() => {
-    if (preview25Mode) {
-      return SAMPLE_25_WON_PROJECTS.map((item, idx) => {
-        const lead: EnrichedLead = {
-          id: `preview-lead-${idx}`,
-          name: item.name,
-          company: item.company,
-          dealValue: item.dealValue,
-          status: "Won",
-          email: `${item.name.toLowerCase().replace(/\s+/g, ".")}@${item.company.toLowerCase().replace(/[^a-z]/g, "")}.com`,
-          phone: "+91 98765 43210",
-          service: "Enterprise Implementation",
-          createdAt: new Date().toISOString()
-        } as any;
-
-        const tracker: ProjectTrackerData = {
-          leadId: lead.id,
-          projectName: `${item.company} Delivery`,
-          projectType: (item as any).projectType || "Corporate Website",
-          projectManager: item.projectManager,
-          kickoffDate: "2026-10-01",
-          targetDeliveryDate: item.targetDeliveryDate,
-          status: item.status,
-          progressPercent: item.progressPercent,
-          budget: item.dealValue,
-          notes: "Sample project generated for testing scale and delivery metrics.",
-          dailyLogs: [
-            {
-              id: `log-${idx}`,
-              date: "2026-10-23",
-              activity: item.latestActivity,
-              hours: Math.round(item.hours * 0.1) || 2,
-              status: item.status === "At Risk" ? "Blocker" : "Completed",
-              loggedBy: item.projectManager,
-              nextStep: item.status === "At Risk" ? "Pending customer design approval" : "Proceeding with next deliverable",
-              createdAt: new Date().toISOString()
-            }
-          ],
-          milestones: [
-            { id: `m1-${idx}`, title: "Architecture & Design", targetDate: "2026-10-10", completed: item.progressPercent >= 25, weight: 25 },
-            { id: `m2-${idx}`, title: "Core System Implementation", targetDate: "2026-10-25", completed: item.progressPercent >= 50, weight: 25 },
-            { id: `m3-${idx}`, title: "Integration & Testing", targetDate: "2026-11-10", completed: item.progressPercent >= 75, weight: 25 },
-            { id: `m4-${idx}`, title: "Final Handover", targetDate: item.targetDeliveryDate, completed: item.progressPercent === 100, weight: 25 }
-          ],
-          lastUpdated: new Date().toISOString()
-        };
-
-        return { lead, tracker };
-      });
-    }
-
     // 1. Leads marked Won in DB
     const dbWon = leads.filter((l) => l.status?.toLowerCase() === "won");
 
@@ -232,7 +146,7 @@ export function WonDealsDashboard({ leads }: WonDealsDashboardProps) {
     });
 
     return compiled;
-  }, [leads, reloadKey, preview25Mode]);
+  }, [leads, reloadKey]);
 
   // Handle URL param to auto-open specific tracker in drawer
   useEffect(() => {
@@ -590,7 +504,7 @@ export function WonDealsDashboard({ leads }: WonDealsDashboardProps) {
               <span>{metrics.totalWon} Closed Won Deals</span>
             </span>
             <span className="px-2.5 py-1 rounded-full text-[11px] font-bold bg-black/[0.03] dark:bg-white/[0.05] border border-black/[0.06] dark:border-white/10 text-zinc-600 dark:text-zinc-300">
-              ⚡ Localhost Real-Time Synced
+              <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 inline-block mr-1.5" />Local Storage Synced
             </span>
           </div>
           <p className="text-xs text-zinc-500 dark:text-zinc-400 mt-1">
@@ -600,24 +514,6 @@ export function WonDealsDashboard({ leads }: WonDealsDashboardProps) {
 
         {/* Action Buttons */}
         <div className="flex items-center gap-2.5 shrink-0 flex-wrap">
-          <Button
-            type="button"
-            variant={preview25Mode ? "default" : "outline"}
-            onClick={() => {
-              const nextMode = !preview25Mode;
-              setPreview25Mode(nextMode);
-              toast.success(nextMode ? "Loaded 25 Won Projects to preview graph scale!" : "Switched back to Live CRM Deals");
-            }}
-            className={cn(
-              "text-xs h-9 px-3.5 gap-2 rounded-xl font-bold shadow-2xs transition-all",
-              preview25Mode
-                ? "bg-[#c8f237] text-[#111318] hover:bg-[#b5e028] border-black/20"
-                : "bg-white dark:bg-[#151821] border-black/[0.08] dark:border-white/10 hover:bg-black/[0.03]"
-            )}
-          >
-            <Sparkles className={cn("w-3.5 h-3.5", preview25Mode ? "text-[#111318]" : "text-amber-500")} />
-            <span>{preview25Mode ? "Showing 25 Won Projects (Preview)" : "Test 25+ Projects Scale"}</span>
-          </Button>
 
           <Button
             type="button"
