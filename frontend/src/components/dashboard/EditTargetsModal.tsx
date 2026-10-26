@@ -315,28 +315,15 @@ export function EditTargetsModal({
                     disabled={!isAdmin}
                     className="w-full h-11 px-3.5 rounded-xl text-sm font-semibold bg-zinc-50 dark:bg-white/[0.04] border border-black/[0.1] dark:border-white/10 text-zinc-900 dark:text-white cursor-pointer focus:outline-none focus:ring-2 focus:ring-[#111318] dark:focus:ring-[#c8f237]"
                   >
-                    <option value="all">🏢 Entire Organization (Default Benchmark)</option>
+                    <option value="all">Entire Organization (Company Benchmark)</option>
                     <optgroup label="Individual Team Members">
                       {activeMembers.map((m) => (
                         <option key={m.id} value={m.id}>
-                          👤 {m.name} ({m.role === "admin" ? "Admin" : "Client Manager"})
+                          {m.name} ({m.role === "admin" ? "Admin" : "Client Manager"})
                         </option>
                       ))}
                     </optgroup>
                   </select>
-                </div>
-
-                <div className="p-2.5 rounded-xl bg-black/[0.02] dark:bg-white/[0.02] border border-black/[0.05] dark:border-white/10 flex items-center justify-between text-xs">
-                  <span className="text-zinc-500 dark:text-zinc-400">
-                    {currentMember 
-                      ? `Setting individual target for ${currentMember.name}. This overrides the company benchmark for them.`
-                      : "Setting company benchmark. Applied to overall pipeline and team members without individual targets."}
-                  </span>
-                  {selectedScope !== "all" && targets.userTargets?.[selectedScope] && (
-                    <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-50 text-emerald-700 dark:bg-emerald-500/10 dark:text-emerald-400 border border-emerald-200 dark:border-emerald-500/20 shrink-0 ml-2">
-                      Custom Target Active
-                    </span>
-                  )}
                 </div>
               </div>
 

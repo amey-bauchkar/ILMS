@@ -436,10 +436,10 @@ export function StudioAnalyticsDashboard({
               onChange={(e) => setSelectedOwnerId(e.target.value)}
               className="bg-transparent text-xs font-bold text-zinc-900 dark:text-white focus:outline-none cursor-pointer pr-1"
             >
-              <option value="all">🏢 Org Overview (All Leads)</option>
+              <option value="all">Org Overview (All Leads)</option>
               {availableOwners.map((o) => (
                 <option key={o.id} value={o.id}>
-                  👤 {o.name} ({o.count} leads)
+                  {o.name} ({o.count} leads)
                 </option>
               ))}
             </select>
