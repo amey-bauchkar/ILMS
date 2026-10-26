@@ -16,13 +16,15 @@ import {
   Phone,
   Pencil,
   Target,
-  ShieldCheck
+  ShieldCheck,
+  Users,
+  UserCheck
 } from "lucide-react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { LeadForm } from "@/components/leads/LeadForm";
 import { useStatuses, useTeamMembers } from "@/hooks/use-data";
 import { useUser } from "@/components/providers/user-provider";
-import { useTargets } from "@/lib/targets";
+import { useTargets, getUserTarget } from "@/lib/targets";
 import { EditTargetsModal } from "./EditTargetsModal";
 import { format } from "date-fns";
 
@@ -77,6 +79,7 @@ export function StudioAnalyticsDashboard({
     ["all", "month", "quarter", "year"].includes(initialRange) ? initialRange : "all"
   );
   const [selectedOwnerId, setSelectedOwnerId] = useState<string>(initialOwner);
+  const [targetMemberScope, setTargetMemberScope] = useState<string>(initialOwner);
   const [isAddLeadOpen, setIsAddLeadOpen] = useState(false);
 
   useEffect(() => {
@@ -314,15 +317,13 @@ export function StudioAnalyticsDashboard({
     });
     const recentFive = sortedLeads.slice(0, 5);
 
-    // Target metrics (dynamic from persisted targets)
-    const baseLeadTarget = targets.leadGenTarget || 1000;
-    const baseRevTarget = targets.revenueTarget || 1000000;
-
-    const leadGenTarget = selectedOwnerId === "all" ? baseLeadTarget : Math.max(1, Math.round(baseLeadTarget / (repList.length || 3)));
+    // Target metrics (dynamic from persisted targets - supports individual user targets set by admin)
+    const userTargetInfo = getUserTarget(targets, selectedOwnerId, selectedOwnerLabel);
+    const leadGenTarget = userTargetInfo.leadGenTarget;
+    const revenueTarget = userTargetInfo.revenueTarget;
     const leadGenAchieved = totalCount;
-    const leadGenPercent = Math.min(100, Math.round((leadGenAchieved / leadGenTarget) * 100));
+    const leadGenPercent = Math.min(100, Math.round((leadGenAchieved / (leadGenTarget || 1)) * 100));
     const leadGenRemaining = Math.max(0, leadGenTarget - leadGenAchieved);
-    const revenueTarget = selectedOwnerId === "all" ? baseRevTarget : Math.max(1, Math.round(baseRevTarget / (repList.length || 3)));
 
     return {
       totalCount,
@@ -424,8 +425,37 @@ export function StudioAnalyticsDashboard({
           </p>
         </div>
 
-        {/* Centered Segmented Range Selector: All Time, This Month, This Quarter, This Year */}
-        <div className="flex items-center justify-center pt-0.5">
+        {/* Sub-header Filter Bar: Sales Rep Filter + Segmented Range Selector */}
+        <div className="flex flex-wrap items-center justify-between gap-3 pt-1">
+          {/* Sales Rep Selector */}
+          <div className="flex items-center gap-2 p-1.5 px-3 rounded-full bg-white dark:bg-[#151821] shadow-xs border border-black/[0.06] dark:border-white/10 text-xs">
+            <Users className="w-3.5 h-3.5 text-zinc-400" />
+            <span className="text-zinc-500 dark:text-zinc-400 font-medium hidden sm:inline">Sales Rep:</span>
+            <select
+              value={selectedOwnerId}
+              onChange={(e) => setSelectedOwnerId(e.target.value)}
+              className="bg-transparent text-xs font-bold text-zinc-900 dark:text-white focus:outline-none cursor-pointer pr-1"
+            >
+              <option value="all">🏢 Org Overview (All Leads)</option>
+              {availableOwners.map((o) => (
+                <option key={o.id} value={o.id}>
+                  👤 {o.name} ({o.count} leads)
+                </option>
+              ))}
+            </select>
+            {selectedOwnerId !== "all" && (
+              <button
+                type="button"
+                onClick={() => setSelectedOwnerId("all")}
+                className="text-[10px] text-zinc-400 hover:text-black dark:hover:text-white ml-1 font-semibold underline cursor-pointer"
+                title="Reset to All"
+              >
+                Reset
+              </button>
+            )}
+          </div>
+
+          {/* Centered Segmented Range Selector */}
           <div className="flex items-center p-1 rounded-full bg-white dark:bg-[#151821] shadow-xs border border-black/[0.06] dark:border-white/10">
             {(["all", "month", "quarter", "year"] as const).map((range) => {
               const labels = {
@@ -668,18 +698,19 @@ export function StudioAnalyticsDashboard({
         <div className="lg:col-span-5 bg-white dark:bg-[#151821] rounded-[28px] border border-black/[0.04] dark:border-white/10 p-6 sm:p-7 shadow-[0_8px_24px_rgba(15,23,42,0.03)] flex flex-col justify-between">
           <div className="flex items-center justify-between gap-2">
             <span className="text-xs font-bold text-zinc-700 dark:text-zinc-300 uppercase tracking-wider">
-              Lead Generation Target - {selectedRange === "all" ? "All Time" : selectedRange === "year" ? "This Year" : selectedRange === "quarter" ? "This Quarter" : "This Month"}
+              Lead Generation Target - {selectedOwnerId === "all" ? "Org Overview" : selectedOwnerLabel} ({selectedRange === "all" ? "All Time" : selectedRange === "year" ? "This Year" : selectedRange === "quarter" ? "This Quarter" : "This Month"})
             </span>
             <div className="flex items-center gap-2">
               {isAdmin && (
                 <button
                   type="button"
                   onClick={() => {
+                    setTargetMemberScope(selectedOwnerId);
                     setTargetsDefaultFocus("leads");
                     setIsEditTargetsOpen(true);
                   }}
                   className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-zinc-100 hover:bg-[#c8f237] text-zinc-700 hover:text-[#111318] dark:bg-white/[0.06] dark:hover:bg-[#c8f237] dark:hover:text-[#111318] text-[10px] font-bold border border-black/[0.08] dark:border-white/10 transition-all active:scale-95 shadow-2xs cursor-pointer"
-                  title="Admin: Set Target Number"
+                  title={`Admin: Set Target for ${selectedOwnerId === "all" ? "Organization" : selectedOwnerLabel}`}
                 >
                   <Pencil className="w-2.5 h-2.5" />
                   <span>Set Target</span>
@@ -748,11 +779,12 @@ export function StudioAnalyticsDashboard({
                   <button
                     type="button"
                     onClick={() => {
+                      setTargetMemberScope(selectedOwnerId);
                       setTargetsDefaultFocus("leads");
                       setIsEditTargetsOpen(true);
                     }}
                     className="text-xs text-zinc-500 dark:text-zinc-400 font-medium hover:text-black dark:hover:text-white underline decoration-dotted inline-flex items-center gap-1 cursor-pointer"
-                    title="Click to set target number (Admin only)"
+                    title={`Click to set target number for ${selectedOwnerId === "all" ? "Organization" : selectedOwnerLabel} (Admin only)`}
                   >
                     <span>Target: {metrics.leadGenTarget}</span>
                     <Pencil className="w-2.5 h-2.5 text-zinc-400" />
@@ -782,18 +814,19 @@ export function StudioAnalyticsDashboard({
         <div className="lg:col-span-7 bg-white dark:bg-[#151821] rounded-[28px] border border-black/[0.04] dark:border-white/10 p-6 sm:p-7 shadow-[0_8px_24px_rgba(15,23,42,0.03)] flex flex-col justify-between">
           <div className="flex items-center justify-between gap-2">
             <span className="text-xs font-bold text-zinc-700 dark:text-zinc-300 uppercase tracking-wider">
-              Revenue Target - {selectedRange === "all" ? "All Time" : selectedRange === "year" ? "This Year" : selectedRange === "quarter" ? "This Quarter" : "This Month"}
+              Revenue Target - {selectedOwnerId === "all" ? "Org Overview" : selectedOwnerLabel} ({selectedRange === "all" ? "All Time" : selectedRange === "year" ? "This Year" : selectedRange === "quarter" ? "This Quarter" : "This Month"})
             </span>
             <div className="flex items-center gap-3 text-xs">
               {isAdmin && (
                 <button
                   type="button"
                   onClick={() => {
+                    setTargetMemberScope(selectedOwnerId);
                     setTargetsDefaultFocus("revenue");
                     setIsEditTargetsOpen(true);
                   }}
                   className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-zinc-100 hover:bg-[#c8f237] text-zinc-700 hover:text-[#111318] dark:bg-white/[0.06] dark:hover:bg-[#c8f237] dark:hover:text-[#111318] text-[10px] font-bold border border-black/[0.08] dark:border-white/10 transition-all active:scale-95 shadow-2xs cursor-pointer"
-                  title="Admin: Set Revenue Target"
+                  title={`Admin: Set Revenue Target for ${selectedOwnerId === "all" ? "Organization" : selectedOwnerLabel}`}
                 >
                   <Pencil className="w-2.5 h-2.5" />
                   <span>Set Target</span>
@@ -807,11 +840,12 @@ export function StudioAnalyticsDashboard({
                 <button
                   type="button"
                   onClick={() => {
+                    setTargetMemberScope(selectedOwnerId);
                     setTargetsDefaultFocus("revenue");
                     setIsEditTargetsOpen(true);
                   }}
                   className="flex items-center gap-1.5 font-semibold text-zinc-900 dark:text-white hover:text-emerald-600 dark:hover:text-[#c8f237] transition-colors cursor-pointer"
-                  title="Click to set revenue target (Admin only)"
+                  title={`Click to set revenue target for ${selectedOwnerId === "all" ? "Organization" : selectedOwnerLabel} (Admin only)`}
                 >
                   <span className="w-2 h-2 rounded-xs bg-[#111318] dark:bg-white" />
                   <span>Target: {formatCurrency(metrics.revenueTarget)}</span>
@@ -1046,30 +1080,67 @@ export function StudioAnalyticsDashboard({
           </div>
 
           {/* Reps list */}
-          <div className="py-3 space-y-3.5 my-auto">
-            {metrics.repList.slice(0, 3).map((rep) => (
-              <div key={rep.id} className="flex items-center justify-between">
-                <div className="flex items-center gap-3">
-                  <div className={`w-8 h-8 rounded-full ${getAvatarBg(rep.name)} text-white flex items-center justify-center text-xs font-bold shrink-0 shadow-xs`}>
-                    {getAvatarInitials(rep.name)}
+          <div className="py-2 space-y-2.5 my-auto">
+            {metrics.repList.slice(0, 4).map((rep) => {
+              const repTarget = getUserTarget(targets, rep.id, rep.name);
+              const repPercent = Math.min(100, Math.round((rep.leads / (repTarget.leadGenTarget || 1)) * 100));
+              const isSelected = selectedOwnerId === rep.id;
+              return (
+                <div 
+                  key={rep.id} 
+                  className={`flex items-center justify-between p-2 rounded-xl transition-all ${
+                    isSelected 
+                      ? "bg-black/[0.05] dark:bg-white/[0.08] ring-1 ring-black/10 dark:ring-white/20" 
+                      : "hover:bg-black/[0.02] dark:hover:bg-white/[0.02]"
+                  }`}
+                >
+                  <div 
+                    onClick={() => setSelectedOwnerId(isSelected ? "all" : rep.id)}
+                    className="flex items-center gap-2.5 cursor-pointer group flex-1 min-w-0"
+                    title={`Click to filter dashboard & view targets for ${rep.name}`}
+                  >
+                    <div className={`w-8 h-8 rounded-full ${getAvatarBg(rep.name)} text-white flex items-center justify-center text-xs font-bold shrink-0 shadow-xs group-hover:scale-105 transition-transform`}>
+                      {getAvatarInitials(rep.name)}
+                    </div>
+                    <div className="min-w-0">
+                      <h4 className="text-xs font-bold text-zinc-900 dark:text-white leading-none truncate group-hover:text-emerald-600 dark:group-hover:text-[#c8f237] transition-colors">
+                        {rep.name}
+                      </h4>
+                      <p className="text-[11px] text-zinc-400 dark:text-zinc-400 mt-1 leading-none truncate">
+                        {rep.leads} / {repTarget.leadGenTarget} leads ({repPercent}%) · {rep.inPipeline} active
+                      </p>
+                    </div>
                   </div>
-                  <div>
-                    <h4 className="text-xs font-bold text-zinc-900 dark:text-white leading-none">{rep.name}</h4>
-                    <p className="text-[11px] text-zinc-400 dark:text-zinc-400 mt-1 leading-none">
-                      {rep.leads} leads · {rep.inPipeline} in pipeline
-                    </p>
+
+                  <div className="flex items-center gap-2 shrink-0">
+                    <div className="text-right leading-none">
+                      <span className="text-xs font-bold text-zinc-700 dark:text-zinc-300 block">
+                        {rep.value > 0 ? formatCurrency(rep.value) : "—"}
+                      </span>
+                      <span className="text-[10px] font-medium text-zinc-400 dark:text-zinc-500 block mt-1">
+                        Target: {formatCurrency(repTarget.revenueTarget)}
+                      </span>
+                    </div>
+
+                    {isAdmin && (
+                      <button
+                        type="button"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          setTargetMemberScope(rep.id);
+                          setTargetsDefaultFocus("leads");
+                          setIsEditTargetsOpen(true);
+                        }}
+                        className="p-1.5 rounded-lg text-zinc-400 hover:text-black dark:hover:text-white hover:bg-black/5 dark:hover:bg-white/10 transition-colors"
+                        title={`Set individual target specifically for ${rep.name}`}
+                      >
+                        <Pencil className="w-3 h-3" />
+                      </button>
+                    )}
                   </div>
                 </div>
-                <div className="text-right leading-none">
-                  <span className="text-xs font-bold text-zinc-700 dark:text-zinc-300 block">
-                    {rep.value > 0 ? formatCurrency(rep.value) : "—"}
-                  </span>
-                  <span className="text-[10px] font-semibold text-emerald-600 dark:text-emerald-400 block mt-1">
-                    Active
-                  </span>
-                </div>
-              </div>
-            ))}
+              );
+            })}
           </div>
 
           <div className="pt-3 border-t border-black/[0.04] dark:border-white/10 flex items-center justify-between text-xs text-zinc-500 dark:text-zinc-400">
@@ -1145,6 +1216,7 @@ export function StudioAnalyticsDashboard({
         open={isEditTargetsOpen}
         onOpenChange={setIsEditTargetsOpen}
         defaultFocus={targetsDefaultFocus}
+        initialSelectedMemberId={targetMemberScope}
       />
 
     </div>
