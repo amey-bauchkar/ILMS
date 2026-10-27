@@ -700,7 +700,7 @@ export function StudioAnalyticsDashboard({
             <span className="text-xs font-bold text-zinc-700 dark:text-zinc-300 uppercase tracking-wider">
               Lead Generation Target - {selectedOwnerId === "all" ? "Org Overview" : selectedOwnerLabel} ({selectedRange === "all" ? "All Time" : selectedRange === "year" ? "This Year" : selectedRange === "quarter" ? "This Quarter" : "This Month"})
             </span>
-            <div className="flex items-center gap-3 text-xs">
+            <div className="flex items-center gap-2">
               {isAdmin && (
                 <button
                   type="button"
@@ -709,35 +709,14 @@ export function StudioAnalyticsDashboard({
                     setTargetsDefaultFocus("leads");
                     setIsEditTargetsOpen(true);
                   }}
-                  className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-zinc-100 hover:bg-[#c8f237] text-zinc-700 hover:text-[#111318] dark:bg-white/[0.06] dark:hover:bg-[#c8f237] dark:hover:text-[#111318] text-[10px] font-bold border border-black/[0.08] dark:border-white/10 transition-all active:scale-95 shadow-2xs cursor-pointer"
+                  className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-zinc-100 hover:bg-[#c8f237] text-zinc-700 hover:text-[#111318] dark:bg-white/[0.06] dark:hover:bg-[#c8f237] dark:hover:text-[#111318] text-[10px] font-bold border border-black/[0.08] dark:border-white/10 transition-all active:scale-95 shadow-2xs cursor-pointer shrink-0"
                   title={`Admin: Set Target for ${selectedOwnerId === "all" ? "Organization" : selectedOwnerLabel}`}
                 >
                   <Pencil className="w-2.5 h-2.5" />
                   <span>Set Target</span>
                 </button>
               )}
-              {isAdmin ? (
-                <button
-                  type="button"
-                  onClick={() => {
-                    setTargetMemberScope(selectedOwnerId);
-                    setTargetsDefaultFocus("leads");
-                    setIsEditTargetsOpen(true);
-                  }}
-                  className="flex items-center gap-1.5 font-semibold text-zinc-900 dark:text-white hover:text-emerald-600 dark:hover:text-[#c8f237] transition-colors cursor-pointer"
-                  title={`Click to set target number for ${selectedOwnerId === "all" ? "Organization" : selectedOwnerLabel} (Admin only)`}
-                >
-                  <span className="w-2 h-2 rounded-xs bg-[#111318] dark:bg-white" />
-                  <span>Target: {metrics.leadGenTarget.toLocaleString("en-IN")}</span>
-                  <Pencil className="w-2.5 h-2.5 text-zinc-400" />
-                </button>
-              ) : (
-                <span className="flex items-center gap-1.5 font-semibold text-zinc-900 dark:text-white">
-                  <span className="w-2 h-2 rounded-xs bg-[#111318] dark:bg-white" />
-                  Target: {metrics.leadGenTarget.toLocaleString("en-IN")}
-                </span>
-              )}
-              <span className="px-2.5 py-0.5 rounded-full bg-emerald-50 dark:bg-emerald-500/10 text-emerald-700 dark:text-emerald-400 border border-emerald-200/80 dark:border-emerald-500/20 text-[11px] font-bold">
+              <span className="px-2.5 py-0.5 rounded-full bg-emerald-50 dark:bg-emerald-500/10 text-emerald-700 dark:text-emerald-400 border border-emerald-200/80 dark:border-emerald-500/20 text-[11px] font-bold whitespace-nowrap shrink-0">
                 {metrics.leadGenPercent}% Achieved
               </span>
             </div>
