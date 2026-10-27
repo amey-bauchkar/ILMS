@@ -131,6 +131,58 @@ export async function deactivateUser(id: string, is_active: boolean) {
   return { success: true };
 }
 
+export async function deleteUser(id: string) {
+  const result = await checkAdmin();
+  if (result.error) return { error: result.error };
+  const supabase = result.supabase!;
+
+  // 1. Prevent deleting self
+  const { data: { user: currentUser } } = await supabase.auth.getUser();
+  const { data: userProfile } = await supabase
+    .from('users')
+    .select('id, auth_id, name, email')
+    .eq('id', id)
+    .single();
+
+  if (userProfile?.auth_id && currentUser?.id === userProfile.auth_id) {
+    return { error: 'You cannot delete your own account.' };
+  }
+
+  // 2. Check if user owns any leads
+  const { count: leadCount } = await supabase
+    .from('leads')
+    .select('*', { count: 'exact', head: true })
+    .eq('owner_id', id);
+
+  if (leadCount && leadCount > 0) {
+    return { error: `Cannot delete user: They own ${leadCount} lead(s). Please reassign their leads first.` };
+  }
+
+  // 3. Delete from public.users
+  const { error: deleteErr } = await supabase
+    .from('users')
+    .delete()
+    .eq('id', id);
+
+  if (deleteErr) {
+    console.error('Delete user error:', deleteErr);
+    return { error: 'Failed to delete user: ' + deleteErr.message };
+  }
+
+  // 4. Delete from auth.users if linked
+  if (userProfile?.auth_id) {
+    try {
+      const adminClient = await createAdminClient();
+      await adminClient.auth.admin.deleteUser(userProfile.auth_id);
+    } catch (authErr) {
+      console.warn('Auth user deletion warning:', authErr);
+    }
+  }
+
+  revalidatePath('/settings');
+  return { success: true };
+}
+
 // =======================
 // Statuses
 // =======================

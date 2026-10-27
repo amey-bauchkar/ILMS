@@ -3,8 +3,9 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { User, UserRole } from "@/types/database";
-import { inviteUser, updateUserRole, deactivateUser } from "@/actions/admin";
+import { inviteUser, updateUserRole, deactivateUser, deleteUser } from "@/actions/admin";
 import { Button } from "@/components/ui/button";
+import { Trash2 } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import {
@@ -92,6 +93,26 @@ export function UserManagement({ users: initialUsers }: { users: User[] }) {
         prev.map((u) => (u.id === id ? { ...u, is_active: currentActive } : u))
       );
       alert("Failed to update user status: " + err.message);
+    }
+  };
+
+  const handleDeleteUser = async (id: string, userName: string) => {
+    if (!window.confirm(`Are you sure you want to permanently delete "${userName}"? This cannot be undone.`)) {
+      return;
+    }
+    const previous = [...localUsers];
+    setLocalUsers((prev) => prev.filter((u) => u.id !== id));
+    try {
+      const res = await deleteUser(id);
+      if (res?.error) {
+        setLocalUsers(previous);
+        alert(res.error);
+        return;
+      }
+      router.refresh();
+    } catch (err: any) {
+      setLocalUsers(previous);
+      alert("Failed to delete user: " + err.message);
     }
   };
 
@@ -198,13 +219,24 @@ export function UserManagement({ users: initialUsers }: { users: User[] }) {
                   </Badge>
                 </TableCell>
                 <TableCell className="text-right">
-                  <Button 
-                    variant="ghost" 
-                    size="sm"
-                    onClick={() => handleToggleActive(user.id, user.is_active)}
-                  >
-                    {user.is_active ? "Deactivate" : "Activate"}
-                  </Button>
+                  <div className="inline-flex items-center gap-1 justify-end">
+                    <Button 
+                      variant="ghost" 
+                      size="sm"
+                      onClick={() => handleToggleActive(user.id, user.is_active)}
+                    >
+                      {user.is_active ? "Deactivate" : "Activate"}
+                    </Button>
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      className="h-8 w-8 text-zinc-400 hover:text-red-600 hover:bg-red-50 dark:hover:bg-red-950/30 transition-colors"
+                      title={`Permanently delete ${user.name}`}
+                      onClick={() => handleDeleteUser(user.id, user.name)}
+                    >
+                      <Trash2 className="w-3.5 h-3.5" />
+                    </Button>
+                  </div>
                 </TableCell>
               </TableRow>
             ))}
