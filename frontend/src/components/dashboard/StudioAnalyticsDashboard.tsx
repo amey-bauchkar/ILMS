@@ -700,7 +700,7 @@ export function StudioAnalyticsDashboard({
             <span className="text-xs font-bold text-zinc-700 dark:text-zinc-300 uppercase tracking-wider">
               Lead Generation Target - {selectedOwnerId === "all" ? "Org Overview" : selectedOwnerLabel} ({selectedRange === "all" ? "All Time" : selectedRange === "year" ? "This Year" : selectedRange === "quarter" ? "This Quarter" : "This Month"})
             </span>
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-3 text-xs">
               {isAdmin && (
                 <button
                   type="button"
@@ -715,6 +715,27 @@ export function StudioAnalyticsDashboard({
                   <Pencil className="w-2.5 h-2.5" />
                   <span>Set Target</span>
                 </button>
+              )}
+              {isAdmin ? (
+                <button
+                  type="button"
+                  onClick={() => {
+                    setTargetMemberScope(selectedOwnerId);
+                    setTargetsDefaultFocus("leads");
+                    setIsEditTargetsOpen(true);
+                  }}
+                  className="flex items-center gap-1.5 font-semibold text-zinc-900 dark:text-white hover:text-emerald-600 dark:hover:text-[#c8f237] transition-colors cursor-pointer"
+                  title={`Click to set target number for ${selectedOwnerId === "all" ? "Organization" : selectedOwnerLabel} (Admin only)`}
+                >
+                  <span className="w-2 h-2 rounded-xs bg-[#111318] dark:bg-white" />
+                  <span>Target: {metrics.leadGenTarget.toLocaleString("en-IN")}</span>
+                  <Pencil className="w-2.5 h-2.5 text-zinc-400" />
+                </button>
+              ) : (
+                <span className="flex items-center gap-1.5 font-semibold text-zinc-900 dark:text-white">
+                  <span className="w-2 h-2 rounded-xs bg-[#111318] dark:bg-white" />
+                  Target: {metrics.leadGenTarget.toLocaleString("en-IN")}
+                </span>
               )}
               <span className="px-2.5 py-0.5 rounded-full bg-emerald-50 dark:bg-emerald-500/10 text-emerald-700 dark:text-emerald-400 border border-emerald-200/80 dark:border-emerald-500/20 text-[11px] font-bold">
                 {metrics.leadGenPercent}% Achieved
@@ -767,32 +788,18 @@ export function StudioAnalyticsDashboard({
 
             {/* Scale numbers under gauge */}
             <div className="w-full max-w-[280px] flex items-center justify-between text-xs text-zinc-500 dark:text-zinc-400 mt-2 px-1">
-              <div className="flex flex-col items-start leading-none">
-                <span className="text-sm font-bold text-zinc-900 dark:text-white">{metrics.totalCount}</span>
-                <span className="text-[11px] text-zinc-400 dark:text-zinc-500 mt-0.5">0</span>
+              <span className="text-xs font-semibold text-zinc-400 dark:text-zinc-500">0</span>
+              <div className="text-center leading-tight">
+                <span className="text-sm font-bold text-zinc-900 dark:text-white block">
+                  {metrics.totalCount} Achieved
+                </span>
+                <span className="text-[11px] text-zinc-400 dark:text-zinc-500 font-medium block mt-0.5">
+                  Remaining : {metrics.leadGenRemaining}
+                </span>
               </div>
-              <div className="text-center font-bold text-zinc-900 dark:text-white text-xs">
-                Remaining : {metrics.leadGenRemaining}
-              </div>
-              <div className="text-right leading-none">
-                {isAdmin ? (
-                  <button
-                    type="button"
-                    onClick={() => {
-                      setTargetMemberScope(selectedOwnerId);
-                      setTargetsDefaultFocus("leads");
-                      setIsEditTargetsOpen(true);
-                    }}
-                    className="text-xs text-zinc-500 dark:text-zinc-400 font-medium hover:text-black dark:hover:text-white underline decoration-dotted inline-flex items-center gap-1 cursor-pointer"
-                    title={`Click to set target number for ${selectedOwnerId === "all" ? "Organization" : selectedOwnerLabel} (Admin only)`}
-                  >
-                    <span>Target: {metrics.leadGenTarget}</span>
-                    <Pencil className="w-2.5 h-2.5 text-zinc-400" />
-                  </button>
-                ) : (
-                  <span className="text-xs text-zinc-500 dark:text-zinc-400 font-medium">Target: {metrics.leadGenTarget}</span>
-                )}
-              </div>
+              <span className="text-xs font-semibold text-zinc-400 dark:text-zinc-500">
+                {metrics.leadGenTarget.toLocaleString("en-IN")}
+              </span>
             </div>
           </div>
 
