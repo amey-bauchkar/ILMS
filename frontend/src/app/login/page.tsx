@@ -126,7 +126,7 @@ export default function LoginPage() {
                 {mode === "login"
                   ? "Enter your email below to login to your account."
                   : mode === "signup"
-                  ? "Invite-Only: Set up your password for your pre-approved email."
+                  ? "New Member Registration: Enter your details and Master Encryption Key."
                   : "Authorize with Admin credentials to update password for any user or admin."}
               </CardDescription>
             </CardHeader>
@@ -253,6 +253,20 @@ export default function LoginPage() {
                   </>
                 ) : (
                   <>
+                    {mode === "signup" && (
+                      <div className="space-y-2">
+                        <Label htmlFor="name" className="text-xs text-zinc-700 dark:text-zinc-300 font-semibold">Full Name</Label>
+                        <Input 
+                          id="name" 
+                          name="name" 
+                          type="text" 
+                          placeholder="e.g. Faiz Ahmed" 
+                          required={mode === "signup"} 
+                          className="bg-zinc-50 dark:bg-zinc-900/70 border-black/10 dark:border-white/10 rounded-xl h-10 text-zinc-900 dark:text-white placeholder:text-zinc-400 dark:placeholder:text-zinc-500 focus:border-[#c8f237] focus:ring-2 focus:ring-[#c8f237]/20 transition-all font-medium" 
+                          disabled={loading}
+                        />
+                      </div>
+                    )}
                     <div className="space-y-2">
                       <Label htmlFor="email" className="text-xs text-zinc-700 dark:text-zinc-300 font-semibold">Email Address</Label>
                        <Input 
@@ -298,6 +312,30 @@ export default function LoginPage() {
                          </p>
                        )}
                      </div>
+
+                    {mode === "signup" && (
+                      <div className="space-y-2 pt-1 border-t border-black/[0.06] dark:border-white/10">
+                        <div className="flex items-center justify-between">
+                          <Label htmlFor="encryptionKey" className="text-xs text-zinc-700 dark:text-zinc-300 font-semibold flex items-center gap-1.5">
+                            <KeyRound className="w-3.5 h-3.5 text-primary" />
+                            <span>Master Encryption Key</span>
+                          </Label>
+                          <span className="text-[10px] text-zinc-400 dark:text-zinc-500 font-medium">Provided by Admin</span>
+                        </div>
+                        <Input 
+                          id="encryptionKey" 
+                          name="encryptionKey" 
+                          type="text" 
+                          placeholder="FM-XXXX-XXXX-XXXX-XXXX" 
+                          required={mode === "signup"} 
+                          className="bg-zinc-50 dark:bg-zinc-900/70 border-black/10 dark:border-white/10 rounded-xl h-10 text-zinc-900 dark:text-white placeholder:text-zinc-400 dark:placeholder:text-zinc-500 focus:border-[#c8f237] focus:ring-2 focus:ring-[#c8f237]/20 transition-all font-mono tracking-wider uppercase text-sm font-semibold" 
+                          disabled={loading}
+                        />
+                        <p className="text-[11px] text-zinc-500 dark:text-zinc-400">
+                          Without a valid encryption key, new members cannot be added.
+                        </p>
+                      </div>
+                    )}
                    </>
                  )}
                </CardContent>
@@ -344,7 +382,7 @@ export default function LoginPage() {
                       }}
                       disabled={loading}
                     >
-                      {mode === "login" ? "Set up your password" : "Back to Login"}
+                      {mode === "login" ? "Register New Member (with Key)" : "Back to Login"}
                     </Button>
 
                     <button
@@ -382,10 +420,10 @@ export default function LoginPage() {
         
         <div className="text-center">
           <span className="inline-flex items-center justify-center rounded-full border border-[#c8f237]/60 bg-[#c8f237]/20 px-3.5 py-1 text-xs font-semibold text-zinc-800 dark:text-zinc-200 shadow-xs">
-            Invite-Only Access
+            Encrypted Access Control
           </span>
           <p className="text-xs text-zinc-500 dark:text-zinc-400 mt-2">
-            Only pre-approved team members can sign in.
+            New members require a Master Encryption Key. Registered members log in directly.
           </p>
         </div>
       </div>
