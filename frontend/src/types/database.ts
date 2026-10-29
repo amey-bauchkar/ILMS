@@ -261,7 +261,7 @@ export interface Database {
           id?: string;
           created_at?: string;
         };
-        Update: never;
+        Update: Partial<Omit<LeadStatusHistory, 'id' | 'created_at'>>;
         Relationships: any[];
       };
       saved_views: {

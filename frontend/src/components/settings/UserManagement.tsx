@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/button";
 import { Trash2 } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { toast } from "sonner";
 import {
   Table,
   TableBody,
@@ -49,14 +50,21 @@ export function UserManagement({ users: initialUsers }: { users: User[] }) {
     setLoading(true);
     setError(null);
     try {
-      await inviteUser({ email, name, role });
+      const res = await inviteUser({ email, name, role });
+      if (res && 'error' in res && res.error) {
+        setError(res.error);
+        toast.error(res.error);
+        return;
+      }
       setIsInviteOpen(false);
       setEmail("");
       setName("");
       setRole("client_manager");
+      toast.success(`Invited ${name} successfully!`);
       router.refresh();
     } catch (err: any) {
       setError(err.message);
+      toast.error(err.message);
     } finally {
       setLoading(false);
     }
@@ -68,14 +76,22 @@ export function UserManagement({ users: initialUsers }: { users: User[] }) {
       prev.map((u) => (u.id === id ? { ...u, role: newRole } : u))
     );
     try {
-      await updateUserRole(id, newRole);
+      const res = await updateUserRole(id, newRole);
+      if (res?.error) {
+        setLocalUsers((prev) =>
+          prev.map((u) => (u.id === id ? { ...u, role: initialUsers.find((iu) => iu.id === id)?.role || u.role } : u))
+        );
+        toast.error(res.error);
+        return;
+      }
+      toast.success("User role updated successfully.");
       router.refresh();
     } catch (err: any) {
       // Revert on failure
       setLocalUsers((prev) =>
         prev.map((u) => (u.id === id ? { ...u, role: initialUsers.find((iu) => iu.id === id)?.role || u.role } : u))
       );
-      alert("Failed to update role: " + err.message);
+      toast.error("Failed to update role: " + err.message);
     }
   };
 
@@ -85,19 +101,27 @@ export function UserManagement({ users: initialUsers }: { users: User[] }) {
       prev.map((u) => (u.id === id ? { ...u, is_active: !currentActive } : u))
     );
     try {
-      await deactivateUser(id, !currentActive);
+      const res = await deactivateUser(id, !currentActive);
+      if (res?.error) {
+        setLocalUsers((prev) =>
+          prev.map((u) => (u.id === id ? { ...u, is_active: currentActive } : u))
+        );
+        toast.error(res.error);
+        return;
+      }
+      toast.success(`User ${!currentActive ? "activated" : "deactivated"} successfully.`);
       router.refresh();
     } catch (err: any) {
       // Revert on failure
       setLocalUsers((prev) =>
         prev.map((u) => (u.id === id ? { ...u, is_active: currentActive } : u))
       );
-      alert("Failed to update user status: " + err.message);
+      toast.error("Failed to update user status: " + err.message);
     }
   };
 
   const handleDeleteUser = async (id: string, userName: string) => {
-    if (!window.confirm(`Are you sure you want to permanently delete "${userName}"? This cannot be undone.`)) {
+    if (!window.confirm(`Are you sure you want to permanently delete "${userName}"?\n\nAll leads assigned to or created by them will be transferred to you, and the account will be completely removed from Supabase.`)) {
       return;
     }
     const previous = [...localUsers];
@@ -106,13 +130,14 @@ export function UserManagement({ users: initialUsers }: { users: User[] }) {
       const res = await deleteUser(id);
       if (res?.error) {
         setLocalUsers(previous);
-        alert(res.error);
+        toast.error(res.error);
         return;
       }
+      toast.success(`Account for "${userName}" has been permanently deleted.`);
       router.refresh();
     } catch (err: any) {
       setLocalUsers(previous);
-      alert("Failed to delete user: " + err.message);
+      toast.error("Failed to delete user: " + err.message);
     }
   };
 

@@ -136,30 +136,136 @@ export async function deleteUser(id: string) {
   if (result.error) return { error: result.error };
   const supabase = result.supabase!;
 
-  // 1. Prevent deleting self
   const { data: { user: currentUser } } = await supabase.auth.getUser();
-  const { data: userProfile } = await supabase
+  if (!currentUser) return { error: 'Not authenticated' };
+
+  // Fetch admin profile
+  const { data: adminProfile } = await supabase
+    .from('users')
+    .select('id, auth_id, name, email')
+    .eq('auth_id', currentUser.id)
+    .single();
+
+  if (!adminProfile) {
+    return { error: 'Admin profile not found' };
+  }
+
+  const adminId = adminProfile.id;
+
+  // 1. Prevent deleting self
+  if (id === adminId) {
+    return { error: 'You cannot delete your own account.' };
+  }
+
+  const { data: targetUser } = await supabase
     .from('users')
     .select('id, auth_id, name, email')
     .eq('id', id)
     .single();
 
-  if (userProfile?.auth_id && currentUser?.id === userProfile.auth_id) {
+  if (!targetUser) {
+    return { error: 'User not found.' };
+  }
+
+  if (targetUser.auth_id && currentUser.id === targetUser.auth_id) {
     return { error: 'You cannot delete your own account.' };
   }
 
-  // 2. Check if user owns any leads
-  const { count: leadCount } = await supabase
+  const adminClient = await createAdminClient();
+
+  // 2. Cascade reassignment of leads to the admin (authenticated supabase client so trigger has admin auth.uid)
+  const { error: leadOwnerErr } = await supabase
     .from('leads')
-    .select('*', { count: 'exact', head: true })
+    .update({ owner_id: adminId })
     .eq('owner_id', id);
 
-  if (leadCount && leadCount > 0) {
-    return { error: `Cannot delete user: They own ${leadCount} lead(s). Please reassign their leads first.` };
+  if (leadOwnerErr) {
+    console.error('Failed to reassign lead ownership:', leadOwnerErr);
+    return { error: 'Failed to reassign lead ownership: ' + leadOwnerErr.message };
   }
 
-  // 3. Delete from public.users
-  const { error: deleteErr } = await supabase
+  const { error: leadCreatorErr } = await supabase
+    .from('leads')
+    .update({ created_by: adminId })
+    .eq('created_by', id);
+
+  if (leadCreatorErr) {
+    console.error('Failed to reassign lead creator:', leadCreatorErr);
+    return { error: 'Failed to reassign lead creator: ' + leadCreatorErr.message };
+  }
+
+  // 3. Reassign reminders using adminClient
+  const { error: reminderAssignErr } = await adminClient
+    .from('reminders')
+    .update({ assigned_to: adminId })
+    .eq('assigned_to', id);
+
+  if (reminderAssignErr) {
+    console.error('Failed to reassign reminders assigned_to:', reminderAssignErr);
+    return { error: 'Failed to reassign reminders: ' + reminderAssignErr.message };
+  }
+
+  const { error: reminderCreatorErr } = await adminClient
+    .from('reminders')
+    .update({ created_by: adminId })
+    .eq('created_by', id);
+
+  if (reminderCreatorErr) {
+    console.error('Failed to reassign reminders created_by:', reminderCreatorErr);
+    return { error: 'Failed to reassign reminders: ' + reminderCreatorErr.message };
+  }
+
+  // 4. Reassign status history using adminClient
+  const { error: historyErr } = await adminClient
+    .from('lead_status_history')
+    .update({ changed_by: adminId })
+    .eq('changed_by', id);
+
+  if (historyErr) {
+    console.error('Failed to reassign status history:', historyErr);
+    return { error: 'Failed to reassign status history: ' + historyErr.message };
+  }
+
+  // 5. Reassign activities (from_owner_id, to_owner_id, created_by) using adminClient
+  // (Must execute after lead reassignment so the trigger-generated activity is also reassigned)
+  const { error: actFromErr } = await adminClient
+    .from('activities')
+    .update({ from_owner_id: adminId })
+    .eq('from_owner_id', id);
+
+  if (actFromErr) {
+    console.error('Failed to update activities from_owner_id:', actFromErr);
+    return { error: 'Failed to update activity history: ' + actFromErr.message };
+  }
+
+  const { error: actToErr } = await adminClient
+    .from('activities')
+    .update({ to_owner_id: adminId })
+    .eq('to_owner_id', id);
+
+  if (actToErr) {
+    console.error('Failed to update activities to_owner_id:', actToErr);
+    return { error: 'Failed to update activity history: ' + actToErr.message };
+  }
+
+  const { error: actCreatedErr } = await adminClient
+    .from('activities')
+    .update({ created_by: adminId })
+    .eq('created_by', id);
+
+  if (actCreatedErr) {
+    console.error('Failed to update activities created_by:', actCreatedErr);
+    return { error: 'Failed to update activity history: ' + actCreatedErr.message };
+  }
+
+  // 6. Delete saved views
+  await adminClient
+    .from('saved_views')
+    .delete()
+    .eq('user_id', id);
+
+  // 7. Delete from public.users using adminClient
+  const { error: deleteErr } = await adminClient
     .from('users')
     .delete()
     .eq('id', id);
@@ -169,11 +275,10 @@ export async function deleteUser(id: string) {
     return { error: 'Failed to delete user: ' + deleteErr.message };
   }
 
-  // 4. Delete from auth.users if linked
-  if (userProfile?.auth_id) {
+  // 8. Delete from auth.users if linked
+  if (targetUser.auth_id) {
     try {
-      const adminClient = await createAdminClient();
-      await adminClient.auth.admin.deleteUser(userProfile.auth_id);
+      await adminClient.auth.admin.deleteUser(targetUser.auth_id);
     } catch (authErr) {
       console.warn('Auth user deletion warning:', authErr);
     }
