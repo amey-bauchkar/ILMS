@@ -10,7 +10,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { updateProfile } from "@/actions/profile";
 import { getActiveEncryptionKeyAction, generateNewEncryptionKeyAction } from "@/actions/encryption-keys";
 import { toast } from "sonner";
-import { Loader2, KeyRound, Copy, Check, RefreshCw, ShieldCheck } from "lucide-react";
+import { Loader2, KeyRound, Copy, Check, RefreshCw } from "lucide-react";
 import { getInitials } from "@/lib/utils";
 
 export function ProfileSettings({ profile }: { profile: User }) {
@@ -228,11 +228,8 @@ export function ProfileSettings({ profile }: { profile: User }) {
                     <KeyRound className="w-4 h-4" />
                   </div>
                   <div>
-                    <h4 className="text-sm font-bold text-zinc-900 dark:text-white flex items-center gap-2">
-                      <span>Master Encryption Key</span>
-                      <span className="px-2 py-0.5 rounded-full bg-emerald-50 dark:bg-emerald-500/10 text-emerald-700 dark:text-emerald-400 border border-emerald-200/80 dark:border-emerald-500/20 text-[10px] font-bold">
-                        Generated on Login
-                      </span>
+                    <h4 className="text-sm font-bold text-zinc-900 dark:text-white">
+                      Master Encryption Key
                     </h4>
                     <p className="text-xs text-zinc-500 dark:text-zinc-400 mt-0.5">
                       New members must provide this key on the login page to register.
@@ -295,13 +292,6 @@ export function ProfileSettings({ profile }: { profile: User }) {
                     )}
                   </Button>
                 </div>
-              </div>
-
-              <div className="text-[11px] text-zinc-500 dark:text-zinc-400 bg-zinc-100/70 dark:bg-white/[0.03] p-2.5 rounded-xl border border-black/[0.04] dark:border-white/5 flex items-center gap-2">
-                <ShieldCheck className="w-4 h-4 text-emerald-500 shrink-0" />
-                <span>
-                  A unique key is created each time you log in. Once registered with this key, members can log in repeatedly without needing any key.
-                </span>
               </div>
             </div>
           )}
